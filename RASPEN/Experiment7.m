@@ -232,12 +232,14 @@ u1 = u0(x<=b); u1(1) = 1;
 u2 = u0(x>=a); u2(end) = -1;
 u1old = u1;
 u2old = u2;
+nonlinsolves = 30;
 while iter < itermax
     
     u1(end) = u2b;
     errorA = 1;
     iterA = iter;
-    while errorA > tol && iterA < itermax
+%     while errorA > tol && iterA < itermax
+    while iterA < iter + nonlinsolves && iterA < itermax
         iterA = iterA+1;
         
         % Step 1: solve u in first domain
@@ -259,7 +261,8 @@ while iter < itermax
         
     errorB = 1;
     iterB = iter;
-    while errorB > tol && iterB < itermax
+%     while errorB > tol && iterB < itermax
+    while iterB < iter + nonlinsolves && iterB < itermax
         iterB = iterB+1;
         
         % Step 2: solve u in second domain
@@ -297,6 +300,7 @@ while iter < itermax
 end
 
 % Preconditioning with Newton (bc. then u)
+error2_g = zeros(4*itermax,1);
 u2b = -b;
 u2bold = -b;
 u1 = u0(x<=b); u1(1) = 1;
@@ -304,7 +308,7 @@ u2 = u0(x>=a); u2(end) = -1;
 u1old = u1;
 u2old = u2;
 uold = u0;
-for iter = 1:itermax
+for iter = 1:4*itermax
         
     u1 = u1old;
     u1(end) = u2b;
@@ -337,11 +341,12 @@ for iter = 1:itermax
     error2_g(iter) = abs(u2b - u2bold);
     u2bold = u2b;
 
-    if error2_g(iter) < tol
+%     if error2_g(iter) < tol
+    if mod(iter,4)==0
 
         u = [ u1(x1<a) ; 0.5*u1(x1>=a) + 0.5*u2(x2<=b) ; u2(x2>b) ];
 
-        error2_u(iter) = norm(u - uold);
+        error2_u(iter/4) = norm(u - uold);
         u1old = u1;
         u2old = u2;
         uold = u;
@@ -357,7 +362,7 @@ ylabel('2-norm of change in u')
 legend('AS','ASPN','PNAS')
 
 subplot(1,2,2)
-semilogy(1:(itermax+1),error0_g,'b*--',1:(itermax+1),error1_g,'r*--',1:(itermax+1),error2_g,'k*--')
+semilogy(1:(itermax+1),error0_g,'b*--',1:(itermax+1),error1_g,'r*--',1:itermax,error2_g(1:4:end),'k*--')
 xlabel('Iteration')
 ylabel('Change in u_2(\beta)')
 legend('AS','ASPN','PNAS')

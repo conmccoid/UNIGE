@@ -25,11 +25,11 @@ D2 = spdiags(D2,[0,1,2],l2-2,l2);
 D2 = [I2(1,:) ; e*D2 ; I2(end,:) ];
 
 d1 = ones(l1-2,1);
-d1 = (nx-1)/2 * [ d1, zeros(l1-2,1), -d1 ];
+d1 = (nx-1)/2 * [ -d1, zeros(l1-2,1), d1 ];
 d1 = spdiags(d1,[0,1,2],l1-2,l1);
 d1 = [ zeros(1,l1) ; d1 ; zeros(1,l1) ];
 d2 = ones(l2-2,1);
-d2 = (nx-1)/2 * [ d2, zeros(l2-2,1), -d2 ];
+d2 = (nx-1)/2 * [ -d2, zeros(l2-2,1), d2 ];
 d2 = spdiags(d2,[0,1,2],l2-2,l2);
 d2 = [ zeros(1,l2) ; d2 ; zeros(1,l2) ];
 
@@ -48,7 +48,7 @@ k = 0;
 tol = 1e-8;
 itermax = 100;
 itersave = zeros(101,1);
-testu2 = linspace(0,-0.5,101);
+testu2 = linspace(-1,1,101);
 for u2b0 = testu2
     u2b    = u2b0;
     u2bold = u2b0;
@@ -101,16 +101,12 @@ for u2b0 = testu2
 
         % New preconditioning, for Newton instead of fixed point as
         % nonlinear solver
-        g = (e*(nx-1)^2 + (2*U1 - u1(end-1))*(nx-1)/2) * ( (u2(2) - U2)*(nx-1)/2 - e*(nx-1)^2 ) * S1 * S2;
-        u2b = u2bold - (u2b - u2bold)/(g - 1);
+%         g = (e*(nx-1)^2 + (2*U1 - u1(end-1))*(nx-1)/2) * ( (u2(2) - U2)*(nx-1)/2 - e*(nx-1)^2 ) * S1 * S2;
+%         u2b = u2bold - (u2b - u2bold)/(g - 1);
 
         error = abs(u2b - u2bold);
         u2bold= u2b;
         iter  = iter+1;
-        
-%         plot(x1,u1,x2,u2)
-%         axis([-1,1,-1,1])
-%         pause(eps)
         
     end
     
@@ -119,6 +115,11 @@ for u2b0 = testu2
     else
         itersave(k) = NaN;
     end
+    
+    plot(x1,u1,x2,u2)
+    axis([-1,1,-1,1])
+    pause(eps)
+        
 end
 
 plot(testu2,itersave)
@@ -156,11 +157,11 @@ D2 = spdiags(D2,[0,1,2],l2-2,l2);
 D2 = [I2(1,:) ; e*D2 ; I2(end,:) ];
 
 d1 = ones(l1-2,1);
-d1 = (nx-1)/2 * [ d1, zeros(l1-2,1), -d1 ];
+d1 = (nx-1)/2 * [ -d1, zeros(l1-2,1), d1 ];
 d1 = spdiags(d1,[0,1,2],l1-2,l1);
 d1 = [ zeros(1,l1) ; d1 ; zeros(1,l1) ];
 d2 = ones(l2-2,1);
-d2 = (nx-1)/2 * [ d2, zeros(l2-2,1), -d2 ];
+d2 = (nx-1)/2 * [ -d2, zeros(l2-2,1), d2 ];
 d2 = spdiags(d2,[0,1,2],l2-2,l2);
 d2 = [ zeros(1,l2) ; d2 ; zeros(1,l2) ];
 

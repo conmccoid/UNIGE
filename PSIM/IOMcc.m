@@ -25,7 +25,18 @@ if m~=length(v)
     disp('Error: dimension mismatch between P and v')
 end
 
-y = roots(P);                   % calculates the characteristics(?) of the operator (column vector)
+%---Roots and their multiplicities---%
+y = sort(roots(P));                   % calculates the characteristics(?) of the operator (column vector)
+Y = y(1);
+M = length(y==Y);
+y = y(y~=Y);
+while isempty(y)~=1
+    newy = y(1);
+    Y = [ Y ; newy ];
+    M = [ M ; length(y==newy) ];
+    y = y(y~=newy);
+end
+
 Y = bsxfun(@power,y',(0:m-1)');
 
 w = zeros(m,1);

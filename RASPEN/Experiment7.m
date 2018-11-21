@@ -356,13 +356,15 @@ for iter = 1:4*itermax
 end
 
 subplot(1,2,1)
-semilogy(1:(itermax+1),error0_u,'b*--',1:(itermax+1),error1_u,'r*--',1:(itermax+1),error2_u,'k*--')
+semilogy(1:(itermax+1),error0_u,'b*--',1:(itermax+1),error1_u,'ro--',1:(itermax+1),error2_u,'k.--')
+axis([0, 200, 1e-18, 1])
 xlabel('Iteration')
 ylabel('2-norm of change in u')
 legend('AS','ASPN','PNAS')
 
 subplot(1,2,2)
-semilogy(1:(itermax+1),error0_g,'b*--',1:(itermax+1),error1_g,'r*--',1:itermax,error2_g(1:4:end),'k*--')
+semilogy(1:(itermax+1),error0_g,'b*--',1:(itermax+1),error1_g,'ro--',1:itermax,error2_g(1:4:end),'k.--')
+axis([0, 200, 1e-18, 1])
 xlabel('Iteration')
 ylabel('Change in u_2(\beta)')
 legend('AS','ASPN','PNAS')

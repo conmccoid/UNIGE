@@ -45,3 +45,214 @@ for k = 1:length(y)
 end
 
 plot(y,save,'b*--')
+
+%% Implementing test
+
+% Problem parameters
+C = 20;
+
+% Grid
+nx = 1001;
+a  = -0.2;
+b  = 0.2;
+x  = linspace(-1,1,nx)';
+dx = 1./abs(x(2) - x(1));
+x1 = x(x<=b); b = x1(end);
+x2 = x(x>=a); a = x2(1);
+l1 = length(x1); l2 = length(x2);
+
+% Diff. mat.
+X1 = [ [x1(2:end) ; 0], x1, [0 ; x1(1:end-1)] ];
+X2 = [ [x2(2:end) ; 0], x2, [0 ; x2(1:end-1)] ];
+
+I1 = eye(l1);
+D1 = ones(l1,1);
+D1 = dx^2 * [ D1, -2*D1, D1 ];% - dx/2 * [ -D1, zeros(l1,1), D1 ].*X1;
+D1 = spdiags(D1,[-1,0,1],l1,l1);% + spdiags(ones(l1,1),0,l1,l1);
+I2 = eye(l2);
+D2 = ones(l2,1);
+D2 = dx^2 * [ D2, -2*D2, D2 ];% - dx/2 * [ -D2, zeros(l2,1), D2 ].*X2;
+D2 = spdiags(D2,[-1,0,1],l2,l2);% + spdiags(ones(l2,1),0,l2,l2);
+
+% Initialization
+k = 0;
+tol = 1e-8;
+itermax = 100;
+G = zeros(1,101);
+Gp= G;
+itersave = G;
+testu2 = linspace(-10,10,101);
+% testu2=0.03;
+nonlinsolves = 50;
+for u2b0 = testu2
+% u2b0 = 0;
+    u2b    = u2b0;
+    u2bold = u2b0;
+    k      = k+1;
+    error  = 1;
+    iter   = 1;
+    u1 = 0*ones(size(x1)); u1(1)  = 0;
+    u2 = 0*ones(size(x2)); u2(end)= 0;
+    while error > tol && iter < itermax
+
+        % Step 1: solve u in first domain
+        u1(end) = u2b;
+        for i = 1:nonlinsolves
+            J1 = D1 - spdiags(C*cos(C*u1),0,l1,l1);
+            F1 = D1(2:end-1,:)*u1 - sin(C*u1(2:end-1));
+            u1(2:end-1) = u1(2:end-1) - J1(2:end-1,2:end-1) \ F1;
+        end
+        u1a = u1(x1==a);
+
+        % Step 2: solve u in second domain
+        u2(1) = u1a;
+        for i = 1:nonlinsolves
+            J2 = D2 - spdiags(C*cos(C*u2),0,l2,l2);
+            F2 = D2(2:end-1,:)*u2 - sin(C*u2(2:end-1));
+            u2(2:end-1) = u2(2:end-1) - J2(2:end-1,2:end-1) \ F2;
+        end
+        u2b = u2(x2==b);
+        
+        if iter==1
+            G(k) = u2b;
+        end
+
+        % Preconditioning with Newton
+        % Step 3: solve g in first domain
+        dF1= D1 - spdiags(C*cos(C*u1),0,l1,l1);
+        g1 = dF1(2:end-1,2:end-1) \ ( -dF1(2:end-1,end) );
+        g1 = [0 ; g1 ; 1];
+        g1a= g1(x1==a);
+
+        % Step 4: solve g in second domain
+        dF2= D2 - spdiags(C*cos(C*u2),0,l2,l2);
+        g2 = dF2(2:end-1,2:end-1) \ ( -g1a*dF2(2:end-1,1) );
+        g2 = [g1a ; g2 ; 0];
+        g2b= g2(x2==b);
+        
+        if iter==1
+            Gp(k) = g2b;
+        end
+
+        % Step 5: update u2b
+        u2b = u2bold - (u2b - u2bold)/(g2b - 1);
+
+        error = abs(u2b - u2bold);
+        u2bold= u2b;
+        iter  = iter+1;
+        
+%         if iter==2
+% %         if error < tol
+%             subplot(1,2,1)
+%             plot(x1,g1,x2,g2)
+%             axis([-1,1,-3,3])
+%             subplot(1,2,2)
+%             plot(x1,u1,x2,u2)
+% %             axis([-1,1,-3,3])
+%             pause(0.1)
+%         end
+        
+    end
+    
+    if iter < itermax && error < tol
+        itersave(k) = iter;
+    else
+        itersave(k) = NaN;
+    end
+    
+    plot(x1,u1,x2,u2)
+    axis([-1,1,-10,10])
+    title(num2str(G(k)))
+    pause(0.01)
+        
+end
+
+figure(1)
+plot(testu2,itersave)
+xlabel('\gamma')
+ylabel('Number of iterations to convergence')
+title('Newton precond. on transmission condition')
+
+figure(2)
+plot(testu2,G,'r',testu2,Gp,'b',testu2,G-testu2,'k',testu2,testu2,'g')
+xlabel('\gamma')
+ylabel('G(\gamma)')
+legend('G(\gamma)','G''(\gamma)','G(\gamma)-\gamma')
+
+%% Mapping out the function G(x,y)
+
+% Problem parameters
+e = 0.30;
+
+% Grid
+nx = 1001;
+a  = -0.2;
+b  = 0.2;
+x  = linspace(-1,1,nx)';
+dx = 1./abs(x(2) - x(1));
+x1 = x(x<=b); b = x1(end);
+l1 = length(x1);
+
+% Diff. mat.
+X1 = [ [x1(2:end) ; 0], x1, [0 ; x1(1:end-1)] ];
+
+I1 = eye(l1);
+D1 = ones(l1,1);
+D1 = dx^2 * [ D1, -2*D1, D1 ];% - dx/2 * [ -D1, zeros(l1,1), D1 ].*X1;
+D1 = spdiags(D1,[-1,0,1],l1,l1);% + spdiags(ones(l1,1),0,l1,l1);
+
+% Initialization
+k = 0;
+tol = 1e-8;
+itermax = 100;
+G = zeros(l1,101);
+Gp= G;
+itersave = G;
+testu2 = linspace(-5,5,101);
+nonlinsolves = 1000;
+for u2b0 = testu2
+% u2b0 = 0;
+    u2b    = u2b0;
+    u2bold = u2b0;
+    k      = k+1;
+    error  = 1;
+    iter   = 1;
+    u1 = 0*ones(size(x1)); u1(1)  = -2;
+
+        % Step 1: solve u in first domain
+        u1(end) = u2b;
+        for i = 1:nonlinsolves
+            J1 = D1 - spdiags(u1.^3/3 - u1,0,l1,l1);
+            F1 = D1(2:end-1,:)*u1 - u1(2:end-1).^4/12 + u1(2:end-1).^2/2;
+            u1(2:end-1) = u1(2:end-1) - J1(2:end-1,2:end-1) \ F1;
+        end
+        
+        G(:,k) = u1;
+        
+        % Preconditioning with Newton
+        % Step 3: solve g in first domain
+        dF1= D1 - spdiags(u1.^3/3 - u1,0,l1,l1);
+        g1 = dF1(2:end-1,2:end-1) \ ( -dF1(2:end-1,end) );
+        g1 = [0 ; g1 ; 1];
+        g1a= g1(x1==a);
+        
+        Gp(:,k) = g1;
+        
+end
+
+figure(1)
+contour(testu2,x1,G-testu2,[0 0])
+ylabel('x')
+xlabel('\gamma')
+
+figure(2)
+plot(testu2,G(1:100:end,:))
+axis([-7,7,-7,7])
+xlabel('\gamma')
+ylabel('G(\gamma)')
+
+figure(3)
+surf(testu2,x1,G)
+
+figure(4)
+contour(testu2,x1,Gp,[1,1])

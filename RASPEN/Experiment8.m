@@ -49,7 +49,7 @@ plot(y,save,'b*--')
 %% Implementing test
 
 % Problem parameters
-C = 20;
+C = 15;
 
 % Grid
 nx = 1001;
@@ -80,8 +80,9 @@ tol = 1e-8;
 itermax = 100;
 G = zeros(1,101);
 Gp= G;
-itersave = G;
-testu2 = linspace(-10,10,101);
+itersaveNewton = G;
+itersaveReg = G;
+testu2 = linspace(-1,1,101);
 % testu2=0.03;
 nonlinsolves = 50;
 for u2b0 = testu2
@@ -155,20 +156,64 @@ for u2b0 = testu2
     end
     
     if iter < itermax && error < tol
-        itersave(k) = iter;
+        itersaveNewton(k) = iter;
     else
-        itersave(k) = NaN;
+        itersaveNewton(k) = NaN;
     end
     
-    plot(x1,u1,x2,u2)
-    axis([-1,1,-10,10])
-    title(num2str(G(k)))
-    pause(0.01)
+%     plot(x1,u1,x2,u2)
+%     axis([-1,1,-10,10])
+%     title(num2str(G(k)))
+%     pause(0.01)
+        
+end
+
+k=0;
+for u2b0 = testu2
+% u2b0 = 0;
+    u2b    = u2b0;
+    u2bold = u2b0;
+    k      = k+1;
+    error  = 1;
+    iter   = 1;
+    u1 = 0*ones(size(x1)); u1(1)  = 0;
+    u2 = 0*ones(size(x2)); u2(end)= 0;
+    while error > tol && iter < itermax
+
+        % Step 1: solve u in first domain
+        u1(end) = u2b;
+        for i = 1:nonlinsolves
+            J1 = D1 - spdiags(C*cos(C*u1),0,l1,l1);
+            F1 = D1(2:end-1,:)*u1 - sin(C*u1(2:end-1));
+            u1(2:end-1) = u1(2:end-1) - J1(2:end-1,2:end-1) \ F1;
+        end
+        u1a = u1(x1==a);
+
+        % Step 2: solve u in second domain
+        u2(1) = u1a;
+        for i = 1:nonlinsolves
+            J2 = D2 - spdiags(C*cos(C*u2),0,l2,l2);
+            F2 = D2(2:end-1,:)*u2 - sin(C*u2(2:end-1));
+            u2(2:end-1) = u2(2:end-1) - J2(2:end-1,2:end-1) \ F2;
+        end
+        u2b = u2(x2==b);
+
+        error = abs(u2b - u2bold);
+        u2bold= u2b;
+        iter  = iter+1;
+        
+    end
+    
+    if iter < itermax && error < tol
+        itersaveReg(k) = iter;
+    else
+        itersaveReg(k) = NaN;
+    end
         
 end
 
 figure(1)
-plot(testu2,itersave)
+plot(testu2,itersaveReg,'b',testu2,itersaveNewton,'r')
 xlabel('\gamma')
 ylabel('Number of iterations to convergence')
 title('Newton precond. on transmission condition')
@@ -177,7 +222,7 @@ figure(2)
 plot(testu2,G,'r',testu2,Gp,'b',testu2,G-testu2,'k',testu2,testu2,'g')
 xlabel('\gamma')
 ylabel('G(\gamma)')
-legend('G(\gamma)','G''(\gamma)','G(\gamma)-\gamma')
+legend('G(\gamma)','G''(\gamma)','G(\gamma)-\gamma','\gamma')
 
 %% Mapping out the function G(x,y)
 
@@ -207,7 +252,7 @@ tol = 1e-8;
 itermax = 100;
 G = zeros(l1,101);
 Gp= G;
-itersave = G;
+itersaveNewton = G;
 testu2 = linspace(-5,5,101);
 nonlinsolves = 1000;
 for u2b0 = testu2

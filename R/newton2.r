@@ -13,4 +13,4 @@ fp= function(x){return(3*x^2 - 8*x)}
 
 fpp = function(x){return(6*x - 8)}
 
-print(newton(1,1e-8,fp,fpp))
+print(fp(newton(1,1e-8,fp,fpp)))

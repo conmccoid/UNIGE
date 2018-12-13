@@ -12,3 +12,5 @@ f = function(x){return(x^3 - 4*x^2 - 1)}
 fp= function(x){return(3*x^2 - 8*x)}
 
 fpp = function(x){return(6*x - 8)}
+
+print(newton(1,1e-8,fp,fpp))

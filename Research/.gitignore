@@ -1,0 +1,16 @@
+#.gitignore
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.synctex.gz
+*.log
+*.run.xml
+*.toc
+*-blx.bib
+*.bib.bak
+*.ps
+*.tdo
+*.tof
+*.out

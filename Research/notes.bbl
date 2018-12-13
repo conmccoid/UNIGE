@@ -1,0 +1,50 @@
+\begin{thebibliography}{1}
+
+\bibitem{abbott1975fast}
+James~P Abbott and Richard~P Brent.
+\newblock Fast local convergence with single and multistep methods for
+  nonlinear equations.
+\newblock {\em The ANZIAM Journal}, 19(2):173--199, 1975.
+
+\bibitem{branin1972widely}
+Franklin~H Branin.
+\newblock Widely convergent method for finding multiple solutions of
+  simultaneous nonlinear equations.
+\newblock {\em IBM Journal of Research and Development}, 16(5):504--522, 1972.
+
+\bibitem{brent1972davidenko}
+RP~Brent.
+\newblock On the davidenko-branin method for solving simultaneous nonlinear
+  equations.
+\newblock {\em IBM Journal of Research and Development}, 16(4):434--436, 1972.
+
+\bibitem{davidenko1953new}
+DF~Davidenko.
+\newblock On a new method of numerical solution of systems of nonlinear
+  equations.
+\newblock In {\em Dokl. Akad. Nauk SSSR}, volume~88, pages 601--602, 1953.
+
+\bibitem{galanov1968realization}
+BA~Galanov and SN~Malakhovskaya.
+\newblock Realization of a variation of the relaxation method.
+\newblock {\em Ukrainian Mathematical Journal}, 20(5):503--508, 1968.
+
+\bibitem{Gavurin1958}
+Mark~Konstantinovich Gavurin.
+\newblock Nonlinear functional equations and continuous analogues of iteration
+  methods.
+\newblock {\em Izvestiya Vysshikh Uchebnykh Zavedenii. Matematika}, (5):18--31,
+  1958.
+
+\bibitem{hauser2005continuous}
+Raphael Hauser and Jelena Nedic.
+\newblock The continuous newton--raphson method can look ahead.
+\newblock {\em SIAM Journal on Optimization}, 15(3):915--925, 2005.
+
+\bibitem{saupe1988discrete}
+Dietmar Saupe.
+\newblock Discrete versus continuous newton’s method: a case study.
+\newblock In {\em Newton’s Method and Dynamical Systems}, pages 59--80.
+  Springer, 1988.
+
+\end{thebibliography}

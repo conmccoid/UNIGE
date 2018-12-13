@@ -1,0 +1,24 @@
+\BOOKMARK [0][-]{chapter.1}{Preconditioning Newton's method}{}% 1
+\BOOKMARK [1][-]{section.1.1}{Experiments}{chapter.1}% 2
+\BOOKMARK [2][-]{subsection.1.1.1}{Experiment 1}{section.1.1}% 3
+\BOOKMARK [2][-]{subsection.1.1.2}{Experiment 2}{section.1.1}% 4
+\BOOKMARK [2][-]{subsection.1.1.3}{Experiment 3}{section.1.1}% 5
+\BOOKMARK [1][-]{section.1.2}{Ideal preconditioning}{chapter.1}% 6
+\BOOKMARK [1][-]{section.1.3}{Newton's method as fixed point iteration}{chapter.1}% 7
+\BOOKMARK [2][-]{subsection.1.3.1}{Fixed point iterations}{section.1.3}% 8
+\BOOKMARK [2][-]{subsection.1.3.2}{Preconditioned Newton}{section.1.3}% 9
+\BOOKMARK [0][-]{chapter.2}{Newton's method as a time dependent PDE}{}% 10
+\BOOKMARK [1][-]{section.2.1}{Early experiments}{chapter.2}% 11
+\BOOKMARK [1][-]{section.2.2}{Pathing Methods}{chapter.2}% 12
+\BOOKMARK [1][-]{section.2.3}{Literature review}{chapter.2}% 13
+\BOOKMARK [2][-]{subsection.2.3.1}{Some other papers of note}{section.2.3}% 14
+\BOOKMARK [2][-]{subsection.2.3.2}{1D test of the Davidenko-Branin method}{section.2.3}% 15
+\BOOKMARK [0][-]{chapter.3}{Schwarz methods as fixed point iterations}{}% 16
+\BOOKMARK [1][-]{section.3.1}{Breaking the algorithms}{chapter.3}% 17
+\BOOKMARK [0][-]{chapter.4}{Continuing thesis work}{}% 18
+\BOOKMARK [1][-]{section.4.1}{Inverse operators}{chapter.4}% 19
+\BOOKMARK [2][-]{subsection.4.1.1}{Construction of the inverse operator}{section.4.1}% 20
+\BOOKMARK [2][-]{subsection.4.1.2}{The Wronskian}{section.4.1}% 21
+\BOOKMARK [1][-]{section.4.2}{Wronskians}{chapter.4}% 22
+\BOOKMARK [2][-]{subsection.4.2.1}{Example}{section.4.2}% 23
+\BOOKMARK [1][-]{section.4.3}{Algorithm for IOM for constant coefficients}{chapter.4}% 24

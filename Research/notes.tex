@@ -62,9 +62,9 @@ Known as the Lambert W function, the roots of this function are well known and c
 The function has an infinite number of branches.
 
 We compare using Newton's method on $f(x)$ with using Newton's method on the rearranged fixed point iteration
-\begin{equation}
+\begin{equation*}
 g(x) = \log(x) + x - i k 2 \pi ,
-\end{equation}
+\end{equation*}
 where $k$ represents the branch of the function sought.
 We make the following notes on their differences:
 \begin{itemize}
@@ -549,54 +549,99 @@ Introducing a sign change in the method will correct this.
 
 \chapter{Schwarz methods as fixed point iterations}
 
-Consider the alternating Schwarz method
-\begin{equation*}
-\begin{cases} \mathcal{L}_1 u_1^n = f(u_1^n) & x \in (0,\beta) \\
-u_1^n(0) = 0 & \\ u_1^n(\beta) = u_2^{n-1}(\beta) \end{cases}, \quad
-\begin{cases} \mathcal{L}_2 u_2^n = f(u_2^n) & x \in (\alpha,1) \\
-u_2^n(1) = 1 & \\ u_2^n(\alpha) = u_1^n(\alpha). \end{cases}
-\end{equation*}
+Consider the alternating Schwarz method for a general second order nonlinear differential equation:
+\begin{equation} \label{eq:AS}
+\begin{cases} F(x,u_1^n,(u_1^n)',(u_1^n)'') = 0 & x \in [a,\beta] \\
+u^n_1(a) = A \\
+u^n_1(\beta) = u_2^{n-1}(\beta) \\
+\end{cases}
+\begin{cases} F(x,u^n_2,(u^n_2)',(u^n_2)'') = 0 & x \in [\alpha,b] \\
+u^n_2(\alpha) = u^n_1(\alpha) \\
+u^n_2(b) = B . \\
+\end{cases}
+\end{equation}
+%
+%Consider the alternating Schwarz method
+%\begin{equation*}
+%\begin{cases} \mathcal{L}_1 u_1^n = f(u_1^n) & x \in (0,\beta) \\
+%u_1^n(0) = 0 & \\ u_1^n(\beta) = u_2^{n-1}(\beta) \end{cases}, \quad
+%\begin{cases} \mathcal{L}_2 u_2^n = f(u_2^n) & x \in (\alpha,1) \\
+%u_2^n(1) = 1 & \\ u_2^n(\alpha) = u_1^n(\alpha). \end{cases}
+%\end{equation*}
 We can think of the operation to solve for $u_1^n$ as a function $G_1: \mathbb{R} \rightarrow \mathbb{R}$ such that $G_1(u_2^{n-1}(\beta)) = u_1^n(\alpha)$.
 Likewise, $G_2(u_1^n(\alpha)) = u_2^n(\beta)$ and $G_2(G_1(\gamma)) = \gamma$ is a fixed point iteration.
 
-Let $G(\gamma) = G_2 \circ G_1$.
-We need to set conditions on $\dxdy{G}{\gamma}$:
+Let $G(\gamma) = G_2 \circ G_1(\gamma)$, where $\gamma$ replaces $u^{n-1}_2(\beta)$ in equation (\ref{eq:AS}).
+We will consider a single iteration and therefore drop the superscripts in the notation.
+To establish how the solution of an ODE at a given point depends on the value of its endpoint, one can differentiate the ODE with respect to the endpoint:
 \begin{align*}
-\dxdy{G}{\gamma} & = \pdxdy{G_2}{G_1} \dxdy{G_1}{\gamma} \\
-& = g_2(\beta; g_1(\alpha))
+\begin{cases} \pdxdy{F}{u} \dxdy{u_1}{\gamma} + \pdxdy{F}{u'} \dxdy{u_1'}{\gamma} + \pdxdy{F}{u''} \dxdy{u_1''}{\gamma} = 0 & x \in [a,\beta] \\
+\dxdy{u_1(a)}{\gamma} = 0 \\
+\dxdy{u_1(\beta)}{\gamma} = 1. \end{cases}
 \end{align*}
-where $g_1(x)$ solves
+Let $g_1(x) = \dxdy{u_1}{\gamma}$, then the ODE above may be written as:
 \begin{equation*}
-\begin{cases} \left ( \mathcal{L}_1 - \pdxdy{f}{u} \right ) g_1(x) = 0 \\
-g_1(0) = 0 \\ g_1(\beta) = 1 \end{cases}
+\begin{cases} J(u_1,u_1',u_1'') \cdot (g_1, g_1', g_1'') = 0 & x \in [a,\beta] \\ g_1(a) = 0 \\ g_1(\beta) = 1, \end{cases}
 \end{equation*}
-and $g_2(x; \nu)$ solves
+where $J(u,u',u'')$ is the Jacobian of $F(x,u,u',u'')$:
+\begin{equation} \label{eq:Jacobian}
+J(u,u',u'') = \left ( \pdxdy{F}{u}, \pdxdy{F}{u'}, \pdxdy{F}{u''} \right ) .
+\end{equation}
+Then $\dxdy{u_1(\alpha)}{\gamma} = g_1(\alpha)$.
+Likewise, if $g_2(x) = \dxdy{u_2}{\gamma}$ then
 \begin{equation*}
-\begin{cases} \left ( \mathcal{L}_2 - \pdxdy{f}{u} \right ) g_2(x; \nu) = 0 \\
-g_2(1; \nu) = 0 \\ g_2(\alpha; \nu) = \nu. \end{cases}
+\begin{cases} J(u_2,u_2',u_2'') \cdot (g_2, g_2', g_2'') = 0 & x \in [\alpha,b] \\
+g_2(\alpha) = \dxdy{u_1(\alpha)}{\gamma} = g_1(\alpha) \\ g_2(b) = 0 . \end{cases}
 \end{equation*}
-This is arrived at by taking the derivatives of the original iterations with respect to $\gamma$.
+Therefore, $G'(\gamma) = G_2'(G_1(\gamma)) G_1'(\gamma) = g_2(\beta)$.
+\begin{align*}
+G'(\gamma) = \dxdy{u_2(\beta)}{\gamma} = \pdxdy{u_2(\beta)}{u_1(\alpha)} \dxdy{u_1(\alpha)}{\gamma} .
+\end{align*}
 
-Note that $G(\gamma)$ is linear in $\gamma$ as long as $\pdxdy{f}{u}$ does not depend on $u$.
-Since $g_1$ and $g_2$ do not depend on $\gamma$ the second derivative of $G$ with respect to $\gamma$ is zero.
-Therefore, we should expect Newton to converge in a single step if we apply it to $G(\gamma)$.
+%We need to set conditions on $\dxdy{G}{\gamma}$:
+%\begin{align*}
+%\dxdy{G}{\gamma} & = \pdxdy{G_2}{G_1} \dxdy{G_1}{\gamma} \\
+%& = g_2(\beta; g_1(\alpha))
+%\end{align*}
+%where $g_1(x)$ solves
+%\begin{equation*}
+%\begin{cases} \left ( \mathcal{L}_1 - \pdxdy{f}{u} \right ) g_1(x) = 0 \\
+%g_1(0) = 0 \\ g_1(\beta) = 1 \end{cases}
+%\end{equation*}
+%and $g_2(x; \nu)$ solves
+%\begin{equation*}
+%\begin{cases} \left ( \mathcal{L}_2 - \pdxdy{f}{u} \right ) g_2(x; \nu) = 0 \\
+%g_2(1; \nu) = 0 \\ g_2(\alpha; \nu) = \nu. \end{cases}
+%\end{equation*}
+%This is arrived at by taking the derivatives of the original iterations with respect to $\gamma$.
 
+Note if $F(x,u,u',u'')$ is linear in $u$, $u'$ and $u''$ then $u$ depends linearly on the boundary conditions.
+This is reflected in $g_1$ and $g_2$ as neither depend on $\gamma$ so long as $J(u,u',u'')$ is not explicit in its inputs.
+Thus, $G''(\gamma) = 0$ for linear problems.
+
+% rewrite this paragraph and include proofs/theorems/lemmas of its conjectures
 For $G(\gamma)$ nonlinear it is possible to establish that it is a convergent fixed point if the operator $\mathcal{L} - \pdxdy{f}{u}$ satisfies a maximum principle.
 Then $g_1$ and $g_2$ attain their maximum values on the boundary and so $\abs{g_2(\beta;g_1(\alpha))} \leq \abs{g_1(\alpha)} \leq 1$.
 We need to show that $G$ is a contraction mapping.
 It would suffice that $\mathcal{L}$ also satisfies a maximum principle, then $G:[0,1] \rightarrow [0,1]$.
 
 Applying Newton's method to $G(\gamma)$ gives the following algorithm:
-\begin{align*}
-(1) & \begin{cases} \mathcal{L}_1 u_1 = f(u_1) \\ u_1(0) = 0 \\ u_1(\beta) = \gamma_n \end{cases} \\
-(2) & \begin{cases} \mathcal{L}_2 u_2 = f(u_2) \\ u_2(1) = 1 \\ u_2(\alpha) = u_1(\alpha) \end{cases} \\
-(3) & \begin{cases} \left ( \mathcal{L}_1 - \pdxdy{f(u_1)}{u} \right ) g_1 = 0 \\
-g_1(0) = 0 \\ g_1(\beta) = 1 \end{cases} \\
-(4) & \begin{cases} \left ( \mathcal{L}_2 - \pdxdy{f(u_2)}{u} \right ) g_2 = 0 \\
-g_2(1) = 0 \\ g_2(\alpha) = g_1(\alpha) \end{cases} \\
-(5) & \gamma_{n+1} = \gamma_n - \frac{ u_2(\beta) - \gamma_n }{g_2(\beta) - 1} = \frac{ g_2(\beta) \gamma_n - u_2(\beta)}{g_2(\beta) - 1} .
-\end{align*}
+\begin{equation}
+\begin{aligned} \label{alg:ASPN}
+(1) & \begin{cases} F(x,u_1,u_1',u_1'') = 0 \\ u_1(a) = A \\ u_1(\beta) = \gamma_n \end{cases} &
+(2) & \begin{cases} F(x,u_2,u_2',u_2'') = 0 \\ u_2(\alpha) = u_1(\alpha) \\ u_2(b) = B \end{cases} \\
+(3) & \begin{cases} J(u_1,u_1',u_1'') \cdot (g_1,g_1',g_1'') = 0 \\ g_1(a) = 0 \\ g_1(\beta) = 1 \end{cases} &
+(4) & \begin{cases} J(u_2,u_2',u_2'') \cdot (g_2,g_2',g_2'') = 0 \\ g_2(\alpha) = g_1(\alpha) \\ g_2(b) = 0 \end{cases} \\
+(5) & \gamma_{n+1} = \gamma_n - \frac{ u_2(\beta) - \gamma_n }{g_2(\beta) - 1}. & &
+\end{aligned}
+\end{equation}
 Steps $(2)$ and $(3)$ can be performed simultaneously.
+Since step $(4)$ is a linear ODE it does not necessarily require step $(3)$ as one can solve instead
+\begin{equation*}
+(4*) \begin{cases} J(u_2,u_2',u_2'') \cdot (g_3,\textit{g}_3',\textit{g}_3'') = 0 \\
+g_3(\alpha) = 1 \\ g_3(b) = 0 \end{cases}
+\end{equation*}
+and use $G'(\gamma) = g_1(\alpha) g_3(\beta)$ in place of $g_2(\beta)$ in step $(5)$.
 
 Early experiments show that by adding steps 3 through 5 (straightforward linear solves) we increase convergence from linear to quadratic (see figure \ref{fig:ASPN01}).
 
@@ -608,34 +653,23 @@ Early experiments show that by adding steps 3 through 5 (straightforward linear 
 \end{figure}
 
 We now look to apply this algorithm to more complicated examples.
-Suppose the nonlinear function on the right-hand side is also dependent on $u'$, such as in viscous Burgers:
+Suppose the nonlinear function on the right-hand side is also dependent on $u'$, such as in steady viscous Burgers:
 \begin{equation*}
 \begin{cases} \epsilon u''(x) & = u u' \\
 u(-1) & = 1 \\
 u(1) & = -1 . \end{cases}
 \end{equation*}
-Then changes must be made to the algorithm:
-\begin{align*}
-(1) & \begin{cases} \mathcal{L}_1 u_1 = f(u_1,u'_1) \\ u_1(0) = 0 \\ u_1(\beta) = \gamma_n \end{cases} \\
-(2) & \begin{cases} \mathcal{L}_2 u_2 = f(u_2,u_2') \\ u_2(1) = 1 \\ u_2(\alpha) = u_1(\alpha) \end{cases} \\
-(3) & \begin{cases} -\pdxdy{f(u_1,u_1')}{u'} g_1' + \left ( \mathcal{L}_1 - \pdxdy{f(u_1,u_1')}{u} \right ) g_1 = 0 \\
-g_1(0) = 0 \\ g_1(\beta) = 1 \end{cases} \\
-(4) & \begin{cases} -\pdxdy{f(u_2,u_2')}{u'} g_2' + \left ( \mathcal{L}_2 - \pdxdy{f(u_2,u_2')}{u} \right ) g_2 = 0 \\
-g_2(1) = 0 \\ g_2(\alpha) = g_1(\alpha) \end{cases} \\
-(5) & \gamma_{n+1} = \gamma_n - \frac{ u_2(\beta) - \gamma_n }{g_2(\beta) - 1} = \frac{ g_2(\beta) \gamma_n - u_2(\beta)}{g_2(\beta) - 1} .
-\end{align*}
-
-Applying this algorithm to steady viscous Burgers (see above) we arrive at a nearly identical picture of the convergence rate as figure \ref{fig:ASPN01}.
+Applying the algorithm we arrive at a nearly identical picture of the convergence rate as figure \ref{fig:ASPN01}.
 This improvement holds for $\epsilon$ as low as $0.1$.
-For smaller $\epsilon$ there is trouble finding solutions for steps (1) and (2).
+For smaller $\epsilon$ there is trouble finding solutions for steps $(1)$ and $(2)$.
 A better nonlinear solver may be required.
 
 Suppose one were to solve the steady viscous Burgers equation iteratively using Newton's method and domain decomposition.
 This would give the following alternating Schwarz method:
 \begin{align*}
-(1) & u^{n+1}_1 & = u^n_1 - J(u^n_1)^{-1} f(u^n_1) , \\
-(2) & u^{n+1}_2 & = u^n_2 - J(u^n_2)^{-1} f(u^n_2) , \\
-f(u) = \epsilon u''(x) - u(x) u'(x) .
+(1) && u^{n+1}_1 & = u^n_1 - J(u^n_1)^{-1} f(u^n_1) , \\
+(2) && u^{n+1}_2 & = u^n_2 - J(u^n_2)^{-1} f(u^n_2) , \\
+&& f(u) & = \epsilon u''(x) - u(x) u'(x) .
 \end{align*}
 We discretize with a finite difference scheme:
 \begin{equation*}
@@ -675,17 +709,17 @@ We can then calculate the derivative of $u^{n+1}$ with respect to $\gamma$ by ta
 Note we only need the value of the derivative at the point $\alpha$.
 Therefore, we pull out a single element of the matrix $J(u^n)^{-1}$:
 \begin{equation*}
-\dxdy{u^n_1(\alpha)}{\gamma} = \left ( \frac{u^{n+1}_1(\beta-h)}{2h} - \frac{\epsilon}{h^2} \right ) J(u^n_1)_{\frac{\alpha+1}{h},N-1}
+\dxdy{u^{n+1}_1(\alpha)}{\gamma} = \left ( \frac{u^{n+1}_1(\beta-h)}{2h} - \frac{\epsilon}{h^2} \right ) J(u^n_1)^{-1}_{\frac{\alpha+1}{h},N-1}
 \end{equation*}
-where $J(u^n_1)_{i,j}$ is the element in the $i$--th row and $j$--th column of $J(u^n_1)$.
+where $J(u^n_1)^{-1}_{i,j}$ is the element in the $i$--th row and $j$--th column of $J(u^n_1)^{-1}$.
 
 By similar argument, we have the following formula for $\pdxdy{u^{n_1}_2(\beta)}{u^{n+1}_1(\alpha)}$:
 \begin{equation*}
-\pdxdy{u^{n+1}_2(\beta)}{u^{n+1}_1(\alpha)} = -\left(\frac{\epsilon}{h^2} + \frac{u^{n+1}_2(\alpha+h)}{2h} \right) J(u^n_2)_{\frac{\beta-\alpha}{h}, 1} .
+\pdxdy{u^{n+1}_2(\beta)}{u^{n+1}_1(\alpha)} = -\left(\frac{\epsilon}{h^2} + \frac{u^{n+1}_2(\alpha+h)}{2h} \right) J(u^n_2)^{-1}_{\frac{\beta-\alpha}{h}, 1} .
 \end{equation*}
 $G'(\gamma)$ is then a product of these two formulae:
 \begin{equation*}
-G'(\gamma) = -\left(\frac{\epsilon}{h^2} + \frac{u^{n+1}_2(\alpha+h)}{2h} \right) \left ( \frac{u^{n+1}_1(\beta-h)}{2h} - \frac{\epsilon}{h^2} \right ) J(u^n_2)_{\frac{\beta-\alpha}{h}, 1} J(u^n_1)_{\frac{\alpha+1}{h},N-1} .
+G'(\gamma) = -\left(\frac{\epsilon}{h^2} + \frac{u^{n+1}_2(\alpha+h)}{2h} \right) \left ( \frac{u^{n+1}_1(\beta-h)}{2h} - \frac{\epsilon}{h^2} \right ) J(u^n_2)^{-1}_{\frac{\beta-\alpha}{h}, 1} J(u^n_1)^{-1}_{\frac{\alpha+1}{h},N-1} .
 \end{equation*}
 
 The issue is the function $G(\gamma)$ is dependent on the initial guess $u^n$.
@@ -714,147 +748,91 @@ We seek an example for which the algorithm(s) presented in this chapter fail.
 That is, we look for example problems where the Newton preconditioning on the transmission condition prevents an otherwise good alternating Schwarz iteration.
 This should occur when $G'(\gamma)=1$, as this is where the function $G(\gamma)-\gamma$ has a local extrema which prevents Newton-Raphson from converging.
 The algorithm would also fail if we found a cycle, but this is excluded from this analysis.
-Note that $G'(\gamma) < 1$ if and only if $G(\gamma) - \gamma$ is monotonic, which would mean Newton-Raphson could not be expected to fail for any reasonable choice of initial guess.
+Note that $G'(\gamma) \neq 1$ if and only if $G(\gamma) - \gamma$ is monotonic, which would mean Newton-Raphson could not be expected to fail for any reasonable choice of initial guess.
 
-We will use the first algorithm presented in this chapter, with $u(0) = 0$ and $u(1) = 1$ as boundary conditions.
-In this context, $G'(\gamma) = g_2(\beta)$.
-Consider what it means for $g_2(\beta) = 1$.
-We have already that $g_2(\alpha) = g_1(\alpha)$ and that $g_1(\beta) = 1$.
-Including the new condition that $g_2(\beta) = 1$ means that both $g_2(x)$ and $g_1(x)$ satisfy:
-\begin{equation}
-\begin{cases} \left ( \mathcal{L} - \pdxdy{f}{u} \right ) g = 0 \\ g(\alpha) = g_1(\alpha) \\ g(\beta) = 1 \end{cases}
-\label{eq:overlap}
-\end{equation}
-in the limit that $u_1 = u_2$ in the region of overlap.
-We must consider ourselves to be in this limit or nearby it for Newton-Raphson to fail on any meaningful interval of initial guesses.
-
-This means that either (\ref{eq:overlap}) is singular or $g_1(x) = g_2(x)$.
-The first possibility can be true for a limited number of $\alpha$ and $\beta$ (prove this?).
-Therefore, changing the overlap regions slightly would fix this issue.
-The second possibility means the linear ODE
-\begin{equation*}
-\begin{cases} \left ( \mathcal{L} - \pdxdy{f}{u} \right ) g = 0 \\
-g(0) = 0 \\ g(1) = 0 \end{cases}
-\end{equation*}
-has at least one (and therefore infinite) nontrivial solutions.
-The problem is then singular.
-
-Compare this problem with that for $u$:
-\begin{equation*}
-\begin{cases} \mathcal{L} u = f(u) \\ u(0) = 0 \\ u(1) = 1. \end{cases}
-\end{equation*}
-If we rewrite these equations in a new form we will see they share many properties:
-\begin{align*}
-F_u(x,u,u',u'') = \mathcal{L} u - f(u) = 0, \quad F_g(x,g,g',g'') = \left ( \mathcal{L} - \pdxdy{f(\tilde{u})}{u} \right ) g = 0 \\
-\implies \pdxdy{F_u(x,\tilde{u},u',u'')}{u} = \pdxdy{F_g}{g}, \quad \pdxdy{F_u}{u'} = \pdxdy{F_g}{g'}, \quad \pdxdy{F_u}{u''} = \pdxdy{F_g}{g''} .
-\end{align*}
-Note the difference between $\pdxdy{F_u}{u}$ and $\pdxdy{F_g}{g}$.
-The latter represents a particular choice of $u$ in the former.
-Therefore, if $\pdxdy{F_u}{u}$ satisfies a given property for all $u \in \mathbb{R}$ then $\pdxdy{F_g}{g}$ also satisfies that property.
-Likewise, if $\pdxdy{F_g}{g}$ satisfies a given property then $\pdxdy{F_u}{u}$ also satisfies that property for at least a subset of $\mathbb{R}$.
-
-The vast majority of uniqueness theorems on solutions to boundary value problems rely on properties satisfied by the various derivatives of the functions $F_u$ and $F_g$ (nb: cite some theorems).
-As such, if the problem in $u$ can be proven to have a unique solution by one of these theorems then the problem in $g$ will likewise have a unique solution, since they share the values of these derivatives.
-This means, by extension, that $G'(\gamma) \neq 1$ for all $\gamma$ and $G(\gamma) - \gamma$ is monotonic.
-Newton-Raphson will then only have a problem if it encounters a cycle.
-
-If we consider instead $u_1 \neq u_2$ in the overlap region then the problem (\ref{eq:overlap}) becomes:
-\begin{equation*}
-\begin{cases} \left ( \mathcal{L} - \pdxdy{f}{u_1} \right ) (g_1 - g_2) = \left ( \pdxdy{f}{u_1} - \pdxdy{f}{u_2} \right ) g_2 \\
-g_1(\alpha) = g_2(\alpha) \\ g_1(\beta) = g_2(\beta) . \end{cases}
-\end{equation*}
-Because of the nonzero right hand side in the first line of the problem it is no longer necessary for there to be a singularity.
-However, if $u_1$ and $u_2$ continue to converge to the same limit then the right hand side converges to zero.
-Even if $u_1$ and $u_2$ are close to one another the problem in the overlap region is 'nearly' singular.
-
-By the same principles as above a near singularity in the overlap region of the $g$ problem can only occur if a near singularity exists in the $u$ problem.
-As such, we would expect similar instabilities in solving for $u$ as we would for the transmission condition.
-This suggests that Newton-Raphson performed on the transmission condition will always improve or maintain the convergence of the alternating Schwarz method, and any failures of the Newton-Raphson should be concomitant with failures in the alternating Schwarz.
+We present the following theorem which, under reasonable circumstances, guarantees that the first algorithm presented in this chapter will converge for an interval surrounding the root.
 
 \begin{thm}
 Let $u(x)$ solve the second order ODE
 \begin{equation*}
-\begin{cases} F(u,u',u'') = 0 & x \in [0,1] \\ u(0) = a \\
-u(1) = b . \end{cases}
+\begin{cases} F(u,u',u'') = 0 & x \in [a,b] \\ u(a) = A \\
+u(b) = B . \end{cases}
 \end{equation*}
-Let $u_1(x)$ solve the same problem on $[0,\beta]$ with $u_1(\beta) = \gamma$ and $u_2(x)$ solve the problem on $[\alpha,1]$ with $u_2(\alpha) = u_1(\alpha)$.
+Let $u_1(x)$, $u_2(x)$, $g_1(x)$, $g_2(x)$ be defined as in equation (\ref{alg:ASPN}) with $\gamma_n = \gamma$.
 Let $G(\gamma) = u_2(\beta)$.
-Let $J(x,y,z)$ be the Jacobian of $F(x,y,z)$.
+Let $J(x,y,z)$ be defined as in equation (\ref{eq:Jacobian}).
 
-If $G(\gamma) \in C^2(\mathbb{R})$ and $J(u,u',u'')$ is nonsingular on both $[0,1]$ and $[\alpha,\beta]$, in the sense that there does not exist a nontrivial function $v(x)$ that satisfies
+If $G(\gamma) \in C^1(\mathbb{R})$ and $J(u,u',u'')$ is nonsingular on both $[a,b]$ and $[\alpha,\beta]$, in the sense that the solution $v(x)$ to the ODE
 \begin{equation*}
-\begin{cases} J(u,u',u'') \cdot (v, v', v'') = 0 & x \in \Omega \\ v(x) = 0 & x \in \partial \Omega, \end{cases}
+\begin{cases} J(u,u',u'') \cdot (v, v', v'') = 0 & x \in \Omega \\ v(x) = 0 & x \in \partial \Omega \end{cases}
 \end{equation*}
+is unique (and equal to the zero function),
 then $G'(\gamma) \neq 1$ in an interval around $u(\beta)$.
 As a corollary, the function $G(\gamma) - \gamma$ is monotonic in this interval.
 \end{thm}
 
 \begin{proof}
 It suffices to show $G'(u(\beta)) \neq 1$.
-To do so we must calculate $G'(\gamma)$:
-\begin{align*}
-G'(\gamma) = \dxdy{u_2(\beta)}{\gamma} = \pdxdy{u_2(\beta)}{u_1(\alpha)} \dxdy{u_1(\alpha)}{\gamma} .
-\end{align*}
-To establish how the solution of an ODE at a given point depends on the value of its endpoint, one can differentiate the ODE with respect to the endpoint:
-\begin{align*}
-\begin{cases} \pdxdy{F}{u} \dxdy{u_1}{\gamma} + \pdxdy{F}{u'} \dxdy{u_1'}{\gamma} + \pdxdy{F}{u''} \dxdy{u_1''}{\gamma} = 0 & x \in [0,\beta] \\
-\dxdy{u_1(0)}{\gamma} = 0 \\
-\dxdy{u_1(\beta)}{\gamma} = 1. \end{cases}
-\end{align*}
-Let $g_1(x) = \dxdy{u_1}{\gamma}$, then the ODE above may be written as:
-\begin{equation*}
-\begin{cases} J(u_1,u_1',u_1'') \cdot (g_1, g_1', g_1'') = 0 & x \in [0,\beta] \\ g_1(0) = 0 \\ g_1(\beta) = 1. \end{cases}
-\end{equation*}
-Then $\dxdy{u_1(\alpha)}{\gamma} = g_1(\alpha)$.
-Likewise, if $g_2(x) = \dxdy{u_2}{\gamma}$ then
-\begin{equation*}
-\begin{cases} J(u_2,u_2',u_2'') \cdot (g_2, g_2', g_2'') = 0 & x \in [\alpha,1] \\
-g_2(\alpha) = \dxdy{u_1(\alpha)}{\gamma} = g_1(\alpha) \\ g_2(1) = 0 . \end{cases}
-\end{equation*}
-Therefore, $G'(\gamma) = g_2(\beta)$.
-
+As has been shown earlier, $G'(\gamma) = g_2(\beta)$.
 Consider the difference between $g_1(x)$ and $g_2(x)$ in the region of overlap, $g(x) = g_2(x) - g_1(x)$.
 This function satisfies:
 \begin{equation*}
 \begin{cases} J(u_2,u_2',u_2'') \cdot (g, g', g'') = \left ( J(u_2, u_2', u_2'') - J(u_1, u_1', u_1'') \right ) \cdot (g_1, g_1', g_1'') & x \in [\alpha, \beta] \\ g(\alpha) = 0 \\ g(\beta) = G'(\gamma) - 1. \end{cases}
 \end{equation*}
-For $\gamma = u(\beta)$ $u_1 = u_2$ in the region of overlap.
+For $\gamma = u(\beta)$ $u_1 = u_2 = u$ in the region of overlap and the righthand side is zero.
 If $G'(u(\beta)) = 1$ then $g(x) = 0$ by the assumption that $J(u,u',u'')$ is nonsingular on $[\alpha,\beta]$.
 Define the function $\hat{g}(x)$:
 \begin{equation*}
-\hat{g}(x) = \begin{cases} g_1(x) & x \in [0,\alpha] \\ g_2(x) & x \in (\alpha,1]. \end{cases}
+\hat{g}(x) = \begin{cases} g_1(x) & x \in [a,\alpha] \\ g_2(x) & x \in (\alpha,b]. \end{cases}
 \end{equation*}
 This function satisfies:
 \begin{equation*}
-\begin{cases} J(u,u',u'') \cdot (\hat{g},\hat{g}',\hat{g}'') = 0 \\ \hat{g}(0) = \hat{g}(1) = 0. \end{cases}
+\begin{cases} J(u,u',u'') \cdot (\hat{g},\hat{g}',\hat{g}'') = 0 \\ \hat{g}(a) = \hat{g}(b) = 0. \end{cases}
 \end{equation*}
-By the assumption that $J(u,u',u'')$ is nonsingular on $[0,1]$ it must be that $\hat{g}(x) = 0$.
+By the assumption that $J(u,u',u'')$ is nonsingular on $[a,b]$ it must be that $\hat{g}(x) = 0$.
 This contradicts $G'(u(\beta)) = 1$.
 Therefore, $G'(u(\beta)) \neq 1$.
-Since $G(\gamma) \in C^2(\mathbb{R})$ there is a neighbourhood of $u(\beta)$ for which $G'(\gamma) \neq 1$.
+Since $G(\gamma) \in C^1(\mathbb{R})$ there is a neighbourhood of $u(\beta)$ for which $G'(\gamma) \neq 1$.
 \end{proof}
+
+The majority of uniqueness theorems on solutions to boundary value problems rely on properties satisfied by the Jacobian $J(u,u',u'')$ (nb: cite some theorems).
+As such, if the problem in $u$ can be proven to have a unique solution by one of these theorems then the problem in $g$ will likewise have a unique solution, since they share a Jacobian.
+
+If we consider instead $u_1 \neq u_2$ in the overlap region then the problem presented in the above theorem has a nonzero right hand side.
+Because of this it is no longer necessary that $g(x) = 0$.
+However, if $u_1$ and $u_2$ continue to converge to the same limit then the right hand side converges to zero.
+The function $g(x)$ then has a magnitude related to the difference between $u_1$ and $u_2$.
+%include lemma on relation, especially if J(u,u',u'') is Lipschitz
+
+By the connection between $F()$ and $J()$ we expect that a near singularity in one problem implies the same in the other.
+As such, we would expect similar instabilities in solving for $u$ as we would for $g$.
+This suggests that Newton-Raphson performed on the transmission condition will always improve or maintain the convergence of the alternating Schwarz method, and any failures of the Newton-Raphson should be concomitant with failures in the alternating Schwarz.
+
+One can use similar strategies to prove that $G(\gamma)$ is monotonic under certain conditions.
+For $\alpha$ in some neighbourhood of $\beta$ this implies $G'(\gamma)>0$, as an increasing boundary condition should cause the solution nearby to likewise increase.
 
 \begin{thm}
 If the problem
 \begin{equation*}
 \begin{cases} F(u,u',u'') = 0 & x \in \Omega \\ u(x) = h(x) & x \in \partial \Omega \end{cases}
 \end{equation*}
-is nonsingular on $\Omega \setminus \Omega_1$ and $\Omega \setminus \Omega_2$, in the sense that there exists a unique solution to the problem on those domains and that the continuations of these solutions are also unique, then the function $G(\gamma)$ is strictly monotonic.
+is nonsingular on $[a,\alpha]$ and $[\beta,b]$, in the sense that there exists a unique solution to the problem on those domains and that the continuations of these solutions are also unique, then the function $G(\gamma)$ is strictly monotonic.
 \end{thm}
 
 \begin{proof}
-It suffices to show that $G(\gamma_1) \neq G(\gamma_2)$ for all $\gamma_1 \neq \gamma_2$.
+It suffices to show that $G(\gamma_1) = G(\gamma_2)$ implies $\gamma_1 = \gamma_2$.
 
 Let $u^j_1$ solve the problem on $\Omega_1 = [a,\beta]$ with $u^j_1(\beta) = \gamma_j$.
-Likewise, $u^j_2$ solves the problem on $\Omega_2 = [\alpha, b]$ with $u^j_2(\alpha) = u^j_1(\alpha)$.
-We proceed by contradiction:
-suppose $u^1_2(\beta) = u^2_2(\beta)$.
-Then both $u^1_2$ and $u^2_2$ solve the same problem on $\Omega \setminus \Omega_1$.
+Likewise, $u^j_2$ solves the problem on $[\alpha, b]$ with $u^j_2(\alpha) = u^j_1(\alpha)$.
+Suppose $u^1_2(\beta) = u^2_2(\beta)$.
+Then both $u^1_2$ and $u^2_2$ solve the same problem on $[\beta,b]$.
 By assumption, this must mean $u^1_2 = u^2_2$ and $u^1_1(\alpha) = u^2_1(\alpha)$.
-
-By a similar argument, this implies $u^1_1$ and $u^2_1$ solve the same problem on $\Omega \setminus \Omega_2$.
+By a similar argument, this implies $u^1_1$ and $u^2_1$ solve the same problem on $[a,\alpha]$.
 Again by assumption $u^1_1 = u^2_1$ and $\gamma_1 = \gamma_2$.
 \end{proof}
+
+While we are now confident that many of the problems we encounter will have $G'(\gamma) \neq 0$ we are more interested in if $G(\gamma) - \gamma$ is monotonic.
+To that end, we present the following lemma, which acts as a converse to the mean value theorem for certain functions, and a corollary to this lemma giving sufficient conditions for $G'(\gamma) \neq 1$.
 
 \begin{lemma}
 If $f \in C^2([a,b])$, $f''(x) \neq 0$ for all $x \in (a,b)$ and $f'(c) = 0$ for some $c \in (a,b)$ then there exists $x_0 \in (a,b)$ such that $f(x_0)$ is equal to either $f(a)$ or $f(b)$.
@@ -884,7 +862,7 @@ Thus, it must be that the statement is true.
 \end{proof}
 
 \begin{cor}
-If $G(\gamma) \in C^2$ and $G''(\gamma^*) = 0 \implies G(\gamma^*) = \gamma^*$ then either $G'(\gamma) \neq 1$ for all $\gamma$ or the problem is singular.
+If $G(\gamma) \in C^2(\mathbb{R})$ and $G''(\gamma^*) = 0$ implies $G(\gamma^*) = \gamma^*$ then either $G'(\gamma) \neq 1$ for all $\gamma$ or the problem is singular.
 \end{cor}
 
 \begin{proof}

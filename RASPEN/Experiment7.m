@@ -132,7 +132,7 @@ title('Newton precond. on transmission condition')
 % for e >= 1e-1.
 
 % Problem parameters
-e = 0.1;
+e = 0.30;
 
 % Grid
 nx = 1001; dx = (nx - 1)/2;
@@ -302,7 +302,8 @@ while iter < itermax
 end
 
 % Preconditioning with Newton (bc. then u)
-error2_g = zeros(4*itermax,1);
+numsolves = 4;
+error2_g = zeros(numsolves*itermax,1);
 u2b = -b;
 u2bold = -b;
 u1 = u0(x<=b); u1(1) = 1;
@@ -310,7 +311,7 @@ u2 = u0(x>=a); u2(end) = -1;
 u1old = u1;
 u2old = u2;
 uold = u0;
-for iter = 1:4*itermax
+for iter = 1:numsolves*itermax
         
     u1 = u1old;
     u1(end) = u2b;
@@ -338,17 +339,17 @@ for iter = 1:4*itermax
     % New preconditioning, for Newton instead of fixed point as
     % nonlinear solver
     g = -( -e*dx^2 + u1(end-1)*dx/2 ) * ( e*dx^2 + u2(2)*dx/2 ) * S1 * S2;
-    u2b = ( g*u2bold - u2b )./ (g - 1);
+    u2b = u2bold - ( u2b - u2bold )./ (g - 1);
 
     error2_g(iter) = abs(u2b - u2bold);
     u2bold = u2b;
 
 %     if error2_g(iter) < tol
-    if mod(iter,4)==0
+    if mod(iter,numsolves)==0
 
         u = [ u1(x1<a) ; 0.5*u1(x1>=a) + 0.5*u2(x2<=b) ; u2(x2>b) ];
 
-        error2_u(iter/4) = norm(u - uold);
+        error2_u(iter/numsolves) = norm(u - uold);
         u1old = u1;
         u2old = u2;
         uold = u;
@@ -365,7 +366,7 @@ ylabel('2-norm of change in u')
 legend('AS','ASPN','PNAS')
 
 subplot(1,2,2)
-semilogy(1:(itermax+1),error0_g,'b*--',1:(itermax+1),error1_g,'ro--',1:itermax,error2_g(1:4:end),'k.--')
+semilogy(1:(itermax+1),error0_g,'b*--',1:(itermax+1),error1_g,'ro--',1:itermax,error2_g(1:numsolves:end),'k.--')
 axis([0, 200, 1e-18, 1])
 xlabel('Iteration')
 ylabel('Change in u_2(\beta)')

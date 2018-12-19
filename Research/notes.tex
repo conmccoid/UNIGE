@@ -560,14 +560,6 @@ u^n_2(\alpha) = u^n_1(\alpha) \\
 u^n_2(b) = B . \\
 \end{cases}
 \end{equation}
-%
-%Consider the alternating Schwarz method
-%\begin{equation*}
-%\begin{cases} \mathcal{L}_1 u_1^n = f(u_1^n) & x \in (0,\beta) \\
-%u_1^n(0) = 0 & \\ u_1^n(\beta) = u_2^{n-1}(\beta) \end{cases}, \quad
-%\begin{cases} \mathcal{L}_2 u_2^n = f(u_2^n) & x \in (\alpha,1) \\
-%u_2^n(1) = 1 & \\ u_2^n(\alpha) = u_1^n(\alpha). \end{cases}
-%\end{equation*}
 We can think of the operation to solve for $u_1^n$ as a function $G_1: \mathbb{R} \rightarrow \mathbb{R}$ such that $G_1(u_2^{n-1}(\beta)) = u_1^n(\alpha)$.
 Likewise, $G_2(u_1^n(\alpha)) = u_2^n(\beta)$ and $G_2(G_1(\gamma)) = \gamma$ is a fixed point iteration.
 
@@ -598,32 +590,44 @@ Therefore, $G'(\gamma) = G_2'(G_1(\gamma)) G_1'(\gamma) = g_2(\beta)$.
 G'(\gamma) = \dxdy{u_2(\beta)}{\gamma} = \pdxdy{u_2(\beta)}{u_1(\alpha)} \dxdy{u_1(\alpha)}{\gamma} .
 \end{align*}
 
-%We need to set conditions on $\dxdy{G}{\gamma}$:
-%\begin{align*}
-%\dxdy{G}{\gamma} & = \pdxdy{G_2}{G_1} \dxdy{G_1}{\gamma} \\
-%& = g_2(\beta; g_1(\alpha))
-%\end{align*}
-%where $g_1(x)$ solves
-%\begin{equation*}
-%\begin{cases} \left ( \mathcal{L}_1 - \pdxdy{f}{u} \right ) g_1(x) = 0 \\
-%g_1(0) = 0 \\ g_1(\beta) = 1 \end{cases}
-%\end{equation*}
-%and $g_2(x; \nu)$ solves
-%\begin{equation*}
-%\begin{cases} \left ( \mathcal{L}_2 - \pdxdy{f}{u} \right ) g_2(x; \nu) = 0 \\
-%g_2(1; \nu) = 0 \\ g_2(\alpha; \nu) = \nu. \end{cases}
-%\end{equation*}
-%This is arrived at by taking the derivatives of the original iterations with respect to $\gamma$.
+There is an implicit assumption here that $G(\gamma)$ is differentiable.
+If the problem is continuous with respect to the boundary data then $G(\gamma) \in C(\mathbb{R})$.
+If, instead, a small perturbation in the boundary data leads to large change in the solution then we will lose the continuity of $G(\gamma)$ and most likely its differentiability.
+One must then be careful when applying these methods to such problems.
+Throughout this chapter we will assume $G(\gamma) \in C(\mathbb{R})$.
 
 Note if $F(x,u,u',u'')$ is linear in $u$, $u'$ and $u''$ then $u$ depends linearly on the boundary conditions.
 This is reflected in $g_1$ and $g_2$ as neither depend on $\gamma$ so long as $J(u,u',u'')$ is not explicit in its inputs.
 Thus, $G''(\gamma) = 0$ for linear problems.
 
 % rewrite this paragraph and include proofs/theorems/lemmas of its conjectures
-For $G(\gamma)$ nonlinear it is possible to establish that it is a convergent fixed point if the operator $\mathcal{L} - \pdxdy{f}{u}$ satisfies a maximum principle.
-Then $g_1$ and $g_2$ attain their maximum values on the boundary and so $\abs{g_2(\beta;g_1(\alpha))} \leq \abs{g_1(\alpha)} \leq 1$.
-We need to show that $G$ is a contraction mapping.
-It would suffice that $\mathcal{L}$ also satisfies a maximum principle, then $G:[0,1] \rightarrow [0,1]$.
+For $G(\gamma)$ nonlinear it is possible to establish that it is a contraction mapping if the problems in $u$ and $g$ satisfy maximum and minimum principles.
+If the problem in $u$ satisfies these principles for all choices of $\gamma$ then $G:\Omega \rightarrow \Omega$ where $\Omega = [ \min \{A,B\}, \max \{A,B\} ]$.
+If the problem in $g$ satisfies these principles for all solutions $u_1$ and $u_2$ then we guarantee that the mapping $G(\gamma)$ contracts and that the fixed point is unique.
+
+\begin{lemma}
+If, for all $\gamma \in \mathbb{R}$, 
+\begin{description}
+\item[(i)] $u_1(x)$ lies between $A$ and $\gamma$ for all $x \in (a,\beta)$
+\item[(ii)] $u_2(x)$ lies between $u_1(\alpha)$ and $B$ for all $x \in (\alpha, b)$
+\item[(iii)] $0<g_1(x)<1$ for all $x \in (a,\beta)$
+\item[(iv)] $0<g_2(x)<g_1(\alpha)$ for all $x \in (\alpha,b)$
+\end{description}
+then $G(\gamma)$ is a contraction mapping on $\Omega \subset \mathbb{R}$.
+\end{lemma}
+
+\begin{proof}
+By the first assumption, $u_1(\alpha)$ must lie between $A$ and $\gamma$.
+Thus, $u_2(\beta) \in [ \min \{A,B,\gamma\}, \max \{A,B, \gamma\} ]$ by the second assumption.
+Therefore, if $\gamma \in \Omega$ then $G(\gamma) \in \Omega$.
+
+By the third and fourth assumptions it is clear that $0 < G'(\gamma) < 1$ for all $\gamma \in \mathbb{R}$.
+By the mean value theorem $\abs{G(\gamma_1) - G(\gamma_2)} \leq G'(\gamma_3) \abs{\gamma_1 - \gamma_2} < \abs{\gamma_1 - \gamma_2}$ for $\gamma_3 \in [\gamma_1, \gamma_2]$.
+Thus, $G(\gamma)$ is a contraction mapping.
+\end{proof}
+
+$G(\gamma)$ is still a contraction mapping if it satisfies the assumptions for all $\gamma \in \Omega$.
+Since there is a direct connection between the problems in $u$ and $g$ there is likely a connection between the assumptions on $u_1$ and $u_2$ and those on $g_1$ and $g_2$.
 
 Applying Newton's method to $G(\gamma)$ gives the following algorithm:
 \begin{equation}
@@ -643,6 +647,10 @@ g_3(\alpha) = 1 \\ g_3(b) = 0 \end{cases}
 \end{equation*}
 and use $G'(\gamma) = g_1(\alpha) g_3(\beta)$ in place of $g_2(\beta)$ in step $(5)$.
 
+Step $(5)$ will encounter issues when approaching points where $G'(\gamma) = 1$, as this would represent an extrema of the function $G(\gamma) - \gamma$, the function to which we apply Newton-Raphson.
+Assumptions (iii) and (iv) of the previous lemma give sufficient conditions that this function has no such extrema.
+Later discussions will focus on alternatives when these assumptions are not valid.
+
 Early experiments show that by adding steps 3 through 5 (straightforward linear solves) we increase convergence from linear to quadratic (see figure \ref{fig:ASPN01}).
 
 \begin{figure}
@@ -653,7 +661,7 @@ Early experiments show that by adding steps 3 through 5 (straightforward linear 
 \end{figure}
 
 We now look to apply this algorithm to more complicated examples.
-Suppose the nonlinear function on the right-hand side is also dependent on $u'$, such as in steady viscous Burgers:
+Suppose the nonlinear function on the right hand side is also dependent on $u'$, such as in steady viscous Burgers:
 \begin{equation*}
 \begin{cases} \epsilon u''(x) & = u u' \\
 u(-1) & = 1 \\
@@ -779,7 +787,7 @@ This function satisfies:
 \begin{equation*}
 \begin{cases} J(u_2,u_2',u_2'') \cdot (g, g', g'') = \left ( J(u_2, u_2', u_2'') - J(u_1, u_1', u_1'') \right ) \cdot (g_1, g_1', g_1'') & x \in [\alpha, \beta] \\ g(\alpha) = 0 \\ g(\beta) = G'(\gamma) - 1. \end{cases}
 \end{equation*}
-For $\gamma = u(\beta)$ $u_1 = u_2 = u$ in the region of overlap and the righthand side is zero.
+For $\gamma = u(\beta)$ $u_1 = u_2 = u$ in the region of overlap and the right hand side is zero.
 If $G'(u(\beta)) = 1$ then $g(x) = 0$ by the assumption that $J(u,u',u'')$ is nonsingular on $[\alpha,\beta]$.
 Define the function $\hat{g}(x)$:
 \begin{equation*}
@@ -822,7 +830,7 @@ is nonsingular on $[a,\alpha]$ and $[\beta,b]$, in the sense that there exists a
 \begin{proof}
 It suffices to show that $G(\gamma_1) = G(\gamma_2)$ implies $\gamma_1 = \gamma_2$.
 
-Let $u^j_1$ solve the problem on $\Omega_1 = [a,\beta]$ with $u^j_1(\beta) = \gamma_j$.
+Let $u^j_1$ solve the problem on $[a,\beta]$ with $u^j_1(\beta) = \gamma_j$.
 Likewise, $u^j_2$ solves the problem on $[\alpha, b]$ with $u^j_2(\alpha) = u^j_1(\alpha)$.
 Suppose $u^1_2(\beta) = u^2_2(\beta)$.
 Then both $u^1_2$ and $u^2_2$ solve the same problem on $[\beta,b]$.
@@ -836,14 +844,14 @@ To that end, we present the following lemma, which acts as a converse to the mea
 
 \begin{lemma}
 If $f \in C^2([a,b])$, $f''(x) \neq 0$ for all $x \in (a,b)$ and $f'(c) = 0$ for some $c \in (a,b)$ then there exists $x_0 \in (a,b)$ such that $f(x_0)$ is equal to either $f(a)$ or $f(b)$.
-Moreover, there is only one local extremum on this interval.
+Moreover, there is only one local extrema on this interval.
 \end{lemma}
 
 \begin{proof}
 We begin by showing that if $f'(c_1) = f'(c_2) = 0$ then $c_1 = c_2$.
 Consider the region $[c_1,c_2]$.
 By the mean value theorem there must exist a point $c_3 \in (c_1,c_2)$ such that $f''(c_3) = 0$.
-This contradicts the assumption that $f''(x) \neq 0$ for all $x \in [a,b]$, unless $(c_1,c_2)$ is the empty set.
+This contradicts the assumption that $f''(x) \neq 0$ for all $x \in (a,b)$, unless $(c_1,c_2)$ is the empty set.
 Therefore, $c_1 = c_2$.
 
 Suppose the statement is not true, that is for all $x_0 \in (a,b)$ $f(x_0) \neq f(a)$ and $f(x_0) \neq f(b)$.
@@ -892,13 +900,18 @@ The importance here is the existence of a nonsingular problem for which $G'(\gam
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{exp8_01.jpg}
+\includegraphics[width=\textwidth]{exp8_01.png}
 \caption{The fixed point iterate $G(\gamma)$ and associated functions for equation (\ref{eq:counterexample}).
-The point where $G(\gamma) = \gamma$ represents the fixed point.}
+The point where $G(\gamma) = \gamma$ represents the fixed point.
+1001 points have been used with $\alpha = -\beta = -0.2$.}
 \label{fig:exp8}
 \end{figure}
 
 \chapter{Continuing thesis work}
+
+\newcommand{\W}[2]{W \left ( #1 ; #2 \right )}
+\newcommand{\poly}[1]{\frac{x^{#1}}{(#1)!}}
+\newcommand{\Poly}[1]{\frac{x^#1}{#1!}}
 
 \section{Inverse operators}
 
@@ -1078,7 +1091,7 @@ P_k(x) = \sum_{n=1}^m \gamma_{kn} \hat{P}_n(x), \quad
 Notice the similarities between this system and that for $\beta_{k,j}$ (\ref{eq:betas}).
 
 The matrices presented in equations (\ref{eq:betas}) and (\ref{gamma}) have well-known inverses that rely on the Wronskians of the homogeneous solutions.
-The Wronskian of a set of functions $\{ f_k(x) \}_{k=1}^n$, denoted here as $W( \{ f_k \}, x)$, is itself a function defined as the determinant of the matrix:
+The Wronskian of a set of functions $\{ f_k(x) \}_{k=1}^n$, denoted here as $\W{\set{f_k}}{x}$, is itself a function defined as the determinant of the matrix:
 \begin{equation}
 \begin{bmatrix} f_1(x) & \dots & f_n(x) \\ \vdots & \ddots & \vdots \\ f^{(n-1)}_1(x) & \dots & f_n^{(n-1)}(x) \end{bmatrix} .
 \end{equation}
@@ -1150,7 +1163,7 @@ The Cauchy-Binet formula then provides this determinant in terms of determinants
 
 \section{Wronskians}
 
-\begin{lemma}{Wronskians of exponentials}
+\begin{lemma}[Wronskians of exponentials]
 \begin{equation*}
 W(\{e^{\lambda_k x} \}_{k=1}^m; x) = \begin{vmatrix} 1 & \dots & 1 \\
 \lambda_1 & \dots & \lambda_m \\
@@ -1163,29 +1176,33 @@ e^{-x \sum_{k=1}^m \lambda_k} .
 
 \begin{proof}
 The case of any two $\lambda_k$ being equal is trivially true as both sides are necessarily zero.
-Therefore, without loss of generality, $\lambda_k \neq \lambda_i$ for all $k \neq i$.
+For the nontrivial case, $\lambda_k \neq \lambda_i$ for all $k \neq i$.
 
-Consider a linear operator $\mathcal{L}$ such that $\mathcal{L} = \sum_{j=0}^m a_j u^{(j)}(x)$.
-It is straightforward to see that $\mathcal{L} e^{\lambda_k x} = e^{\lambda_k x} \sum_{j=0}^m a_j \lambda_k^j$.
-Therefore, $e^{\lambda_k x}$ is a homogeneous solution of $\mathcal{L}$ if $\lambda_k$ is a root of the polynomial $p(x) = \sum_{j=0}^m a_j x^j$.
-
-Let $p(x)$ be the polynomial with roots $\lambda_k$:
+Let $p(x)$ be the polynomial with roots $\lambda_k$ and with coefficients $a_j$:
 \begin{equation*}
 p(x) = \Pi_{k=1}^m \left (x - \lambda_k \right) = \sum_{j=0}^m a_j x^j.
 \end{equation*}
-The set $\{ e^{\lambda_k x} \}_{k=1}^m$ is then the fundamental solution set of the linear operator with constant coefficients $a_j$.
-By Abel's identity this provides that $W(\{e^{\lambda_k x} \}_{k=1}^m ; x) = W(\{e^{\lambda_k x} \}_{k=1}^m ; 0) e^{ - \int_0^x a_{m-1} / a_m ds } $.
-Based on the above formula for $p(x)$, $a_m = 1$ and $a_{m-1} = \sum_{k=1}^m \lambda_k$.
-The remainder follows from the definition of $W(\{e^{\lambda_k x} \}_{k=1}^m ; 0)$.
+Let $\mathcal{L}$ be the linear operator with coefficients equal to $a_j$:
+$$
+\mathcal{L} u(x) = \sum_{j=0}^m a_j u^{(j)}(x).
+$$
+Then $\mathcal{L} e^{\lambda_k x} = e^{\lambda_k x} \sum_{j=0}^m a_j \lambda^j = e^{\lambda_k x} p(\lambda_j) = 0$.
+Therefore, $\set{e^{\lambda_k x}}$ is the fundamental solution set of $\mathcal{L}$.
+
+By Abel's identity $\W{\set{e^{\lambda_k x}}_{k=1}^m}{x} = \W{\set{e^{\lambda_k x}}_{k=1}^m}{0} e^{-\int_0^x a_{m-1} / a_m ds}.$
+By the definition of $p(x)$ $a_m = 1$ and $a_{m-1} = \sum_{k=1}^m \lambda_k$.
+The remainder follows from the definition of $\W{\set{e^{\lambda_k x}}_{k=1}^m}{0}$.
 
 (nb: this lemma and proof likely already exists in literature)
 \end{proof}
 
-\begin{lemma}{Wronskians of polynomials}
+\newcommand{\Wpoly}[2]{\W{\set{\Poly{k}}_{#1}^{#2}}{x}}
+
+\begin{lemma}[Wronskians of polynomials]
 \begin{align*}
-(i) && W(\{ x^k/k! \}_{k=0}^m; x) & = 1 \\
-(iii) && W(\{ x^k/k! \}_{k=0, k \neq j}^m ; x) & = W(\{ x^k/k! \}_{k=1}^{m-j} ; x) \\
-(iii) && W(\{ x^k/k! \}_{k=1}^m ; x) & = x^m/m!
+(i) && \Wpoly{k=0}{m} & = 1 \\
+(iii) && \Wpoly{k=0,k \neq j}{m} & = \Wpoly{k=1}{m-j} \\
+(iii) && \Wpoly{k=1}{m} & = \Poly{m}
 \end{align*}
 \label{lem:poly}
 \end{lemma}
@@ -1193,43 +1210,47 @@ The remainder follows from the definition of $W(\{e^{\lambda_k x} \}_{k=1}^m ; 0
 \begin{proof}
 \begin{description}
 \item[$(i)$] \begin{equation*}
-W(\{ x^k/k! \}_{k=0}^m ; x) = \begin{vmatrix} 1 & x & x^2/2 & \dots & x^m/m! \\
-0 & 1 & x & \dots & x^{m-1}/(m-1)! \\
+\Wpoly{k=0}{m} = \begin{vmatrix} 1 & x & \Poly{2} & \dots & \Poly{m} \\
+0 & 1 & x & \dots & \poly{m-1} \\
 \vdots & \ddots & \ddots & \ddots & \vdots \\
 0 & 0 & \dots & 0 & 1 \end{vmatrix} = 1
 \end{equation*}
 \item[$(ii)$] \begin{align*}
-W & (\{ x^k/k! \}_{k=0, k \neq j}^m ; x) = && \\
-& \begin{vmatrix}
-1      & x      & \dots  & x^{j-1}/(j-1)! & x^{j+1}/(j+1)! & \dots & x^m    /m!     \\
-0      & 1      & \dots  & x^{j-2}/(j-2)! & x^j    / j!    & \dots & x^{m-1}/(m-1)! \\
-\vdots &        & \ddots & \ddots         & \ddots         & \ddots& \vdots         \\
-0      &        & \dots  & 1              & x^2/2!         & \dots & x^{m-j+1}/(m-j+1)!\\
-       &        &        & 0              & x              &       & x^{m-j}/(m-j)! \\
-       &        &        & 0              & 1              &       & x^{m-j-1}/(m-j-1)!\\
-       &        &        & \vdots         & \vdots         & \ddots& \vdots         \\
-       &        &        & 0              & 0              & \dots & 1
+\Wpoly{k=0,k \neq j}{m} & =
+\begin{vmatrix}
+1      & x & \dots  & \poly{j-1} & \poly{j+1} & \dots & \Poly{m}    \\
+0      & 1 & \dots  & \poly{j-2} & \poly{j}   & \dots & \poly{m-1}  \\
+\vdots &   & \ddots & \ddots     & \ddots     & \ddots& \vdots      \\
+0      &   & \dots  & 1          & \poly{2}   & \dots & \poly{m-j+1}\\
+       &   &        & 0          & x          &       & \poly{m-j}  \\
+       &   &        & 0          & 1          &       & \poly{m-j-1}\\
+       &   &        & \vdots     & \vdots     & \ddots& \vdots      \\
+       &   &        & 0          & 0          & \dots & 1
 \end{vmatrix} \\
-& = W(\{ x^k/k! \}_{k=0}^{j-1} ; x) W(\{ x^k/k! \}_{k=1}^{m-j} ; x) \\
-& = W(\{ x^k/k! \}_{k=1}^{m-j} ; x) .
+& = \Wpoly{k=0}{j-1} \Wpoly{k=1}{m-j} \\
+& = \Wpoly{k=1}{m-j} .
 \end{align*}
 \item[$(iii)$] The statement is trivially true for $m=1$.
 Apply strong induction by supposing it is true for $n<m$.
 Calculate the Wronskian by expanding through the top row of the matrix:
 \begin{align*}
-W & (\{ x^k/k! \}_{k=1}^m ; x) = \begin{vmatrix}
-x & \dots & x^m/m! \\
+\Wpoly{k=1}{m} & = \begin{vmatrix}
+x & \dots & \Poly{m} \\
 1 & \ddots & \vdots \\
-0 & \ddots & \\
-\vdots & \ddots & \\
-0 & \dots & 1
-\end{vmatrix} \\
-& = \sum_{n=1}^m (-1)^{n+1} x^n/n! W(\{x^k/k!\}_{k=0, k\neq n}^{m-1}; x) \\
-& = \sum_{n=1}^m (-1)^{n+1} x^n/n! W(\{x^k/k!\}_{k=1}^{m-n}; x) \quad \text{by $(ii)$} \\
-& = \sum_{n=1}^m (-1)^{n+1} x^n/n! x^{m-n}/(m-n)! \quad \text{by our induction hypothesis} \\
-& = x^m/m! \sum_{n=1}^m (-1)^{n+1} \begin{pmatrix} m \\ n \end{pmatrix} \\
-& = x^m/m! \quad \text{by an identity of the binomial coefficients. (nb:cite)}
+0 & 1 & x \end{vmatrix}
+%\\
+%\vdots & \ddots & \\
+%0 & \dots & 1
+%\end{vmatrix}
+\\
+& = x \begin{vmatrix} x & \dots & \poly{m-1} \\ 1 & \ddots & \vdots \\ 0 & 1 & x \end{vmatrix} - \dots + (-1)^{m+1} \Poly{m} \begin{vmatrix} 1 & \dots & \poly{m-2} \\  & \ddots & \vdots \\ 0 &  & 1 \end{vmatrix} \\
+& = \sum_{n=1}^m (-1)^{n+1} \Poly{n} \Wpoly{k=0,k \neq n-1}{m-1} \\
+& = \sum_{n=1}^m (-1)^{n+1} \Poly{n} \Wpoly{k=1}{m-n} \quad \text{by $(ii)$} \\
+& = \sum_{n=1}^m (-1)^{n+1} \Poly{n} \poly{m-n} \quad \text{by our induction hypothesis} \\
+& = \Poly{m} \sum_{n=1}^m (-1)^{n+1} \binom{m}{n} \\
+& = \Poly{m}
 \end{align*}
+by an identity of the binomial coefficients. (nb: cite)
 \end{description}
 \end{proof}
 
@@ -1245,32 +1266,32 @@ It is trivially true for $m=1$.
 Apply strong induction by supposing it is true for $n<m$, for any set of functions.
 Calculate the Wronskian by expanding through the bottom row of the matrix:
 \begin{align*}
-W & (\{ f_k g \}_{k=1}^m ; x) = \\
+\W{\set{f_k g}_{k=1}^m}{x} = \\
 & \begin{vmatrix}
 f_1 g & \dots & f_m g \\
 \vdots & & \vdots \\
-\sum_{j=0}^{m-1} \begin{pmatrix} m-1 \\ j \end{pmatrix} f_1^{(m-1-j)} g^{(j)}
-& \dots & \sum_{j=0}^{m-1} \begin{pmatrix} m-1 \\ j \end{pmatrix} f_m^{(m-1-j)} g^{(j)}
+\sum_{j=0}^{m-1} \binom{m-1}{j} f_1^{(m-1-j)} g^{(j)}
+& \dots & \sum_{j=0}^{m-1} \binom{m-1}{j} f_m^{(m-1-j)} g^{(j)}
 \end{vmatrix} \\
-& = \sum_{i=1}^m (-1)^{i+m} W(\{f_k g\}_{k \neq i} ; x) \sum_{j=0}^{m-1} \begin{pmatrix} m-1 \\ j \end{pmatrix} f_i^{(m-1-j)} g^{(j)} \\
-& = \sum_{i=1}^m (-1)^{i+m} g^{m-1} W(\{ f_k \}_{k \neq i} ; x) \sum_{j=0}^{m-1} \begin{pmatrix} m-1 \\ j \end{pmatrix} f_i^{(m-1-j)} g^{(j)} \\
+& = \sum_{i=1}^m (-1)^{i+m} W(\{f_k g\}_{k \neq i} ; x) \sum_{j=0}^{m-1} \binom{m-1}{j} f_i^{(m-1-j)} g^{(j)} \\
+& = \sum_{i=1}^m (-1)^{i+m} g^{m-1} W(\{ f_k \}_{k \neq i} ; x) \sum_{j=0}^{m-1} \binom{m-1}{j} f_i^{(m-1-j)} g^{(j)} \\
 & \quad \text{by our induction hypothesis} \\
-& = g^{m-1} \sum_{j=0}^{m-1} \begin{pmatrix} m-1 \\ j \end{pmatrix} g^{(j)}
+& = g^{m-1} \sum_{j=0}^{m-1} \binom{m-1}{j} g^{(j)}
 \sum_{i=1}^m (-1)^{i+m} W(\{f_k\}_{k\neq i} ; x) f_i^{(m-1-j)} \\
-& = g^{m-1} \sum_{j=0}^{m-1} \begin{pmatrix} m-1 \\ j \end{pmatrix} g^{(j)}
+& = g^{m-1} \sum_{j=0}^{m-1} \binom{m-1}{j} g^{(j)}
 \begin{vmatrix} f_1 & \dots & f_m \\
 \vdots & & \vdots \\
 f_1^{(m-2)} & \dots & f_m^{(m-2)} \\
 f_1^{(m-1-j)} & \dots & f_m^{(m-1-j)} \end{vmatrix} \\
-& = g^{m-1} \sum_{j=0}^{m-1} \begin{pmatrix} m-1 \\ j \end{pmatrix} g^{(j)} \times \begin{cases} 0 & j\neq 0 \\
+& = g^{m-1} \sum_{j=0}^{m-1} \binom{m-1}{j} g^{(j)} \times \begin{cases} 0 & j\neq 0 \\
 W(\{f_k\}_{k=1}^m ; x) & j = 0 \end{cases} \\
 & = g^m W(\{f_k\}_{k=1}^m ; x) .
 \end{align*}
 \end{proof}
 
-\begin{lemma}{Wronskian of linear sums of functions}
+\begin{lemma}[Wronskian of linear sums of functions]
 \begin{equation*}
-W( \{ \sum_{k=1}^m a_{k,j} f_k(x) \}_{j=1}^{m-1} ; x) = \sum_{n=1}^m W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
+\W{ \set{ \sum_{k=1}^m a_{k,j} f_k(x) }_{j=1}^{m-1} }{ x} = \sum_{n=1}^m W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
 a_{1,1} & \dots & a_{1,m-1} \\
 \vdots & & \vdots \\
 a_{n-1,1} & \dots & a_{n-1,m-1} \\
@@ -1297,16 +1318,26 @@ a_{n-1,1} & \dots & a_{n-1,m-1} \\
 a_{n+1,1} & \dots & a_{n+1,m-1} \\
 \vdots & & \vdots \\
 a_{m,1} & \dots & a_{m,m-1}
-\end{vmatrix} \\
-& \quad \text{by the Cauchy-Binet formula.}
+\end{vmatrix}
 \end{align*}
+by the Cauchy-Binet formula.
 \end{proof}
+
+\newcommand{\fmn}[2]{\bar{f}^{#2}_{#1}}
+
+\begin{defn}
+Let $\fmn{n}{m}(\lambda):\mathbb{R} \rightarrow \mathbb{R}^m$ be a vector-valued function defined elementwise as
+\begin{equation*}
+\bar{f}_{n,j}(\lambda) = \begin{cases} e^{\lambda x} \lambda^{j-n} \times \begin{cases} 0 & j< n, \\ \binom{j}{n} & j \geq n \end{cases} & \lambda \neq 0 \\
+\begin{cases} 1 & j = n \\ 0 & j \neq n \end{cases} & \lambda = 0. \end{cases}
+\end{equation*}
+\end{defn}
 
 \begin{lemma}
 Let $f_k$ represent the vector such that the $j$--th element of $f_k$ is equal to the $j$--th derivative of the function $x^k/k! e^{\lambda x}$ ($\lambda \neq 0$).
 Then $f_k = \sum_{n=0}^k x^{k-n}/(k-n)! \tilde{f}_n$, where $\tilde{f}_n$ is defined elementwise as
 \begin{equation*}
-\tilde{f}_{n,j} = e^{\lambda x} \lambda^{j-n} \begin{cases} 0 & j < n, \\ \begin{pmatrix} j \\ n \end{pmatrix} & j \geq n . \end{cases}
+\tilde{f}_{n,j} = e^{\lambda x} \lambda^{j-n} \begin{cases} 0 & j < n, \\ \binom{j}{n} & j \geq n . \end{cases}
 \end{equation*}
 \label{lem:vec}
 \end{lemma}
@@ -1314,9 +1345,7 @@ Then $f_k = \sum_{n=0}^k x^{k-n}/(k-n)! \tilde{f}_n$, where $\tilde{f}_n$ is def
 \begin{proof}
 The $j$--th derivative of the function $x^k/k! e^{\lambda x}$ is straightforward to calculate:
 \begin{equation*}
-f_{k,j} = e^{\lambda x} \sum_{n=0}^{\min\{k,j\}} \begin{pmatrix}
-j \\ n
-\end{pmatrix}
+f_{k,j} = e^{\lambda x} \sum_{n=0}^{\min\{k,j\}} \binom{j}{n}
 x^{k-n}/(k-n)! \lambda^{j-n} .
 \end{equation*}
 The remainder is a matter of padding with zeros and indexing in the desired fashion.
@@ -1372,8 +1401,7 @@ Then the Wronskian for $E \setminus \{ x^n/n! e^{\lambda_j x} \}$ is equal to:
 W & (E \setminus \{ x^n/n! e^{\lambda_j x} \} ; x) = \\
 & \sum_{k=n}^{m_j} \frac{x^{k-n}}{(k-n)!} \begin{vmatrix} \tilde{f}_0(\lambda_1) & \dots & \tilde{f}_{m_1-1}(\lambda_1) & \tilde{f}_0(\lambda_2) & \dots
 & \tilde{f}_{k-1}(\lambda_j) & \tilde{f}_{k+1}(\lambda_j) & \dots & \tilde{f}_{m_M-1}(\lambda_M) \end{vmatrix} .
-\end{align*}
-\label{thm:wcc}
+\end{align*} \label{thm:wcc}
 \end{thm}
 
 \begin{proof}
@@ -1383,6 +1411,7 @@ The case where $M = 1$ can be covered by combining lemmas \ref{lem:poly} and \re
 W(\{ x^k/k! e^{\lambda_1 x} \}_{k\neq j} ; x) = e^{(m-1) \lambda_j x} W(\{x^k/k!\}_{k \neq j} ; x) .
 \end{equation*}
 The special case where $\lambda_j = 0$ for all $j$ is treated in lemma \ref{lem:poly}.
+Note the functions $\bar{f}_k(\lambda)$ have a removable singularity for $\lambda=0$.
 For $1 < M < m$ we can make use of lemmas \ref{lem:vec} and \ref{lem:key}.
 
 For $1 < M < m$ the desired Wronskians can be written as:

@@ -1,6 +1,6 @@
 \documentclass{book}
 
-\usepackage{/home/mccoid/Documents/LaTeX/preamble}
+\usepackage{/home/mccoid/LaTeX/preamble}
 
 \setcounter{MaxMatrixCols}{20}
 
@@ -1266,8 +1266,8 @@ It is trivially true for $m=1$.
 Apply strong induction by supposing it is true for $n<m$, for any set of functions.
 Calculate the Wronskian by expanding through the bottom row of the matrix:
 \begin{align*}
-\W{\set{f_k g}_{k=1}^m}{x} = \\
-& \begin{vmatrix}
+\W{\set{f_k g}_{k=1}^m}{x}
+& = \begin{vmatrix}
 f_1 g & \dots & f_m g \\
 \vdots & & \vdots \\
 \sum_{j=0}^{m-1} \binom{m-1}{j} f_1^{(m-1-j)} g^{(j)}
@@ -1311,7 +1311,7 @@ g_1 & \dots & g_{m-1} \\
 \vdots & & \vdots \\
 g_1^{(m-2)} & \dots & g_{m-1}^{(m-2)} \end{vmatrix} \\
 & = \det \left ( \begin{bmatrix} f_1 & \dots & f_m \\ \vdots & & \vdots \\ f_1^{(m-2)} & \dots & f_m^{(m-2)} \end{bmatrix} \begin{bmatrix} a_{1,1} & \dots & a_{1,m-1} \\ \vdots & & \vdots \\ a_{m,1} & \dots & a_{m,m-1} \end{bmatrix} \right ) \\
-& = \sum_{n=1}^{m-1} W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
+& = \sum_{n=1}^{m} W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
 a_{1,1} & \dots & a_{1,m-1} \\
 \vdots & & \vdots \\
 a_{n-1,1} & \dots & a_{n-1,m-1} \\
@@ -1328,10 +1328,37 @@ by the Cauchy-Binet formula.
 \begin{defn}
 Let $\fmn{n}{m}(\lambda):\mathbb{R} \rightarrow \mathbb{R}^m$ be a vector-valued function defined elementwise as
 \begin{equation*}
-\bar{f}_{n,j}(\lambda) = \begin{cases} e^{\lambda x} \lambda^{j-n} \times \begin{cases} 0 & j< n, \\ \binom{j}{n} & j \geq n \end{cases} & \lambda \neq 0 \\
+\fmn{n,j}{m}(\lambda) = \begin{cases} e^{\lambda x} \lambda^{j-n} \times \begin{cases} 0 & j< n, \\ \binom{j}{n} & j \geq n \end{cases} & \lambda \neq 0 \\
 \begin{cases} 1 & j = n \\ 0 & j \neq n \end{cases} & \lambda = 0. \end{cases}
 \end{equation*}
 \end{defn}
+
+\begin{lemma}
+The Wronskian of a set of functions containing $E_\lambda = \set{\Poly{k} e^{\lambda x}}_{k=0}^{m_\lambda}$ may be written as
+\begin{equation*}
+\W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda }{x} = \begin{vmatrix} \bar{g}^m_1 & \dots & \bar{g}^m_{m - m_\lambda} & \fmn{1}{m}(\lambda) & \dots & \fmn{m_\lambda}{m}(\lambda) \end{vmatrix} ,
+\end{equation*}
+where $\bar{g}_i^m$ represents the vector of length $m$ with entries equal to the derivatives of $g_i$ at the point $x$.
+Furthermore, the Wronskian of the same set without the function $\Poly{j} e^{\lambda x}$ may be written as
+\begin{align*}
+& \W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda \setminus \set{\Poly{j} e^{\lambda x}}}{x} \\
+& = \sum_{n=j}^{m_\lambda} \poly{n-j} \begin{vmatrix} \bar{g}^{m-1}_1 & \dots & \bar{g}^{m-1}_{m - m_\lambda} & \fmn{1}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1} & \fmn{n+1}{m-1} & \dots & \fmn{m_\lambda}{m-1}(\lambda) \end{vmatrix} .
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+The $j$--th derivative of the function $\Poly{k} e^{\lambda x}$ is straightforward to calculate:
+\begin{equation*}
+\sum_{n=0}^{\min \set{k,j}} e^{\lambda x} \lambda^{j-n} \binom{j}{n} \poly{k-n} = \sum_{n=0}^k \fmn{n,j}{m}(\lambda) \poly{k-n}.
+\end{equation*}
+Thus, the columns of the determinant representing the functions in $E_\lambda$ may be written as linear combinations of the vector-valued functions $\fmn{k}{m}(\lambda)$.
+
+% make this part more rigourous
+The first of these columns, representing $e^{\lambda x}$, contains only $\fmn{0}{m}$.
+The remaining columns each contain a parallel and an orthogonal vector to $\fmn{0}{m}$.
+By the properties of the determinant (nb: cite?) the parallel component may be ignored.
+Thus, the second column, representing $x e^{\lambda x}$, provides only $\fmn{1}{m}$ to the determinant.
+\end{proof}
 
 \begin{lemma}
 Let $f_k$ represent the vector such that the $j$--th element of $f_k$ is equal to the $j$--th derivative of the function $x^k/k! e^{\lambda x}$ ($\lambda \neq 0$).

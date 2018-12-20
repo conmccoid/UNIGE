@@ -1,7 +1,7 @@
 \documentclass{book}
 
-%\usepackage{/home/mccoid/LaTeX/preamble}
-\usepackage{C:/Users/conmc/Documents/LaTeX/preamble}
+\usepackage{/home/mccoid/LaTeX/preamble}
+%\usepackage{C:/Users/conmc/Documents/LaTeX/preamble}
 
 \setcounter{MaxMatrixCols}{20}
 
@@ -1210,11 +1210,12 @@ The remainder follows from the definition of $\W{\set{e^{\lambda_k x}}_{k=1}^m}{
 
 \begin{proof}
 \begin{description}
-\item[$(i)$] \begin{equation*}
+\item[$(i)$] This is simply the determinant of an upper triangular matrix with ones along the diagonal:
+\begin{equation*}
 \Wpoly{k=0}{m} = \begin{vmatrix} 1 & x & \Poly{2} & \dots & \Poly{m} \\
 0 & 1 & x & \dots & \poly{m-1} \\
 \vdots & \ddots & \ddots & \ddots & \vdots \\
-0 & 0 & \dots & 0 & 1 \end{vmatrix} = 1
+0 & 0 & \dots & 0 & 1 \end{vmatrix} = 1 .
 \end{equation*}
 \item[$(ii)$] \begin{align*}
 \Wpoly{k=0,k \neq j}{m} & =
@@ -1326,97 +1327,93 @@ by the Cauchy-Binet formula.
 
 \newcommand{\fmn}[2]{\bar{f}^{#2}_{#1}}
 
+% needs to be rewritten to add exponential dependence
+
 \begin{defn}
 Let $\fmn{n}{m}(\lambda):\mathbb{R} \rightarrow \mathbb{R}^m$ be a vector-valued function defined elementwise as
 \begin{equation*}
-\fmn{n,j}{m}(\lambda) = \begin{cases} e^{\lambda x} \lambda^{j-n} \times \begin{cases} 0 & j< n, \\ \binom{j}{n} & j \geq n \end{cases} & \lambda \neq 0 \\
+\fmn{n,j}{m}(\lambda) = \begin{cases} \lambda^{j-n} \times \begin{cases} 0 & j< n, \\ \binom{j}{n} & j \geq n \end{cases} & \lambda \neq 0 \\
 \begin{cases} 1 & j = n \\ 0 & j \neq n \end{cases} & \lambda = 0. \end{cases}
 \end{equation*}
 \end{defn}
 
+\newcommand{\Wspecone}{\W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda }{x}}
+\newcommand{\Wspectwo}[1]{\W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda \setminus \set{\poly{#1} e^{\lambda x}}}{x}}
+\newcommand{\Detspec}[2]{\begin{vmatrix} \bar{g}_1^{m-1} & \dots & \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{#1 - 1}{m-1}(\lambda) & \fmn{#1 + 1}{m-1}(\lambda) & \dots & \fmn{#2}{m-1}(\lambda) \end{vmatrix}}
+
 \begin{lemma}
 The Wronskian of a set of functions containing $E_\lambda = \set{\Poly{k} e^{\lambda x}}_{k=0}^{m_\lambda}$ may be written as
 \begin{equation*}
-\W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda }{x} = \begin{vmatrix} \bar{g}^m_1 & \dots & \bar{g}^m_{m - m_\lambda} & \fmn{1}{m}(\lambda) & \dots & \fmn{m_\lambda}{m}(\lambda) \end{vmatrix} ,
+\Wspecone = e^{m_\lambda \lambda x} \begin{vmatrix} \bar{g}^m_1 & \dots & \bar{g}^m_{m_g} & \fmn{0}{m}(\lambda) & \dots & \fmn{m_\lambda}{m}(\lambda) \end{vmatrix} ,
 \end{equation*}
-where $\bar{g}_i^m$ represents the vector of length $m$ with entries equal to the derivatives of $g_i$ at the point $x$.
+where $\bar{g}_i^m$ represents the vector of length $m = m_g + m_\lambda +1$ with entries equal to the derivatives of $g_i$ at the point $x$.
 Furthermore, the Wronskian of the same set without the function $\Poly{j} e^{\lambda x}$ may be written as
 \begin{align*}
-& \W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda \setminus \set{\Poly{j} e^{\lambda x}}}{x} \\
-& = \sum_{n=j}^{m_\lambda} \poly{n-j} \begin{vmatrix} \bar{g}^{m-1}_1 & \dots & \bar{g}^{m-1}_{m - m_\lambda} & \fmn{1}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1} & \fmn{n+1}{m-1} & \dots & \fmn{m_\lambda}{m-1}(\lambda) \end{vmatrix} .
+& \Wspectwo{j} \\
+& = e^{(m_\lambda - 1) \lambda x} \sum_{n=j}^{m_\lambda} \poly{n-j} \begin{vmatrix} \bar{g}^{m-1}_1 & \dots & \bar{g}^{m-1}_{m_g} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1} & \fmn{n+1}{m-1} & \dots & \fmn{m_\lambda}{m-1}(\lambda) \end{vmatrix} .
 \end{align*}
 \end{lemma}
 
 \begin{proof}
+Let the column vector of length $m$, $f_k^m$, represent the function $\Poly{k} e^{\lambda x}$ in the calculation of the Wronskian:
+\begin{equation*}
+\Wspecone = \begin{vmatrix} \bar{g}_1^m & \dots & \bar{g}_{m_g}^m & f_0^m & \dots f_{m_\lambda}^m \end{vmatrix} .
+\end{equation*}
 The $j$--th derivative of the function $\Poly{k} e^{\lambda x}$ is straightforward to calculate:
 \begin{equation*}
-\sum_{n=0}^{\min \set{k,j}} e^{\lambda x} \lambda^{j-n} \binom{j}{n} \poly{k-n} = \sum_{n=0}^k \fmn{n,j}{m}(\lambda) \poly{k-n}.
+f_{k,j}^m = \sum_{n=0}^{\min \set{k,j}} e^{\lambda x} \lambda^{j-n} \binom{j}{n} \poly{k-n} = \sum_{n=0}^k \fmn{n,j}{m}(\lambda) \poly{k-n}.
 \end{equation*}
-Thus, the columns of the determinant representing the functions in $E_\lambda$ may be written as linear combinations of the vector-valued functions $\fmn{k}{m}(\lambda)$.
+Thus, the columns $f_k^m$ may be written as linear combinations of the vector-valued functions $\fmn{n}{m}(\lambda)$.
 
-% make this part more rigourous
-The first of these columns, representing $e^{\lambda x}$, contains only $\fmn{0}{m}$.
-The remaining columns each contain a parallel and an orthogonal vector to $\fmn{0}{m}$.
-By the properties of the determinant (nb: cite?) the parallel component may be ignored.
-Thus, the second column, representing $x e^{\lambda x}$, provides only $\fmn{1}{m}$ to the determinant.
+When calculating a determinant, one may remove the portions of a column that is orthogonal to others in the matrix.
+The Wronskian is then
+\begin{equation*}
+\begin{split}
+& \Wspecone \\ & = \begin{vmatrix} \bar{g}_1^m & \dots \bar{g}_{m_g}^m & \fmn{0}{m}(\lambda) & \fmn{1}{m}(\lambda) + x \fmn{0}{m}(\lambda) & \dots & \sum_{n=0}^{m_\lambda} \poly{m_\lambda - n} \fmn{n}{m}(\lambda) \end{vmatrix} \\
+& = \begin{vmatrix} \bar{g}_1^m & \dots \bar{g}_{m_g}^m & \fmn{0}{m}(\lambda) & \fmn{1}{m}(\lambda) & \dots & \sum_{n=1}^{m_\lambda} \poly{m_\lambda - n} \fmn{n}{m}(\lambda) \end{vmatrix} \\
+& \vdots \\
+& = \begin{vmatrix} \bar{g}_1^m & \dots \bar{g}_{m_g}^m & \fmn{0}{m}(\lambda) & \dots & \fmn{m_\lambda}{m}(\lambda) \end{vmatrix} .
+\end{split}
+\end{equation*}
+Thus, the first statement of the lemma is proven.
+
+For the case where the function $\Poly{j} e^{\lambda x}$ is removed from the set, one may use the same procedure, stopping at $\fmn{j-1}{m}(\lambda)$:
+\begin{equation*}
+\Wspectwo{j} = \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{j-1}{m-1}(\lambda) & f_{j+1}^{m-1} & \dots f_{m_\lambda}^{m-1} \end{vmatrix} .
+\end{equation*}
+If $j = m_\lambda$ then the second statement is true as it is a particular case of the first statement.
+
+It suffices to show the statement is true for all $0 \leq j \leq m_\lambda$.
+While it may seem more natural to fix $m_\lambda$ and prove the statement for all $j$, it is equivalent to fix $j$ and prove the statement for all $m_\lambda \geq j$.
+
+Thus, let $j \geq 0$ be arbitrary.
+Suppose the statement is true for all $j \leq m_\lambda < M$.
+We show the statement is then true for $M$:
+\begin{equation*}
+\begin{split}
+& \W{ \set{g_i}_{i=1}^{m - M} \cup E_\lambda \setminus \set{\poly{j} e^{\lambda x}}}{x} \\
+& = \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{j-1}{m-1}(\lambda) & f_{j+1}^{m-1} & \dots f_{M}^{m-1} \end{vmatrix} \\
+& = \sum_{n=j}^{M-1} \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M-1}{m-1}(\lambda) & \fmn{M}{m-1}(\lambda) + \poly{M-n} \fmn{n}{m-1}(\lambda) \end{vmatrix} \\ & \quad \text{by the induction hypothesis and earlier work} \\
+& = \sum_{n=j}^{M-1} \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M}{m-1}(\lambda) \end{vmatrix} \\
+& + \sum_{n=j}^{M-1} (-1)^{M-n} \poly{n-j} \poly{M-n} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{M-1}{m-1}(\lambda) \end{vmatrix} \\
+& = \sum_{n=j}^{M-1} \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M}{m-1}(\lambda) \end{vmatrix} \\
+& + \poly{M-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{M-1}{m-1}(\lambda) \end{vmatrix} \sum_{n=j}^{M-1} (-1)^{M-n} \binom{M-j}{n-j} \\
+& = \sum_{n=j}^M \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M}{m-1}(\lambda) \end{vmatrix}
+\end{split}
+\end{equation*}
+and the statement is true for all $m_\lambda \geq j$.
+As $j$ is arbitrary, the statement is true for all $0 \leq j \leq m_\lambda$.
+
+% would be nice to rewrite this for clarity and conciseness
 \end{proof}
 
-\begin{lemma}
-Let $f_k$ represent the vector such that the $j$--th element of $f_k$ is equal to the $j$--th derivative of the function $x^k/k! e^{\lambda x}$ ($\lambda \neq 0$).
-Then $f_k = \sum_{n=0}^k x^{k-n}/(k-n)! \tilde{f}_n$, where $\tilde{f}_n$ is defined elementwise as
+\begin{cor}[Wronskians for constant coefficient operators]
+Let $E_k = \set{\Poly{j} e^{\lambda_k x}}_{j=0}^{m_k-1}$ and $E = \cup_{j=1}^M E_j$.
+Then 
 \begin{equation*}
-\tilde{f}_{n,j} = e^{\lambda x} \lambda^{j-n} \begin{cases} 0 & j < n, \\ \binom{j}{n} & j \geq n . \end{cases}
+\W{E}{x} =
 \end{equation*}
-\label{lem:vec}
-\end{lemma}
-
-\begin{proof}
-The $j$--th derivative of the function $x^k/k! e^{\lambda x}$ is straightforward to calculate:
-\begin{equation*}
-f_{k,j} = e^{\lambda x} \sum_{n=0}^{\min\{k,j\}} \binom{j}{n}
-x^{k-n}/(k-n)! \lambda^{j-n} .
-\end{equation*}
-The remainder is a matter of padding with zeros and indexing in the desired fashion.
-\end{proof}
-
-\begin{lemma}
-Let $f_k$ and $\tilde{f}_k$ be defined as in the previous lemma.
-Suppose we are concerned with the determinant of a matrix that contains, as columns, the set $\{f_k\}_{k=0, k \neq j}^m$:
-\begin{equation*}
-\begin{vmatrix} \dots & f_0 & \dots & f_{j-1} & f_{j+1} & \dots & f_m & \dots \end{vmatrix} .
-\end{equation*}
-Then the determinant can be written as:
-\begin{equation*}
-\sum_{n=j}^m \frac{x^{n-j}}{(n-j)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_m & \dots \end{vmatrix} .
-\end{equation*}
-\label{lem:key}
-\end{lemma}
-
-\begin{proof}
-The statement is true for $m=j$ by inspection.
-We suppose the statement is true for $m$ and prove it is true for $m+1$.
-Note that we could also proceed by supposing it is true for $j$ and prove it is true for $j-1$.
-
-Moving to $m+1$ means the inclusion of the column $f_{m+1}$.
-To begin, we can suppose this column is part of the section of the matrix not represented by these columns:
-\begin{align*}
-& \begin{vmatrix} \dots & f_0 & \dots & f_{j-1} & f_{j+1} & \dots & f_m & f_{m+1} & \dots \end{vmatrix} = \\
-& \sum_{n=j}^m \frac{x^{n-j}}{(n-j)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_m & f_{m+1} & \dots \end{vmatrix} = \\
-& \sum_{n=j}^m \frac{x^{n-j}}{(n-j)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_m & \frac{x^{m+1-n}}{(m+1-n)!} \tilde{f}_n + \tilde{f}_{m+1} & \dots \end{vmatrix} \\
-& \text{by the previous lemma} \\
-& = \sum_{n=j}^m \frac{x^{n-j}}{(n-j)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_m & & \tilde{f}_{m+1} \dots \end{vmatrix} + \\
-& \sum_{n=j}^m \frac{x^{n-j}}{(n-j)!} \frac{x^{m+1-n}}{(m+1-n)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_m & \tilde{f}_n & \dots \end{vmatrix} \\
-& = \sum_{n=j}^m \frac{x^{n-j}}{(n-j)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_m & & \tilde{f}_{m+1} \dots \end{vmatrix} + \\
-&  \frac{x^{m+1-j}}{(m+1-j)!} \sum_{n=j}^m (-1)^{m+1-n} \begin{pmatrix} m+1-j \\ n-j \end{pmatrix}
-\begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_m & \dots \end{vmatrix} \\
-& = \sum_{n=j}^m \frac{x^{n-j}}{(n-j)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_m & & \tilde{f}_{m+1} \dots \end{vmatrix} + \\
-& \frac{x^{m+1-j}}{(m+1-j)!}
-\begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_m & \dots \end{vmatrix}
-\sum_{n=0}^{m-j} (-1)^{m+1-j-n} \begin{pmatrix} m+1-j \\ n \end{pmatrix} = \\
-& \sum_{n=j}^{m+1} \frac{x^{n-j}}{(n-j)!} \begin{vmatrix} \dots & \tilde{f}_0 & \dots & \tilde{f}_{n-1} & \tilde{f}_{n+1} & \dots & \tilde{f}_{m+1} & \dots \end{vmatrix}
-\end{align*}
-by the same property of the binomial coefficient used earlier in lemma \ref{lem:poly}.
-\end{proof}
+\end{cor}
 
 \begin{thm}{Wronskians for constant coefficient operators}
 Let $\mathcal{L} u(x) = \sum_{k=0}^m a_k u^{(k)}(x)$.
@@ -1538,7 +1535,7 @@ Currently only a brute-force approach is provided, but it is expected that there
 \end{description}
 
 \bibliographystyle{plain}
-%\bibliography{/home/mccoid/Documents/LaTeX/references}
-\bibliography{C:/Users/conmc/Documents/LaTeX/references}
+\bibliography{/home/mccoid/Documents/LaTeX/references}
+%\bibliography{C:/Users/conmc/Documents/LaTeX/references}
 
 \end{document}

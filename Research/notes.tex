@@ -1163,14 +1163,14 @@ The Cauchy-Binet formula then provides this determinant in terms of determinants
 \end{align*}
 
 \section{Wronskians}
-
+% the first three lemmas are actually special cases of the lemma labelled expgroup; they could be removed or placed in an appendix or something...
 \begin{lemma}[Wronskians of exponentials]
 \begin{equation*}
 W(\{e^{\lambda_k x} \}_{k=1}^m; x) = \begin{vmatrix} 1 & \dots & 1 \\
 \lambda_1 & \dots & \lambda_m \\
 \vdots & \ddots & \vdots \\
 \lambda_1^{m-1} & \dots & \lambda_m^{m-1} \end{vmatrix}
-e^{-x \sum_{k=1}^m \lambda_k} .
+e^{x \sum_{k=1}^m \lambda_k} .
 \end{equation*}
 \label{lem:exp}
 \end{lemma}
@@ -1191,7 +1191,7 @@ Then $\mathcal{L} e^{\lambda_k x} = e^{\lambda_k x} \sum_{j=0}^m a_j \lambda^j =
 Therefore, $\set{e^{\lambda_k x}}$ is the fundamental solution set of $\mathcal{L}$.
 
 By Abel's identity $\W{\set{e^{\lambda_k x}}_{k=1}^m}{x} = \W{\set{e^{\lambda_k x}}_{k=1}^m}{0} e^{-\int_0^x a_{m-1} / a_m ds}.$
-By the definition of $p(x)$ $a_m = 1$ and $a_{m-1} = \sum_{k=1}^m \lambda_k$.
+By the definition of $p(x)$ $a_m = 1$ and $a_{m-1} = -\sum_{k=1}^m \lambda_k$.
 The remainder follows from the definition of $\W{\set{e^{\lambda_k x}}_{k=1}^m}{0}$.
 
 (nb: this lemma and proof likely already exists in literature)
@@ -1202,7 +1202,7 @@ The remainder follows from the definition of $\W{\set{e^{\lambda_k x}}_{k=1}^m}{
 \begin{lemma}[Wronskians of polynomials]
 \begin{align*}
 (i) && \Wpoly{k=0}{m} & = 1 \\
-(iii) && \Wpoly{k=0,k \neq j}{m} & = \Wpoly{k=1}{m-j} \\
+(ii) && \Wpoly{k=0,k \neq j}{m} & = \Wpoly{k=1}{m-j} \\
 (iii) && \Wpoly{k=1}{m} & = \Poly{m}
 \end{align*}
 \label{lem:poly}
@@ -1291,7 +1291,7 @@ W(\{f_k\}_{k=1}^m ; x) & j = 0 \end{cases} \\
 \end{align*}
 \end{proof}
 
-\begin{lemma}[Wronskian of linear sums of functions]
+\begin{lemma}[Wronskian of linear sums of functions] %this ought to be moved elsewhere
 \begin{equation*}
 \W{ \set{ \sum_{k=1}^m a_{k,j} f_k(x) }_{j=1}^{m-1} }{ x} = \sum_{n=1}^m W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
 a_{1,1} & \dots & a_{1,m-1} \\
@@ -1325,135 +1325,112 @@ a_{m,1} & \dots & a_{m,m-1}
 by the Cauchy-Binet formula.
 \end{proof}
 
-\newcommand{\fmn}[2]{\bar{f}^{#2}_{#1}}
-
-% needs to be rewritten to add exponential dependence
+\newcommand{\fmn}[3]{\bar{f}^{#2}_{#1}(\lambda_{#3})}
 
 \begin{defn}
-Let $\fmn{n}{m}(\lambda):\mathbb{R} \rightarrow \mathbb{R}^m$ be a vector-valued function defined elementwise as
+Let $\fmn{n}{m}{}:\mathbb{R} \rightarrow \mathbb{R}^m$ be a vector-valued function defined elementwise as
 \begin{equation*}
-\fmn{n,j}{m}(\lambda) = \begin{cases} \lambda^{j-n} \times \begin{cases} 0 & j< n, \\ \binom{j}{n} & j \geq n \end{cases} & \lambda \neq 0 \\
+\fmn{n,j}{m}{} = \begin{cases} \lambda^{j-n} \times \begin{cases} 0 & j< n, \\ \binom{j}{n} & j \geq n \end{cases} & \lambda \neq 0 \\
 \begin{cases} 1 & j = n \\ 0 & j \neq n \end{cases} & \lambda = 0. \end{cases}
 \end{equation*}
 \end{defn}
 
-\newcommand{\Wspecone}{\W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda }{x}}
-\newcommand{\Wspectwo}[1]{\W{ \set{g_i}_{i=1}^{m - m_\lambda} \cup E_\lambda \setminus \set{\poly{#1} e^{\lambda x}}}{x}}
+\newcommand{\Wspec}[2]{\W{ E \setminus \set{\poly{#1} e^{\lambda_{#2} x}}}{x}}
 \newcommand{\Detspec}[2]{\begin{vmatrix} \bar{g}_1^{m-1} & \dots & \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{#1 - 1}{m-1}(\lambda) & \fmn{#1 + 1}{m-1}(\lambda) & \dots & \fmn{#2}{m-1}(\lambda) \end{vmatrix}}
+\newcommand{\Detspectwo}[1]{\begin{vmatrix} A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{#1-1}{m-1}{} & \fmn{#1+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1} \end{vmatrix}}
 
-\begin{lemma}
-The Wronskian of a set of functions containing $E_\lambda = \set{\Poly{k} e^{\lambda x}}_{k=0}^{m_\lambda}$ may be written as
+\newcommand{\eone}{e^{(m_\lambda - 1)\lambda x}}
+
+\begin{lemma}[Wronskians of exponentials with multiplicity] \label{lem:expgroup}
+The Wronskian of a set of functions $E$ containing $E_\lambda = \set{\Poly{k} e^{\lambda x}}_{k=0}^{m_\lambda-1}$ may be written as
 \begin{equation*}
-\Wspecone = e^{m_\lambda \lambda x} \begin{vmatrix} \bar{g}^m_1 & \dots & \bar{g}^m_{m_g} & \fmn{0}{m}(\lambda) & \dots & \fmn{m_\lambda}{m}(\lambda) \end{vmatrix} ,
+\W{E}{x} = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \dots & \fmn{m_\lambda-1}{m}{} & B_m \end{vmatrix} ,
 \end{equation*}
-where $\bar{g}_i^m$ represents the vector of length $m = m_g + m_\lambda +1$ with entries equal to the derivatives of $g_i$ at the point $x$.
+where $A_m$ and $B_m$ are those columns of the matrix representing the functions within $E \setminus E_\lambda$ and their first $m-1$ derivatives evaluated at $x$.
+
 Furthermore, the Wronskian of the same set without the function $\Poly{j} e^{\lambda x}$ may be written as
 \begin{align*}
-& \Wspectwo{j} \\
-& = e^{(m_\lambda - 1) \lambda x} \sum_{n=j}^{m_\lambda} \poly{n-j} \begin{vmatrix} \bar{g}^{m-1}_1 & \dots & \bar{g}^{m-1}_{m_g} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1} & \fmn{n+1}{m-1} & \dots & \fmn{m_\lambda}{m-1}(\lambda) \end{vmatrix} .
+& \Wspec{j}{} \\
+& = e^{(m_\lambda - 1) \lambda x} \sum_{n=j}^{m_\lambda} \poly{n-j} \Detspectwo{n} .
 \end{align*}
 \end{lemma}
 
 \begin{proof}
 Let the column vector of length $m$, $f_k^m$, represent the function $\Poly{k} e^{\lambda x}$ in the calculation of the Wronskian:
 \begin{equation*}
-\Wspecone = \begin{vmatrix} \bar{g}_1^m & \dots & \bar{g}_{m_g}^m & f_0^m & \dots f_{m_\lambda}^m \end{vmatrix} .
+\W{E}{x} = \begin{vmatrix} A_m & f_0^m & \dots f_{m_\lambda}^m & B_m \end{vmatrix} .
 \end{equation*}
 The $j$--th derivative of the function $\Poly{k} e^{\lambda x}$ is straightforward to calculate:
 \begin{equation*}
-f_{k,j}^m = \sum_{n=0}^{\min \set{k,j}} e^{\lambda x} \lambda^{j-n} \binom{j}{n} \poly{k-n} = \sum_{n=0}^k \fmn{n,j}{m}(\lambda) \poly{k-n}.
+f_{k,j}^m = \sum_{n=0}^{\min \set{k,j}} \lambda^{j-n} \binom{j}{n} e^{\lambda x} \poly{k-n} = \sum_{n=0}^k \fmn{n,j}{m}{} e^{\lambda x} \poly{k-n}.
 \end{equation*}
-Thus, the columns $f_k^m$ may be written as linear combinations of the vector-valued functions $\fmn{n}{m}(\lambda)$.
-
-When calculating a determinant, one may remove the portions of a column that is orthogonal to others in the matrix.
-The Wronskian is then
+Thus, the columns $f_k^m$ may be written as linear combinations of the vector-valued functions $\fmn{n}{m}{}$.
+One may use a Gram-Schmidt process, starting with $u_1 = \fmn{0}{m}{}$, to prove the first statement:
 \begin{equation*}
 \begin{split}
-& \Wspecone \\ & = \begin{vmatrix} \bar{g}_1^m & \dots \bar{g}_{m_g}^m & \fmn{0}{m}(\lambda) & \fmn{1}{m}(\lambda) + x \fmn{0}{m}(\lambda) & \dots & \sum_{n=0}^{m_\lambda} \poly{m_\lambda - n} \fmn{n}{m}(\lambda) \end{vmatrix} \\
-& = \begin{vmatrix} \bar{g}_1^m & \dots \bar{g}_{m_g}^m & \fmn{0}{m}(\lambda) & \fmn{1}{m}(\lambda) & \dots & \sum_{n=1}^{m_\lambda} \poly{m_\lambda - n} \fmn{n}{m}(\lambda) \end{vmatrix} \\
+\W{E}{x} & = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \fmn{1}{m}{} + x \fmn{0}{m}{} & \dots & f_{m_\lambda-1}^m & B_m \end{vmatrix} \\
+& = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \fmn{1}{m}{} & \dots & f_{m_\lambda-1}^m & B_m \end{vmatrix} \\
 & \vdots \\
-& = \begin{vmatrix} \bar{g}_1^m & \dots \bar{g}_{m_g}^m & \fmn{0}{m}(\lambda) & \dots & \fmn{m_\lambda}{m}(\lambda) \end{vmatrix} .
+& = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \dots & \fmn{m_\lambda-1}{m}{} & B_m \end{vmatrix} .
 \end{split}
 \end{equation*}
-Thus, the first statement of the lemma is proven.
 
 For the case where the function $\Poly{j} e^{\lambda x}$ is removed from the set, one may use the same procedure, stopping at $\fmn{j-1}{m}(\lambda)$:
-\begin{equation*}
-\Wspectwo{j} = \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{j-1}{m-1}(\lambda) & f_{j+1}^{m-1} & \dots f_{m_\lambda}^{m-1} \end{vmatrix} .
-\end{equation*}
-If $j = m_\lambda$ then the second statement is true as it is a particular case of the first statement.
+\begin{align*}
+& \Wspec{j}{} \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & f_{j+1}^{m-1} & \dots & f_{m_\lambda-1}^{m-1} & B_{m-1}} .
+\end{align*}
 
+If $j = m_\lambda-1$ then the second statement is true as it is a particular case of the first statement, with $m_\lambda$ replaced by $m_\lambda-1$ wherever it appears.
 It suffices to show the statement is true for all $0 \leq j \leq m_\lambda$.
-While it may seem more natural to fix $m_\lambda$ and prove the statement for all $j$, it is equivalent to fix $j$ and prove the statement for all $m_\lambda \geq j$.
-
-Thus, let $j \geq 0$ be arbitrary.
-Suppose the statement is true for all $j \leq m_\lambda < M$.
-We show the statement is then true for $M$:
+This is done by induction: suppose the statement is true for $j < j* \leq m_\lambda$, then show it is true for $j* = j$:
 \begin{equation*}
 \begin{split}
-& \W{ \set{g_i}_{i=1}^{m - M} \cup E_\lambda \setminus \set{\poly{j} e^{\lambda x}}}{x} \\
-& = \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{j-1}{m-1}(\lambda) & f_{j+1}^{m-1} & \dots f_{M}^{m-1} \end{vmatrix} \\
-& = \sum_{n=j}^{M-1} \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M-1}{m-1}(\lambda) & \fmn{M}{m-1}(\lambda) + \poly{M-n} \fmn{n}{m-1}(\lambda) \end{vmatrix} \\ & \quad \text{by the induction hypothesis and earlier work} \\
-& = \sum_{n=j}^{M-1} \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M}{m-1}(\lambda) \end{vmatrix} \\
-& + \sum_{n=j}^{M-1} (-1)^{M-n} \poly{n-j} \poly{M-n} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{M-1}{m-1}(\lambda) \end{vmatrix} \\
-& = \sum_{n=j}^{M-1} \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M}{m-1}(\lambda) \end{vmatrix} \\
-& + \poly{M-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{M-1}{m-1}(\lambda) \end{vmatrix} \sum_{n=j}^{M-1} (-1)^{M-n} \binom{M-j}{n-j} \\
-& = \sum_{n=j}^M \poly{n-j} \begin{vmatrix} \bar{g}_1^{m-1} & \dots \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{n-1}{m-1}(\lambda) & \fmn{n+1}{m-1}(\lambda) & \dots & \fmn{M}{m-1}(\lambda) \end{vmatrix}
+& \Wspec{j}{} \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & f_{j+1}^{m-1} & \dots & f_{m_\lambda-1}^{m-1} & B_{m-1}} \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} + x \fmn{j}{m-1}{} & \dots} \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots } \\
+& + \eone x \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j}{m-1}{} & \dots } \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \fmn{j+2}{m-1}{} + \Poly{2} \fmn{j}{m-1}{} & \dots } \\
+& + x \Wspec{j+1}{} \\
+& \vdots \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1}} \\
+& + \sum_{k=j+1}^{m_\lambda-1} (-1)^{k-j-1} \poly{k-j} \Wspec{k}{} \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1}} \\
+& + \eone \sum_{k=j+1}^{m_\lambda-1} (-1)^{k-j-1} \poly{k-j} \sum_{n=k}^{m_\lambda-1} \poly{n-k} \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots} \\
+& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1}} \\
+& + \eone \sum_{n=j+1}^{m_\lambda-1} \poly{n-j}  \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots}\sum_{k=j+1}^{n} (-1)^{k-j-1} \binom{n-j}{n-k} \\
+& = \eone \Poly{0} \vmat{\dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots} \\
+& + \eone \sum_{n=j+1}^{m_\lambda-1} \poly{n-j}  \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots} \\
+& = \eone \sum_{n=j}^{m_\lambda-1} \poly{n-j} \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots}
 \end{split}
 \end{equation*}
-and the statement is true for all $m_\lambda \geq j$.
-As $j$ is arbitrary, the statement is true for all $0 \leq j \leq m_\lambda$.
-
+and the statement is true for all $0 \leq j \leq m_\lambda$.
 % would be nice to rewrite this for clarity and conciseness
 \end{proof}
 
+\newcommand{\efull}{e^{x \sum_{k=1}^M m_k \lambda_k} }
+\newcommand{\eclose}{e^{x \left ( -\lambda_i + \sum_{k=1}^M m_k \lambda_k \right ) } }
+
 \begin{cor}[Wronskians for constant coefficient operators]
-Let $E_k = \set{\Poly{j} e^{\lambda_k x}}_{j=0}^{m_k-1}$ and $E = \cup_{j=1}^M E_j$.
+Let $E_k = \set{\Poly{j} e^{\lambda_k x}}_{j=0}^{m_k-1}$ and $E = \cup_{k=1}^M E_k$.
+Also, let $m = \sum_{k=1}^M m_k$.
 Then 
 \begin{equation*}
-\W{E}{x} =
+\W{E}{x} = \vmat{\fmn{0}{m}{1} & \dots & \fmn{m_1-1}{m}{1} & \fmn{0}{m}{2} & \dots & \fmn{m_M-1}{m}{M} } \efull .
 \end{equation*}
+Furthermore,
+\begin{align*}
+& \Wspec{j}{i} \\
+& = \eclose \sum_{n=j}^{m_i-1} \poly{n-j} \vmat{\fmn{0}{m-1}{1} \dots & \fmn{n-1}{m-1}{i} & \fmn{n+1}{m-1}{i} & \dots \fmn{m_M-1}{m-1}{M} } .
+\end{align*}
 \end{cor}
 
-\begin{thm}{Wronskians for constant coefficient operators}
-Let $\mathcal{L} u(x) = \sum_{k=0}^m a_k u^{(k)}(x)$.
-Let $\{ \lambda_j \}_{j=1}^M$ be the roots of the polynomial $p(x) = \sum_{k=0}^m a_k x^k$, each with multiplicity $m_j$ ($M = \sum m_j$).
-Let $E_j = \{ x^k/k! e^{\lambda_j x} \}_{k=0}^{m_j-1}$ and $E = \cup_{j=1}^M E_j$.
-Note that $E$ is the fundamental solution set of $\mathcal{L}$.
-Let $\{ \tilde{f}_k(\lambda_j) \}_{k=0,j=1}^{m_j-1,M}$ be the vector valued functions defined in lemma \ref{lem:vec} for the function $\frac{x^k}{k!} e^{\lambda_j x}$.
-Then the Wronskian for $E \setminus \{ x^n/n! e^{\lambda_j x} \}$ is equal to:
-\begin{align*}
-W & (E \setminus \{ x^n/n! e^{\lambda_j x} \} ; x) = \\
-& \sum_{k=n}^{m_j} \frac{x^{k-n}}{(k-n)!} \begin{vmatrix} \tilde{f}_0(\lambda_1) & \dots & \tilde{f}_{m_1-1}(\lambda_1) & \tilde{f}_0(\lambda_2) & \dots
-& \tilde{f}_{k-1}(\lambda_j) & \tilde{f}_{k+1}(\lambda_j) & \dots & \tilde{f}_{m_M-1}(\lambda_M) \end{vmatrix} .
-\end{align*} \label{thm:wcc}
-\end{thm}
-
 \begin{proof}
-The theorem has been proven for the case where $m_j = 1$ for all $j$ and $M = m$ in lemma \ref{lem:exp}.
-The case where $M = 1$ can be covered by combining lemmas \ref{lem:poly} and \ref{lem:group}:
-\begin{equation*}
-W(\{ x^k/k! e^{\lambda_1 x} \}_{k\neq j} ; x) = e^{(m-1) \lambda_j x} W(\{x^k/k!\}_{k \neq j} ; x) .
-\end{equation*}
-The special case where $\lambda_j = 0$ for all $j$ is treated in lemma \ref{lem:poly}.
-Note the functions $\bar{f}_k(\lambda)$ have a removable singularity for $\lambda=0$.
-For $1 < M < m$ we can make use of lemmas \ref{lem:vec} and \ref{lem:key}.
-
-For $1 < M < m$ the desired Wronskians can be written as:
-\begin{align*}
-W& (E \setminus \{ x^n/n! e^{\lambda_j x} \} ; x) = \\
-& \begin{vmatrix} f_0(\lambda_1) & \dots & f_{m_1-1}(\lambda_1) & f_0(\lambda_2) & \dots
-& f_{n-1}(\lambda_j) & f_{n+1}(\lambda_j) & \dots & f_{m_M-1}(\lambda_M) \end{vmatrix} .
-\end{align*}
-By lemma \ref{lem:vec} and properties of the determinant, we can replace $f_k(\lambda_i)$ by $\tilde{f}_k(\lambda_i)$ except for $k>n$, $i=j$.
-Lemma \ref{lem:key} then defines the remaining simplifications:
-\begin{align*}
-W & (E \setminus \{ x^n/n! e^{\lambda_j x} \} ; x) = \\
-& \begin{vmatrix} \tilde{f}_0(\lambda_1) & \dots & \tilde{f}_{m_1-1}(\lambda_1) & \tilde{f}_0(\lambda_2) & \dots
-& \tilde{f}_{n-1}(\lambda_j) & f_{n+1}(\lambda_j) & \dots & \tilde{f}_{m_M-1}(\lambda_M) \end{vmatrix} = \\
-& \sum_{k=n}^{m_j} \frac{x^{k-n}}{(k-n)!} \begin{vmatrix} \tilde{f}_0(\lambda_1) & \dots & \tilde{f}_{m_1-1}(\lambda_1) & \tilde{f}_0(\lambda_2) & \dots
-& \tilde{f}_{k-1}(\lambda_j) & \tilde{f}_{k+1}(\lambda_j) & \dots & \tilde{f}_{m_M-1}(\lambda_M) \end{vmatrix} .
-\end{align*}
+The first statement may be arrived at by repeated use of lemma \ref{lem:expgroup}.
+The second statement applies the first statement of lemma \ref{lem:expgroup} for the sets $E_k$ such that $k \neq i$, and the second statement of lemma \ref{lem:expgroup} for the set $E_i$.
+Note that if $m_k=1$ for all $k$ then one retrieves the results of lemma \ref{lem:exp}.
+Likewise, if $M=1$ then one retrieves the results of combining lemmas \ref{lem:poly} and \ref{lem:group}.
 \end{proof}
 
 It is informative to write out this sum and the determinants in full:

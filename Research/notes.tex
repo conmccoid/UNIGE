@@ -908,6 +908,163 @@ The point where $G(\gamma) = \gamma$ represents the fixed point.
 \label{fig:exp8}
 \end{figure}
 
+\section{Further analysis}
+
+We've shown under reasonable assumptions that $G(\gamma)$ is strictly increasing.
+Therefore
+\begin{equation*}
+\begin{cases} \gamma < G(\gamma) < \gamma^* & \gamma < \gamma^* \\
+\gamma^* < G(\gamma) < \gamma & \gamma^* < \gamma . \end{cases}
+\end{equation*}
+We prove these conditions are sufficient for a fixed point iteration to converge.
+
+\begin{lemma}
+Let $g(x^*) = x^*$.
+If $g(x) \in (x, x^*)$ for all $x \neq x^*$ then the fixed point iteration $x_{n+1} = g(x_n)$ converges towards $x^*$ for any initial guess in $\mathbb{R}$.
+\end{lemma}
+
+\begin{proof}
+Since $g(x) \in (x,x^*)$, $g(x) - x^* \in (x-x^*,0)$.
+Therefore, $\abs{g(x) - x^*} \in (0, \abs{x-x^*})$ and $\abs{g(x) - x^*} < \abs{x - x^*}$.
+\end{proof}
+
+As a corollary, for any value of $x$ such that $g(x) \in (x,x^*)$, $g(x)$ is closer to $x^*$ than $x$.
+While this is obvious, it indicates regions of $\mathbb{R}$ for which $g(x)$ approaches its fixed point.
+
+For a function $g(x)$ with a single fixed point there are four possible behaviours each corresponding to a quadrant of $\mathbb{R}^2$.
+
+\begin{thm}
+Let $g:\mathbb{R} \rightarrow \mathbb{R}$ and let $x^* \in \mathbb{R}$ be the only value such that $g(x^*) = x^*$.
+Also let $x_{n+1} = g(x_n)$ for some $x_0 \in \mathbb{R}$ be a sequence.
+\begin{description}
+\item[1] If $g(x_n) < x_n < x^*$ or $x^* < x_n < g(x_n)$ then the sequence diverges monotonically.
+\item[2] If $x_n < g(x_n) < x^*$ or $x^* < g(x_n) < x_n$ then the sequence converges monotonically.
+\item[3] If $x_n < x^* < g(x_n) < 2 x^* - x_n$ or $2 x^* - x_n < g(x_n) < x^* < x_n$ then the sequence spirals inwards.
+\item[4] If $x_n < x^* < 2 x^* - x_n < g(x_n)$ or $g(x_n) < 2 x^* - x_n < x^* < x_n$ then the sequence spirals outwards.
+\end{description}
+\end{thm}
+
+\begin{proof}
+All results can easily be achieved by moving the inequalities around.
+\end{proof}
+
+This shows that a fixed point iteration will converge as long as $g(x) \in (x,2x^* - x)$.
+Any time that the function $g(x)$ lies within this region the fixed point iteration steps closer to the solution.
+We can use this to arrive at necessary conditions on $g(x)$ for the corresponding Newton's method to converge.
+
+\begin{description}
+\item[1] $g'(x) > 1$
+\item[2] $g'(x) < 1$ ($g'(x) \leq 0.5$ is sufficient)
+\item[3] $g'(x) < 0.5$ ($g'(x) \leq 0$ is sufficient)
+\item[4] $g'(x) < 0$
+\end{description}
+
+We examine the problem
+\begin{equation*}
+\begin{cases} u_{xx} = 0 & x \in [a,b] \\ u(a) = u(b) = 0 \end{cases}
+\end{equation*}
+with exact solution $u=0$ and Robin transmission conditions:
+\begin{equation*}
+u'^n_1(\beta) + C_1 u^n_1(\beta) = \gamma, \quad u'^n_2(\alpha) + C_2 u^n_2(\alpha) = u'^n_1(\alpha) + C_2 u^n_1(\alpha) .
+\end{equation*}
+The solutions at each step are linear functions, and so the fixed point function $G(\gamma)$ is straighforward to find:
+\begin{equation*}
+G(\gamma) = \gamma \frac{1 - C_1(b-\beta)}{1 + C_1(\beta-a)} \frac{1 + C_2(\alpha-a)}{1 - C_2(b - \alpha)} .
+\end{equation*}
+
+Since $G(\gamma)$ is linear, the Newton-Raphson iteration converges in a single iteration.
+More interestingly, the slope $G'(\gamma)$ may take on any real value depending on the choices of $C_1$ and $C_2$.
+Fixing $\alpha$ and $\beta$ and considering $G'(\gamma)$ as a function on $\mathbb{R}^2$, we have that $G':\mathbb{R}^2 \rightarrow \mathbb{R}$.
+
+Such a function is not continuous: there are singularities along the lines $C_1 = \frac{-1}{\beta-a}$ and $C_2 = \frac{1}{b-\alpha}$.
+There are also roots along the lines $C_1 = \frac{1}{b-\beta}$ and $C_2 = \frac{-1}{\alpha-a}$.
+These lines also divide the boundaries between which of the four regions the fixed point iteration lies within.
+While near the singularities, $G(\gamma)$ is in either region 1 or 4; while away, regions 2 or 3.
+When one of the two constants is between these lines while the other is not, $G(\gamma)$ is in either region 3 or 4; if both or neither are between the lines then $G(\gamma)$ is in region 1 or 2.
+%turn this into a picture?
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{exp9_01.png}
+\caption{$G'(\gamma)$ as a function of $C_1$ and $C_2$ for $a = -b = -1$ and $\alpha = -\beta = -0.2$.
+The regions yellow, green, blue and white correspond to the regions 1, 2, 3 and 4, respectively.}
+\end{figure}
+
+While this only applies to this particular problem, it shows that the fixed point iteration $G(\gamma)$ may appear in any of the four regions with any slope.
+
+For a cycle to exist for the Newton-Raphson iteration, there must exist a point $x$ such that the tangent line of the fixed point function $g(x)$ at this point meets the line $y=x$ at $2 x^* - x$, where $x^*$ is the fixed point.
+That is:
+\begin{equation*}
+g'(x) = \frac{g(x)-x^*}{2 (x-x^*)} + \frac{1}{2} .
+\end{equation*}
+Combined with the condition $g(x^*) = x^*$ this forms a first order ODE.
+Multiplying by the integrating factor $\frac{1}{\sqrt{x-x^*}}$ and integrating we arrive at the solution:
+\begin{equation*}
+g(x) = x + C \sqrt{x - x^*} .
+\end{equation*}
+Each value of $C \in \mathbb{C}$ represents a line along which the Newton-Raphson iteration of the fixed point function $g(x)$ will be equidistant from the fixed point as the starting value.
+That is, $\abs{x_0 - x^*} = \abs{x_1 - x^*}$, where $x_1$ is the application of one step of Newton-Raphson on the function $g(x)$ defined above using $x_0$ as a starting point.
+
+The previous equation may be rewritten to isolate for the constant $C$, which may be made entirely real by introducing an absolute value sign under the radical:
+\begin{equation*}
+C(x) = \frac{g(x) - x}{\sqrt{\abs{x-x^*}}} .
+\end{equation*}
+In this way, at each point $x$ we can see which 'cycle' line the function $g(x)$ lies upon.
+As long as $g(x)$ is not tangent to such a line the Newton-Raphson iteration will converge.
+A sufficient condition for the convergence of Newton-Raphson is then that the function $C(x)$ defined above is strictly monotonic.
+One may also use the variable $C$ as a coordinate transformation, displaying the geometry in which the function $g(x)$ must be monotonic.
+This is displayed in figure \ref{fig:Clines}.
+These lines may also be thought of as the pre-images of the line $2 x^* - x$ under the Newton-Raphson transformation.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{clines.png}
+\caption{The 'cycle' lines which represent the geometry in which $g(x)$ is ideally monotonic.}
+\label{fig:Clines}
+\end{figure}
+
+While this gives some idea of the inherent geometry of the problem it is unhelpful for applications as knowledge of $x^*$ is required to calculate $C(x)$.
+Note that $C(x)$ is monotonic if $g(x) > x$ and $g''(x) \geq 0$ or $g(x) < x$ and $g''(x) \leq 0$.
+
+We can use these cycle lines to retrieve the necessary and sufficient conditions on $g(x)$ for Newton-Raphson to converge, as seen earlier, by finding where each line (denoted by $c_C(x)$) crosses the line $y=x^*$ and where its derivative is zero.
+We begin with the former:
+\begin{align*}
+&& && x + C \sqrt{\abs{x - x^*}} & = x^* \\
+&& \implies && x - x^*           & = -C \sqrt{\abs{x - x^*}} \\
+&& \implies && \abs{x - x^*}^2   & = C^2 \abs{x - x^*} \\
+&& \implies && \abs{x - x^*}     & = C^2 \\
+&& \implies && x                 & = \begin{cases} x^* + C^2 & C < 0 \\ x^* - C^2 & C > 0. \end{cases}
+\end{align*}
+Therefore, the portions of $c_C(x)$ that lie within region 2 (between $x^*$ and $x$) are defined by $\abs{x - x^*} > C^2$.
+Now consider the derivative of $c_C(x)$, especially for $x < x^*-C^2$ and $x > x^* + C^2$:
+\begin{align*}
+&& c_C'(x) & = 1 \pm \frac{C}{2 \sqrt{\abs{x-x^*}}}, \\
+&& c_C'(x^* + C^2) & = 1 + \frac{C}{2 \abs{C}} \\
+&&                 & = 1 - \frac{1}{2} = \frac{1}{2}, \\
+&& c_C'(x^* - C^2) & = 1 - \frac{C}{2 \abs{C}} \\
+&&                 & = 1 - \frac{1}{2} = \frac{1}{2}, \\
+&& \lim_{x \rightarrow \pm \infty} c_C(x)  & = 1 .
+\end{align*}
+It is clear that $c_C''(x)$ has the same sign as $C$ for all $x \in \mathbb{R}$.
+Thus, $1 \geq c_C'(x) > 1/2$ for $\abs{x - x^*} > C^2$ and if $g(x)$ lies within region 2 and $g'(x) < 1/2$ for all $x \in \mathbb{R}$ then Newton-Raphson lies within regions 2 and 3 and therefore converges.
+
+We now consider where $c_C'(x) = 0$, so that we can find the region where if $g'(x) < 0$ then we guarantee convergence of Newton-Raphson.
+We begin with $x > x^*$:
+\begin{align*}
+c_C'(x)  && = 1 + \frac{C}{2 \sqrt{\abs{x-x^*}}} & = 0 \\
+\implies && 2 \sqrt{\abs{x-x^*}}                 & = -C & \implies C<0 \\
+\implies && x                                    & = \frac{C^2}{4} + x^*, \\
+         && c_C \left (\frac{C^2}{4} + x^* \right ) & = x - C \frac{C}{2} \\
+&& & = x - 2 (x - x^*) \\
+&& & = 2 x^* - x .
+\end{align*}
+We will find the same result for $x < x^*$ and $C > 0$.
+Thus, in region 3 (between $x^*$ and $2 x^* - x$) $1/2 > c_C'(x) > 0$ and if $g(x)$ lies within region 3 and $g'(x) < 0$ for all $x \in \mathbb{R}$ then Newton-Raphson lies within regions 2 and 3 and therefore converges.
+
+This analysis also shows that if $g(x)$ lies within region 1 then $g'(x) > 1$ or $C(x)$ will not be monotonic.
+Likewise, if $g(x)$ lies within region 4 then $g'(x) < 0$ or $C(x)$ will not be monotonic.
+These results have been summarized previously.
+
 \chapter{Continuing thesis work}
 
 \newcommand{\W}[2]{W \left ( #1 ; #2 \right )}
@@ -1512,7 +1669,7 @@ Currently only a brute-force approach is provided, but it is expected that there
 \end{description}
 
 \bibliographystyle{plain}
-\bibliography{/home/mccoid/Documents/LaTeX/references}
+\bibliography{/home/mccoid/LaTeX/references}
 %\bibliography{C:/Users/conmc/Documents/LaTeX/references}
 
 \end{document}

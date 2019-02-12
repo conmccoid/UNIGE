@@ -49,7 +49,7 @@ plot(y,save,'b*--')
 %% Implementing test
 
 % Problem parameters
-C = 15;
+C = 3.6;
 
 % Grid
 nx = 1001;
@@ -82,7 +82,7 @@ G = zeros(1,101);
 Gp= G;
 itersaveNewton = G;
 itersaveReg = G;
-testu2 = linspace(-1,1,101);
+testu2 = linspace(-2,2,101);
 % testu2=0.03;
 nonlinsolves = 50;
 for u2b0 = testu2
@@ -113,10 +113,6 @@ for u2b0 = testu2
             u2(2:end-1) = u2(2:end-1) - J2(2:end-1,2:end-1) \ F2;
         end
         u2b = u2(x2==b);
-        
-        if iter==1
-            G(k) = u2b;
-        end
 
         % Preconditioning with Newton
         % Step 3: solve g in first domain
@@ -131,12 +127,16 @@ for u2b0 = testu2
         g2 = [ g1a ; g2 ; 0];
         g2b= g2(x2==b);
         
-        if iter==1
-            Gp(k) = g2b;
-        end
+%         if iter==2
+%             Gp(k) = g2b;
+%         end
 
         % Step 5: update u2b
         u2b = u2bold - (u2b - u2bold)/(g2b - 1);
+        
+        if iter==2
+            Gp(k) = u2b;
+        end
 
         error = abs(u2b - u2bold);
         u2bold= u2b;
@@ -197,6 +197,10 @@ for u2b0 = testu2
             u2(2:end-1) = u2(2:end-1) - J2(2:end-1,2:end-1) \ F2;
         end
         u2b = u2(x2==b);
+        
+        if iter==2
+            G(k) = u2b;
+        end
 
         error = abs(u2b - u2bold);
         u2bold= u2b;
@@ -219,10 +223,11 @@ ylabel('Number of iterations to convergence')
 title('Newton precond. on transmission condition')
 
 figure(2)
-plot(testu2,G,'r',testu2,Gp,'b',testu2,testu2 - (G-testu2)./(Gp-1),'k',testu2,testu2,'g','linewidth',2)
+plot(testu2,G,'r',testu2,Gp,'k',testu2,testu2,'g','linewidth',2)
 xlabel('\gamma')
 ylabel('G(\gamma)')
-legend('FP','G''(\gamma)','NR','\gamma')
+legend('FP','NR','\gamma')
+axis([-2,2,-2,2])
 set(gca,'fontsize',26,'linewidth',2)
 
 %% Mapping out the function G(x,y)

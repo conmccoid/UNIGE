@@ -40,7 +40,7 @@ a2 = 0; b2 = 1;
 c1 = 0; d1 = 1;
 c2 = 0; d2 = 1;
 
-A  = 8;
+A  = 3.6;
 BCL= 0;
 BCR= 0;
 
@@ -51,7 +51,7 @@ J2BC = sparse([1,1,1,2,2,2],[1,2,3,l2-2,l2-1,l2],...
     [-3*c2/(2*h) + d2,4*c2/(2*h),-c2/(2*h),a2/(2*h),-4*a2/(2*h),3*a2/(2*h)+b2],2,l2);
 
 % Initialization
-yy = -1:0.01:1;
+yy = -2:0.01:2;
 nonlinsolves = 50;
 G  = zeros(size(yy));
 Gp = G;
@@ -102,20 +102,20 @@ end
 
 figure(1)
 plot(yy,G,'b',yy,N,'k',yy,yy,'--',yy,-yy,'--')%,'Linewidth',2)
-axis([-1,1,-1,1])
+axis([-2,2,-2,2])
 axis square
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('G(\gamma)','NR')
 % set(gca,'linewidth',2,'fontsize',26)
 
-xx = -1:0.01:1;
+xx = -2:0.01:2;
 C  = -10:0.5:10;
 yC = bsxfun(@times,C',sqrt(abs(xx))); yC = bsxfun(@plus,xx,yC);
 
 figure(2)
 plot(yy,G,'b',xx,yC,'k')%,'linewidth',2)
-axis([-1,1,-1,1])
+axis([-2,2,-2,2])
 axis square
 xlabel('\gamma')
 ylabel('G(\gamma)')

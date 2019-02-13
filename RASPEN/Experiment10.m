@@ -1,6 +1,9 @@
 %% Experiment 10 - Cycle for ASPN
-% Using u''(x) - sin(8u(x)) = 0 as our problem, we enter into the theorized
+% Using u''(x) - sin(Cu(x)) = 0 as our problem, we enter into the theorized
 % cycle(s) for DD preconditioned with Newton-Raphson.
+% For C<=3 there are no cycles. For C>=4 the cycles are all unstable
+% (divergent? what is the term here?). I have found C=3.6 to have stable
+% cycles for initial guess in the region of 1.6.
 
 % Problem parameters
 C = 3.6;

@@ -12,12 +12,12 @@ al=-0.2;
 be= 0.2;
 
 % Parameter(s)
-% C = linspace(0,pi,1001);
+C = linspace(0,2,1001);
 % C = sqrt(0.9) * pi / 2;
-C = 1;
-C1=linspace(-10,10,101);
-C2=C1';
-% p = linspace(-10,10,101)';
+% C = 1;
+% C1=linspace(-2,2,101);
+% C2=C1';
+p = linspace(-10,10,101)';
 
 % Possible regions
 % Gp= ( (sinh(C*al).*cosh(C*a) - cosh(C*al).*sinh(C*a)) .* ...
@@ -32,23 +32,23 @@ C2=C1';
 % xlabel('C^{1/2}')
 % ylabel('G''(\gamma)')
 
-Gp= bsxfun(@times, C*cosh(C*(al-a)) + C2*sinh(C*(al-a)), C*cosh(C*(be-b)) + C1*sinh(C*(be-b)));
-Gp= bsxfun(@rdivide, Gp, C*cosh(C*(be-a)) + C1*sinh(C*(be-a)));
-Gp= bsxfun(@rdivide, Gp, C*cosh(C*(al-b)) + C2*sinh(C*(al-b)));
-% k1= bsxfun(@times, p, sinh(C*(al-a)));
-% k2= bsxfun(@times, p, sinh(C*(be-b)));
-% k3= bsxfun(@times, p, sinh(C*(be-a)));
-% k4= bsxfun(@times, p, sinh(C*(al-b)));
-% Gp= bsxfun(@times, C.*cosh(C*(al-a)) - k1, C.*cosh(C*(be-b)) + k2);
-% Gp= bsxfun(@rdivide, Gp, C.*cosh(C*(be-a)) + k3);
-% Gp= bsxfun(@rdivide, Gp, C.*cosh(C*(al-b)) - k4);
+% Gp= bsxfun(@times, C*cosh(C*(al-a)) + C2*sinh(C*(al-a)), C*cosh(C*(be-b)) + C1*sinh(C*(be-b)));
+% Gp= bsxfun(@rdivide, Gp, C*cosh(C*(be-a)) + C1*sinh(C*(be-a)));
+% Gp= bsxfun(@rdivide, Gp, C*cosh(C*(al-b)) + C2*sinh(C*(al-b)));
+k1= bsxfun(@times, p, sinh(C*(al-a)));
+k2= bsxfun(@times, p, sinh(C*(be-b)));
+k3= bsxfun(@times, p, sinh(C*(be-a)));
+k4= bsxfun(@times, p, sinh(C*(al-b)));
+Gp= bsxfun(@times, C.*cosh(C*(al-a)) - k1, C.*cosh(C*(be-b)) + k2);
+Gp= bsxfun(@rdivide, Gp, C.*cosh(C*(be-a)) + k3);
+Gp= bsxfun(@rdivide, Gp, C.*cosh(C*(al-b)) - k4);
 
-% contourf(C,p,Gp,[-1,0,1])
-% xlabel('C')
-% ylabel('p')
-contourf(C1,C2,Gp,[-1,0,1])
-xlabel('C_1')
-ylabel('C_2')
+contourf(C,p,Gp,[-1,0,1])
+xlabel('C')
+ylabel('p')
+% contourf(C1,C2,Gp,[-1,0,1])
+% xlabel('C_1')
+% ylabel('C_2')
 
 %%
 
@@ -96,8 +96,8 @@ J2BC = sparse([1,1,1,2,2,2],[1,2,3,l2-2,l2-1,l2],...
     [-3*c2/(2*h) + d2,4*c2/(2*h),-c2/(2*h),a2/(2*h),-4*a2/(2*h),3*a2/(2*h)+b2],2,l2);
 
 % Initialization
-L  = 100;
-yy = linspace(-L,L,101);
+L  = 1;
+yy = linspace(-L,L,1001);
 nonlinsolves = 50;
 G  = zeros(size(yy));
 Gp = G;
@@ -151,13 +151,13 @@ for k = 1:length(yy)
 end
 
 figure(1)
-plot(yy,G,'b',yy,N,'k',yy,yy,'--',yy,-yy,'--')%,'Linewidth',2)
+plot(yy,G,'b',yy,N,'k',yy,yy,'--',yy,-yy,'--','Linewidth',2)
 axis([-L,L,-L,L])
 axis square
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('G(\gamma)','NR')
-% set(gca,'linewidth',2,'fontsize',26)
+set(gca,'linewidth',2,'fontsize',26)
 
 C  = -10:0.5:10;
 yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);

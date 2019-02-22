@@ -3,10 +3,15 @@
 % doubling bifurcation in the Newton-Raphson iterations of a nonlinear BVP
 % using alternating Schwarz and Dirichlet BCs.
 
+% So far no tested functions have displayed any kind of period doubling.
+% These include: exponentials, logarithms, polynomials, power functions
+
 %% Implementing test
 
 % Problem parameters
-C = -4;
+C = 0.15;
+F = @(x) tan(C*x);
+Fp= @(x) C*sec(C*x).^2;
 P = 1;
 
 % Grid
@@ -57,8 +62,8 @@ for u2b0 = testu2
         % Step 1: solve u in first domain
         u1(end) = u2b;
         for i = 1:nonlinsolves
-            J1 = D1 - spdiags(exp(u1),0,l1,l1);
-            F1 = D1(2:end-1,:)*u1 - exp(u1(2:end-1));
+            J1 = D1 - spdiags(Fp(u1),0,l1,l1);
+            F1 = D1(2:end-1,:)*u1 - F(u1(2:end-1));
             u1(2:end-1) = u1(2:end-1) - J1(2:end-1,2:end-1) \ F1;
         end
         u1a = u1(x1==a);
@@ -66,21 +71,21 @@ for u2b0 = testu2
         % Step 2: solve u in second domain
         u2(1) = u1a;
         for i = 1:nonlinsolves
-            J2 = D2 - spdiags(exp(u2),0,l2,l2);
-            F2 = D2(2:end-1,:)*u2 - exp(u2(2:end-1));
+            J2 = D2 - spdiags(Fp(u2),0,l2,l2);
+            F2 = D2(2:end-1,:)*u2 - F(u2(2:end-1));
             u2(2:end-1) = u2(2:end-1) - J2(2:end-1,2:end-1) \ F2;
         end
         u2b = u2(x2==b);
 
         % Preconditioning with Newton
         % Step 3: solve g in first domain
-        dF1= D1 - spdiags(exp(u1),0,l1,l1);
+        dF1= D1 - spdiags(Fp(u1),0,l1,l1);
         g1 = dF1(2:end-1,2:end-1) \ ( -dF1(2:end-1,end) );
         g1 = [0 ; g1 ; 1 ];
         g1a= g1(x1==a);
 
         % Step 4: solve g in second domain
-        dF2= D2 - spdiags(exp(u2),0,l2,l2);
+        dF2= D2 - spdiags(Fp(u2),0,l2,l2);
         g2 = dF2(2:end-1,2:end-1) \ ( -g1a*dF2(2:end-1,1) );
         g2 = [ g1a ; g2 ; 0];
         g2b= g2(x2==b);
@@ -121,8 +126,8 @@ for u2b0 = testu2
         % Step 1: solve u in first domain
         u1(end) = u2b;
         for i = 1:nonlinsolves
-            J1 = D1 - spdiags(exp(u1),0,l1,l1);
-            F1 = D1(2:end-1,:)*u1 - exp(u1(2:end-1));
+            J1 = D1 - spdiags(Fp(u1),0,l1,l1);
+            F1 = D1(2:end-1,:)*u1 - F(u1(2:end-1));
             u1(2:end-1) = u1(2:end-1) - J1(2:end-1,2:end-1) \ F1;
         end
         u1a = u1(x1==a);
@@ -130,8 +135,8 @@ for u2b0 = testu2
         % Step 2: solve u in second domain
         u2(1) = u1a;
         for i = 1:nonlinsolves
-            J2 = D2 - spdiags(exp(u2),0,l2,l2);
-            F2 = D2(2:end-1,:)*u2 - exp(u2(2:end-1));
+            J2 = D2 - spdiags(Fp(u2),0,l2,l2);
+            F2 = D2(2:end-1,:)*u2 - F(u2(2:end-1));
             u2(2:end-1) = u2(2:end-1) - J2(2:end-1,2:end-1) \ F2;
         end
         u2b = u2(x2==b);

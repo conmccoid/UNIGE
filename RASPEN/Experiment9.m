@@ -101,25 +101,27 @@ for k = 1:length(yy)
 end
 
 figure(1)
-plot(yy,G,'b',yy,N,'k',yy,yy,'--',yy,-yy,'--')%,'Linewidth',2)
+subplot(1,2,1)
+plot(yy,G,'b',yy,N,'k',yy,yy,'--',yy,-yy,'--','Linewidth',2)
 axis([-2,2,-2,2])
 axis square
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('G(\gamma)','NR')
-% set(gca,'linewidth',2,'fontsize',26)
+set(gca,'linewidth',2,'fontsize',26)
 
 xx = -2:0.01:2;
 C  = -10:0.5:10;
 yC = bsxfun(@times,C',sqrt(abs(xx))); yC = bsxfun(@plus,xx,yC);
 
-figure(2)
+% figure(2)
+subplot(1,2,2)
 plot(yy,G,'b',xx,yC,'k')%,'linewidth',2)
 axis([-2,2,-2,2])
 axis square
 xlabel('\gamma')
 ylabel('G(\gamma)')
-% set(gca,'linewidth',2,'fontsize',26)
+set(gca,'linewidth',2,'fontsize',26)
 
 %% Map of possible angles for uxx=0 and Robin transmission conditions
 

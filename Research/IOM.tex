@@ -437,18 +437,21 @@ The sets of functions associated with the root $\lambda_k$, their union over the
 E_{k,j} = \set{\Poly{j} e^{\lambda_k x}}, \ E_k = \bigcup_{j=0}^{m_k - 1} E_{k,j}, \ E = \bigcup_{k=1}^M E_k .
 \end{equation*}
 
-We will see shortly that certain matrices of the roots are important to the calculations, and will be denoted by:
+\subsection{$m$ unique roots}
+
+Consider the case where $M=m$ and there are $m$ unique roots of the polynomial $p(x)$.
+In this case, $E_k$ is the set containing only the exponential function $e^{\lambda_k x}$.
+The Wronskians involve only these exponential functions.
+By Abel's identity it is clear that $\W{E}{x} = \W{E}{0} e^{-a_1 x}$.
+
+The value of $\W{E}{0}$ must be expressed as the determinant of a matrix.
+The same is true for $\W{E \setminus{E_i}}{0}$.
+These matrices will be denoted by:
 \begin{align*}
 \Lambda & = \begin{bmatrix} 1 & \dots & 1 \\ \lambda_1 & \dots & \lambda_m \\ \vdots & \ddots & \vdots \\ \lambda_1^{m-1} & \dots & \lambda_m^{m-1} \end{bmatrix}, \\
 \Lambda_i & = \begin{bmatrix} 1 & \dots & 1 & 1 & \dots & 1 \\ \lambda_1 & \dots & \lambda_{i-1} & \lambda_{i+1} & \dots & \lambda_m \\ \vdots & & \vdots & \vdots & & \vdots \\ \lambda_1^{m-2} & \dots & \lambda_{i-1}^{m-2} & \lambda_{i+1}^{m-2} & \dots & \lambda_m^{m-2} \end{bmatrix} .
 \end{align*}
 
-\subsection{$m$ unique roots}
-
-Consider the case where $M=m$ and there are $m$ unique roots of the polynomial $p(x)$.
-In this case, $E_k$ is the set containing only the exponential function $e^{\lambda_k x}$.
-The Wronskians involved involve only these exponential functions.
-By Abel's identity it is clear that $\W{E}{x} = \W{E}{0} e^{-a_1 x}$.
 For the Wronskians of $E \setminus E_i$ we present the following lemma:
 
 \begin{lemma}[Wronskians of exponential functions]
@@ -482,6 +485,10 @@ By Abel's identity $\W{\set{e^{\lambda_k x}}_{k=1}^m}{x} = \W{\set{e^{\lambda_k 
 The remainder follows from the definition of $\W{\set{e^{\lambda_k x}}_{k=1}^m}{0}$.
 %(nb: this lemma and proof likely already exists in literature)
 \end{proof}
+
+One may use lemma \ref{lem:exp} to calculate $\W{E \setminus E_i}{x}$ as the set $E \setminus E_i$ is still a set of purely exponential functions.
+As such, the only changes that need to be made to the Wronskian are the sum of the values $\lambda_k$ and the matrix $\Lambda$.
+In particular, the sum is as it was before minus the contribution of $\lambda_i$ and the matrix $\Lambda$ is replaced by $\Lambda_i$.
 
 We may now write down the values of $\gamma_{jn}$ from equation (\ref{gamma}), applying lemma \ref{lem:exp} to both the set $E$ and $E \setminus E_n$:
 \begin{equation*}
@@ -568,9 +575,9 @@ As before we may now write out the values of $\gamma_{jn}$:
 \begin{equation*}
 \begin{split}
 \gamma_{jn} & = (-1)^{m+n} \frac{ \W{E \setminus \set{\Poly{n}}}{v_j}}{\W{E}{v_j}} \\
-			& = (-1)^{m+n} \frac{\W{\set{\Poly{k}}_{k \neq n}}{v_j}}{1} \\
-			& = (-1)^{m+n} \W{\set{\Poly{k}}_{k=1}^{m-n}}{v_j} \\
-			& = (-1)^{m+n} \frac{v_j^{m-n}}{(m-n)!} .
+			& = (-1)^{m+n} \frac{\W{\set{\Poly{k}}_{k \neq n}}{v_j}}{1} \ \text{by $(i)$} \\
+			& = (-1)^{m+n} \W{\set{\Poly{k}}_{k=1}^{m-n}}{v_j} \ \text{by $(ii)$} \\
+			& = (-1)^{m+n} \frac{v_j^{m-n}}{(m-n)!} \ \text{by $(iii)$.}
 \end{split}
 \end{equation*}
 
@@ -648,44 +655,44 @@ The value of $\gamma_{jn}$ is then:
 
 We now examine the most general case of constant coefficients: $1 < M < m$, so that $m_k > 1$ for at least one $k$.
 We begin by defining two objects which will be necessary in both the proofs and results to come.
-First is the vector $w_k^n \in \mathbb{R}^m$, whose $i$--th entry is defined as:
+First is the vector $w_k^n$, whose $i$--th entry is defined as:
 \begin{equation*}
 \left ( w_k^n \right )_i = \begin{cases} \binom{i}{n} \lambda_k^{i - n} & \lambda \neq 0 \\
 \delta_{i,n} & \lambda = 0, \end{cases}
 \end{equation*}
 where $\delta_{i,n}$ is the Kronecker delta and we use the convention that $\binom{i}{n} = 0$ if $n>i$.
-The vector $\hat{w}_k^n \in \mathbb{R}^{m-1}$ is defined in the same way.
+For ease of notation, the length of $w_k^n$ will be context sensitive: when considering the Wronskian of the set $E$ $w_k^n \in \mathbb{R}^m$, but when considering $E \setminus E_{k,j}$ $w_k^n \in \mathbb{R}^{m-1}$.
 
 Second is a matrix $\Omega \in \mathbb{R}^{m \times m}$ composed of the vectors $w_k^n$:
 \begin{equation*}
 \Omega = \begin{bmatrix} w_1^0 & \dots w_1^{m_1 - 1} & w_2^0 & \dots & w_M^{m_M-1} \end{bmatrix} .
 \end{equation*}
-The submatrix of $\Omega$ resulting from removing row $m$ and the column equal to $w_k^j$ is represented by $\Omega_k^j$ and is composed of the vectors $\hat{w}_k^n$.
+The submatrix of $\Omega$ resulting from removing row $m$ and the column equal to $w_k^j$ is represented by $\Omega_k^j$.
 
-\begin{lemma}[Wronskians for constant coefficient operators]
+\begin{thm}[Wronskians for constant coefficient operators] \label{thm:cc}
 \begin{align*}
 (i) && \W{E}{x} & = e^{a_1 x} \abs{\Omega}, \\
-(ii) && \W{E \setminus E_{k,j}}{x} & = e^{(a_1 - \lambda_k) x} \sum_{n=j}^{m_k - 1} \poly{n-j} \abs{\Omega_k^j} .
+(ii) && \W{E \setminus E_{k,j}}{x} & = e^{(a_1 - \lambda_k) x} \sum_{n=j}^{m_k - 1} \poly{n-j} \abs{\Omega_k^n} .
 \end{align*}
-\end{lemma}
+\end{thm}
 
 \begin{proof}
 First consider $\lambda_k \neq 0$.
-Let $\omega_{k,j}$ be the vector whose elements are the sequential derivatives of the function contained in $E_{k,j}$.
+Let $\hat{w}_{k,j}$ be the vector whose elements are the sequential derivatives of the function contained in $E_{k,j}$.
 Take the $i$--th derivative of the function contained in $E_{k,j}$:
 \begin{equation*}
-\left ( \Poly{j} e^{\lambda_k x} \right )^{(i)} = \sum_{n=0}^k \binom{i}{n} \lambda_k^{i-n} \poly{j-n} e^{\lambda_k x} .
+\left ( \Poly{j} e^{\lambda_k x} \right )^{(i)} = \sum_{n=0}^j \binom{i}{n} \lambda_k^{i-n} \poly{j-n} e^{\lambda_k x} .
 \end{equation*}
-The presence of $\binom{i}{n} \lambda_k^{i-n}$ indicates that $\omega_{k,j}$ is equal to a linear combination of the vectors $w_k^n$:
+The presence of $\binom{i}{n} \lambda_k^{i-n}$ indicates that $\hat{w}_{k,j}$ is equal to a linear combination of the vectors $w_k^n$:
 \begin{equation*}
-\omega_{k,j} = \sum_{n=0}^k \poly{j-n} e^{\lambda_k x} w_k^n .
+\hat{w}_{k,j} = e^{\lambda_k x} \sum_{n=0}^j \poly{j-n} w_k^n .
 \end{equation*}
 This statement may also be shown for $\lambda_k = 0$.
 
-Since we are concerned with the determinant of the matrix composed of the vectors $\omega_{k,j}$ we may orthogonalize these vectors in a Gram-Schmidt process (nb: cite).
-For example, $\omega_{k,0} = e^{\lambda_k x} w_k^0$ and $\omega_{k,1} = e^{\lambda_k x} w_k^1 + e^{\lambda_k x} x w_k^2$.
-Because $w_k^0$ is a part of both vectors, we may remove it from $\omega_{k,1}$ without changing the determinant.
-We may repeat this for all $\omega_{k,j}$ such that $w_k^0$ appears explicitly only in the first column.
+Since we are concerned with the determinant of the matrix composed of the vectors $\hat{w}_{k,j}$ we may orthogonalize these vectors in a Gram-Schmidt process (nb: cite).
+For example, $\hat{w}_{k,0} = e^{\lambda_k x} w_k^0$ and $\hat{w}_{k,1} = e^{\lambda_k x} w_k^1 + e^{\lambda_k x} x w_k^2$.
+Because $w_k^0$ is a part of both vectors, we may remove it from $\hat{w}_{k,1}$ without changing the determinant.
+We may repeat this for all $\hat{w}_{k,j}$ such that $w_k^0$ appears explicitly only in the first column.
 We may then repeat this procedure for $w_k^1$, such that $w_k^1$ appears only in the second column.
 In this way, we have that:
 \begin{equation*}
@@ -696,121 +703,115 @@ In this way, we have that:
 \end{split}
 \end{equation*}
 and statement $(i)$ is proven.
-\end{proof}
 
-%-----------------------------------
-%	Rewrite needed
-%-----------------------------------
+To begin proving statement $(ii)$ consider the set $\hat{E} = E \setminus E_{k,m_k-1}$.
+Such a set represents the fundamental solution set of a $(m-1)$--th order linear constant coefficient operator, the corresponding polynomial of which is $p(x) / (x - \lambda_k)$.
+The matrix $\Omega$ for this set is exactly $\Omega_k^{m_k-1}$.
+Therefore, by statement $(i)$ $\W{\hat{E}}{x} = e^{(a_1 - \lambda_k)x} \abs{\Omega_k^{m_k-1}}$ and statement $(ii)$ is true for $j = m_k-1$ for any $1 \leq k \leq M$.
 
-\newcommand{\fmn}[3]{\bar{f}^{#2}_{#1}(\lambda_{#3})}
-
-\begin{defn}
-Let $\fmn{n}{m}{}:\mathbb{R} \rightarrow \mathbb{R}^m$ be a vector-valued function defined elementwise as
-\begin{equation*}
-\fmn{n,j}{m}{} = \begin{cases} \binom{j}{n} \lambda^{j-n} & \lambda \neq 0 \\
-\begin{cases} 1 & j = n \\ 0 & j \neq n \end{cases} & \lambda = 0, \end{cases}
-\end{equation*}
-with the convention that $\binom{j}{n} = 0$ if $n > j$.
-\end{defn}
-
-\newcommand{\Wspec}[2]{\W{ E \setminus \set{\poly{#1} e^{\lambda_{#2} x}}}{x}}
-\newcommand{\Detspec}[2]{\begin{vmatrix} \bar{g}_1^{m-1} & \dots & \bar{g}_{m_g}^{m-1} & \fmn{0}{m-1}(\lambda) & \dots & \fmn{#1 - 1}{m-1}(\lambda) & \fmn{#1 + 1}{m-1}(\lambda) & \dots & \fmn{#2}{m-1}(\lambda) \end{vmatrix}}
-\newcommand{\Detspectwo}[1]{\begin{vmatrix} A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{#1-1}{m-1}{} & \fmn{#1+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1} \end{vmatrix}}
-
-\newcommand{\eone}{e^{(m_\lambda - 1)\lambda x}}
-
-\begin{lemma}[Wronskians of exponentials with multiplicity] \label{lem:expgroup}
-The Wronskian of a set of functions $E$ containing $E_\lambda = \set{\Poly{k} e^{\lambda x}}_{k=0}^{m_\lambda-1}$ may be written as
-\begin{equation*}
-\W{E}{x} = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \dots & \fmn{m_\lambda-1}{m}{} & B_m \end{vmatrix} ,
-\end{equation*}
-where $A_m$ and $B_m$ are those columns of the matrix representing the functions within $E \setminus E_\lambda$ and their first $m-1$ derivatives evaluated at $x$.
-
-Furthermore, the Wronskian of the same set without the function $\Poly{j} e^{\lambda x}$ may be written as
-\begin{align*}
-& \Wspec{j}{} \\
-& = e^{(m_\lambda - 1) \lambda x} \sum_{n=j}^{m_\lambda} \poly{n-j} \Detspectwo{n} .
-\end{align*}
-\end{lemma}
-
-\begin{proof}
-Let the column vector of length $m$, $f_k^m$, represent the function $\Poly{k} e^{\lambda x}$ in the calculation of the Wronskian:
-\begin{equation*}
-\W{E}{x} = \begin{vmatrix} A_m & f_0^m & \dots f_{m_\lambda}^m & B_m \end{vmatrix} .
-\end{equation*}
-The $j$--th derivative of the function $\Poly{k} e^{\lambda x}$ is straightforward to calculate:
-\begin{equation*}
-f_{k,j}^m = \sum_{n=0}^{\min \set{k,j}} \lambda^{j-n} \binom{j}{n} e^{\lambda x} \poly{k-n} = \sum_{n=0}^k \fmn{n,j}{m}{} e^{\lambda x} \poly{k-n}.
-\end{equation*}
-Thus, the columns $f_k^m$ may be written as linear combinations of the vector-valued functions $\fmn{n}{m}{}$.
-One may use a Gram-Schmidt process, starting with $u_1 = \fmn{0}{m}{}$, to prove the first statement:
+We proceed by strong induction: we suppose statement $(ii)$ is true for $j^* < j \leq m_k-1$ and prove it is true for $j = j^* \geq 0$. (nb: remember to replace all instances of $j^*$ with $j^*$)
+First, we perform the Gram-Schmidt process described previously.
+We may also take out the exponential functions from the determinant:
 \begin{equation*}
 \begin{split}
-\W{E}{x} & = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \fmn{1}{m}{} + x \fmn{0}{m}{} & \dots & f_{m_\lambda-1}^m & B_m \end{vmatrix} \\
-& = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \fmn{1}{m}{} & \dots & f_{m_\lambda-1}^m & B_m \end{vmatrix} \\
-& \vdots \\
-& = e^{m_\lambda \lambda x} \begin{vmatrix} A_m & \fmn{0}{m}{} & \dots & \fmn{m_\lambda-1}{m}{} & B_m \end{vmatrix} .
+\W{E \setminus E_{k,j^*}}{x} = & \begin{vmatrix} \dots & \hat{w}_{k,0} & \dots & \hat{w}_{k,j^*-1} & \hat{w}_{k,j^*+1} & \dots & \hat{w}_{k,m_k-1} & \dots \end{vmatrix} \\
+ = e^{(a_1 - \lambda_k)x}	  & \begin{vmatrix} \dots & w_k^0 & \dots & w_k^{j^*-1} & w_k^{j^*+1} + x w_k^{j^*} & \dots & \sum\limits_{n=j^*}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} .
 \end{split}
 \end{equation*}
 
-For the case where the function $\Poly{j} e^{\lambda x}$ is removed from the set, one may use the same procedure, stopping at $\fmn{j-1}{m}(\lambda)$:
-\begin{align*}
-& \Wspec{j}{} \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & f_{j+1}^{m-1} & \dots & f_{m_\lambda-1}^{m-1} & B_{m-1}} .
-\end{align*}
-
-If $j = m_\lambda-1$ then the second statement is true as it is a particular case of the first statement, with $m_\lambda$ replaced by $m_\lambda-1$ wherever it appears.
-It suffices to show the statement is true for all $0 \leq j \leq m_\lambda$.
-This is done by induction: suppose the statement is true for $j < j* \leq m_\lambda$, then show it is true for $j* = j$:
+Consider the column associated with $E_{k,j^*+1}$:
+its two component vectors appear in the subsequent columns.
+One may rewrite the determinant of this matrix as a summation of two determinants, arising from splitting up these two component vectors:
 \begin{equation*}
 \begin{split}
-& \Wspec{j}{} \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & f_{j+1}^{m-1} & \dots & f_{m_\lambda-1}^{m-1} & B_{m-1}} \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} + x \fmn{j}{m-1}{} & \dots} \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots } \\
-& + \eone x \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j}{m-1}{} & \dots } \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \fmn{j+2}{m-1}{} + \Poly{2} \fmn{j}{m-1}{} & \dots } \\
-& + x \Wspec{j+1}{} \\
-& \vdots \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1}} \\
-& + \sum_{k=j+1}^{m_\lambda-1} (-1)^{k-j-1} \poly{k-j} \Wspec{k}{} \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1}} \\
-& + \eone \sum_{k=j+1}^{m_\lambda-1} (-1)^{k-j-1} \poly{k-j} \sum_{n=k}^{m_\lambda-1} \poly{n-k} \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots} \\
-& = \eone \vmat{A_{m-1} & \fmn{0}{m-1}{} & \dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots & \fmn{m_\lambda-1}{m-1}{} & B_{m-1}} \\
-& + \eone \sum_{n=j+1}^{m_\lambda-1} \poly{n-j}  \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots}\sum_{k=j+1}^{n} (-1)^{k-j-1} \binom{n-j}{n-k} \\
-& = \eone \Poly{0} \vmat{\dots & \fmn{j-1}{m-1}{} & \fmn{j+1}{m-1}{} & \dots} \\
-& + \eone \sum_{n=j+1}^{m_\lambda-1} \poly{n-j}  \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots} \\
-& = \eone \sum_{n=j}^{m_\lambda-1} \poly{n-j} \vmat{\dots & \fmn{n-1}{m-1}{} & \fmn{n+1}{m-1}{} & \dots}
+\W{E \setminus E_{k,j^*}}{x} & e^{(\lambda_k - a_1) x} \\
+= & \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} + x w_k^{j^*} & \dots & \sum\limits_{n=j^*}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+= & \begin{vmatrix} \dots & w_k^{j^*-1} & x w_k^{j^*} & \dots & \sum\limits_{n=j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+& + \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} & \dots & \sum\limits_{n=j^*, n\neq j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+= & x \W{E \setminus E_{k,j^*+1}}{x} e^{(\lambda_k - a_1) x} \\
+& + \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} & w_k^{j^*+2} + \Poly{2} w_k^{j^*} & \dots & \sum\limits_{n=j^*, n\neq j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+= & x \W{E \setminus E_{k,j^*+1}}{x} e^{(\lambda_k - a_1) x} \\
+& - \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+2} + \Poly{2} w_k^{j^*} & w_k^{j^*+1} & \dots & \sum\limits_{n=j^*, n\neq j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} .
 \end{split}
 \end{equation*}
-and the statement is true for all $0 \leq j \leq m_\lambda$.
-% would be nice to rewrite this for clarity and conciseness
-\end{proof}
+We may then repeat the procedure with the second determinant in the last line, writing it as the sum of two determinants, each choosing one of the component vectors for the given column.
 
-\newcommand{\efull}{e^{x \sum_{k=1}^M m_k \lambda_k} }
-\newcommand{\eclose}{e^{x \left ( -\lambda_i + \sum_{k=1}^M m_k \lambda_k \right ) } }
+The procedure may be repeated until we have reduced the determinant to a summation of Wronskians that, by the induction hypothesis, we already have results for.
+At each step we subdivide along the column containing $w_k^{j^*+l} + \Poly{l} w_k^{j^*}$ into two parts, such that one addend contains $w_k^{j^*+l}$ and the other contains $\Poly{l} w_k^{j^*}$.
+The latter addend is now identical to $\Poly{l} \W{E \setminus E_{k,j^*+l}}{x} e^{(\lambda_k - a_1)x}$ as one may bring the polynomial out of the determinant and the vectors $w_k^j$ are arranged in order for $0 \leq j < j^*+l$, with $w_k^{j^*+l}$ missing.
+Meanwhile, one may perform the Gram-Schmidt process on the addend containing $w_k^{j^*+l}$, thereby removing this vector from all subsequent columns.
+In particular, the column associated with $E_{k,j^*+l+1}$ becomes $w_k^{j^*+l+1} + \poly{l+1} w_k^{j^*}$.
+Exchanging this column with the one containing $w_k^{j^*+l}$ and introducing a minus sign in front of the determinant we arrive at the start of the $(l+1)$--th step.
 
-\begin{cor}[Wronskians for constant coefficient operators]
-Let $E_k = \set{\Poly{j} e^{\lambda_k x}}_{j=0}^{m_k-1}$ and $E = \cup_{k=1}^M E_k$.
-Also, let $m = \sum_{k=1}^M m_k$.
-Then 
+We stop the procedure at $j^*+l=m_k-1$: %nb: check signs
 \begin{equation*}
-\W{E}{x} = \vmat{\fmn{0}{m}{1} & \dots & \fmn{m_1-1}{m}{1} & \fmn{0}{m}{2} & \dots & \fmn{m_M-1}{m}{M} } \efull .
+\begin{split}
+\W{E \setminus E_{k,j^*}}{x} & e^{(\lambda_k - a_1)x} \\
+= & \sum_{l=1}^{m_k-1-j^*} (-1)^{l+1} \Poly{l} \W{E \setminus E_{k,j^*+l}}{x} e^{(\lambda_k - a_1)x} \\
+& + \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} & \dots & w_k^{m_k-1} & \dots \end{vmatrix} \\
+= & \sum_{l=1}^{m_k-1-j^*} (-1)^{l+1} \Poly{l} \W{E \setminus E_{k,j^*+l}}{x} e^{(\lambda_k - a_1)x} + \abs{\Omega_k^{j^*}} .
+\end{split}
 \end{equation*}
-Furthermore,
-\begin{align*}
-& \Wspec{j}{i} \\
-& = \eclose \sum_{n=j}^{m_i-1} \poly{n-j} \vmat{\fmn{0}{m-1}{1} \dots & \fmn{n-1}{m-1}{i} & \fmn{n+1}{m-1}{i} & \dots \fmn{m_M-1}{m-1}{M} } .
-\end{align*}
-\end{cor}
+We now use our induction hypothesis to arrive at our result:
+\begin{equation*}
+\begin{split}
+\W{E \setminus E_{k,j^*}}{x} & e^{(\lambda_k - a_1)x} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{l=1}^{m_k-1-j^*} (-1)^{l+1} \Poly{l} \sum_{n=j^*+l}^{m_k-1} \poly{n-j^*-l} \abs{\Omega_k^n} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{l=1}^{m_k-1-j^*} \sum_{n=j^*+l}^{m_k-1} (-1)^{l+1} \poly{n-j^*} \frac{ (n-j^*)! }{(n-j^*-l)! l!} \abs{\Omega_k^n} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{l=1}^{m_k-1-j^*} \sum_{n=j^*+l}^{m_k-1} (-1)^{l+1} \poly{n-j^*} \binom{n-j^*}{l} \abs{\Omega_k^n} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{n=j^*+1}^{m_k-1} \poly{n-j^*} \abs{\Omega_k^n} \sum_{l=1}^{n-j^*} (-1)^{l+1}  \binom{n-j^*}{l} \\
+= & \Poly{0} \abs{\Omega_k^{j^*}} + \sum_{n=j^*+1}^{m_k-1} \poly{n-j^*} \abs{\Omega_k^n} \\
+= & \sum_{n=j^*}^{m_k-1} \poly{n-j^*} \abs{\Omega_k^n} .
+\end{split}
+\end{equation*}
+Note that the second-to-last step uses an identity of the binomial coefficients (nb: cite).
 
-\begin{proof}
-The first statement may be arrived at by repeated use of lemma \ref{lem:expgroup}.
-The second statement applies the first statement of lemma \ref{lem:expgroup} for the sets $E_k$ such that $k \neq i$, and the second statement of lemma \ref{lem:expgroup} for the set $E_i$.
-Note that if $m_k=1$ for all $k$ then one retrieves the results of lemma \ref{lem:exp}.
-Likewise, if $M=1$ then one retrieves the results of combining lemmas \ref{lem:poly} and \ref{lem:group}.
+We thus have that if statement $(ii)$ is true for $j^* < j \leq m_k-1$ then it is true for $j=j^*$.
+Thus, by strong induction, it is true for all $0 \leq j \leq m_k-1$.
 \end{proof}
+
+Lemma \ref{lem:exp} is the special case of this theorem with $m_k = 1$ for all $k$ and so the summation in statement $(ii)$ is over a single element.
+The special case of $M=1$ has $\abs{\Omega_k^n} = \delta_{n,m_k-1}$ and so we may retrieve the results of lemma \ref{lem:poly} and those discussed in the previous subsection for $\lambda_1 \neq 0$.
+
+The general form of the values of $\gamma_{li}$ may now be written as:
+\begin{equation*}
+\gamma_{li} = (-1)^{m+i} e^{-\lambda_k v_l} \sum_{n=j}^{m_k-1} \poly{n-j} \frac{\abs{\Omega_k^n}}{\abs{\Omega}}
+\end{equation*}
+where $\hat{P}_i(x) = \Poly{j} e^{\lambda_k x}$.
 
 \section{Application and experiments}
+
+\subsection{Example}
+
+To illustrate the application of this work we consider a problem with $m=4$ and two roots, each with multiplicity two.
+This gives $E = \{e^{\lambda_1 x}, x e^{\lambda_1 x}, e^{\lambda_2 x}, x e^{\lambda_2 x} \}$.
+From Abel's identity and lemma \ref{thm:cc} we know
+\begin{equation*}
+\W{E}{x} = \begin{vmatrix} 1 & 0 & 1 & 0 \\ \lambda_1 & 1 & \lambda_2 & 1 \\
+\lambda_1^2 & 2 \lambda_1 & \lambda_2^2 & 2 \lambda_2 \\
+\lambda_1^3 & 3 \lambda_1^2 & \lambda_2^3 & 3 \lambda^2_2 \end{vmatrix} e^{ (2 \lambda_1 + 2 \lambda_2 ) x } .
+\end{equation*}
+To calculate the IOM we need the functions $\W{E \setminus E_{k,j}}{x}$, of which there are four:
+\begin{align*}
+\W{E \setminus E_{1,0}}{x} e^{ -( \lambda_1 + 2 \lambda_2 ) x } & = \begin{vmatrix} 0 & 1 & 0 \\ 1 & \lambda_2 & 1 \\ 2 \lambda_1 & \lambda_2^2 & 2 \lambda_2 \end{vmatrix} + x \begin{vmatrix} 1 & 1 & 0 \\ \lambda_1 & \lambda_2 & 1 \\ \lambda_1^2 & \lambda_2^2 & 2 \lambda_2 \end{vmatrix}, \\
+\W{E \setminus E_{1,1}}{x} e^{ -( \lambda_1 + 2 \lambda_2 ) x } & = \begin{vmatrix} 1 & 1 & 0 \\ \lambda_1 & \lambda_2 & 1 \\ \lambda_1^2 & \lambda_2^2 & 2 \lambda_2 \end{vmatrix}, \\
+\W{E \setminus E_{2,0}}{x} e^{ -(2 \lambda_1 + \lambda_2 ) x } & = \begin{vmatrix} 1 & 0 & 0 \\ \lambda_1 & 1 & 1 \\ \lambda_1^2 & \lambda_1 & \lambda_2 \end{vmatrix} + x \begin{vmatrix} 1 & 0 & 1 \\ \lambda_1 & 1 & \lambda_2 \\ \lambda_1^2 & 2 \lambda_1 & \lambda_2^2 \end{vmatrix}, \\
+\W{E \setminus E_{2,1}}{x} e^{ -(2 \lambda_1 + \lambda_2 ) x } & = \begin{vmatrix} 1 & 0 & 1 \\ \lambda_1 & 1 & \lambda_2 \\ \lambda_1^2 & 2 \lambda_1 & \lambda_2^2 \end{vmatrix} .
+\end{align*}
+Note that all of the $3 \times 3$ determinants could be calculated as part of calculating the $4 \times 4$ determinant of $W(E;x)$ if one expands along the bottom row.
+As such, calculating the other four Wronskians should be no more than $\order{m}$ additional operations.
+
+\subsection{Algorithm for IOM for constant coefficients}
+
+\begin{description}
+\item[Step 1:] Identify the roots and their multiplicities $\{ \lambda_k ; m_k \}_{k=1}^M$ of the polynomial associated with the linear operator.
+\item[Step 2:] Calculate $\abs{\Omega_k^j}$ for all $k$ and $j$, then use $\abs{\Omega_k^j}$ to calculate $\abs{\Omega}$.
+\item[Step 3:] Calculate the coefficients $\gamma_{kn}$ and the corresponding determinants $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$. Use this information to form the scalar multipliers $\beta_{k,j}$.
+\item[Step 4:] Form the Birkhoff interpolants $G_{k,j}(x)$ by first forming the Chebyshev polynomials and their integrals.
+\item[Step 5:] Using the determinants $\abs{\Omega_k^j}$, $\abs{\Omega}$, $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$ form the fundamental solution sets $\set{\hat{P}_i(x)}$ and $\set{P_i(x)}$.
+\item[Step 6:] Calculate the constants $C_{k,j}$.
+Currently only a brute-force approach is provided, but it is expected that there are simplifications to be made given constant coefficients.
+\item[Step 7:] Form the functions $R_j(x)$ and by extension the IOM.
+\end{description}
 
 \end{document}

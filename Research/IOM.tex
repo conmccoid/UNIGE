@@ -336,7 +336,7 @@ The Wronskian of a set of functions $\{ f_k(x) \}_{k=1}^n$, denoted here as $\W{
 \end{equation}
 
 Using Cramer's rule, the solution to the system:
-\begin{equation}
+\begin{equation} \label{eq:Wronskian system}
 \begin{bmatrix} f_1(x) & \dots & f_n(x) \\ \vdots & \ddots & \vdots \\ f^{(n-1)}_1(x) & \dots & f_n^{(n-1)}(x) \end{bmatrix} 
 \begin{bmatrix} \omega_1(x) \\ \vdots \\ \omega_n(x) \end{bmatrix} =
 \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
@@ -346,6 +346,7 @@ is equal to:
 \omega_j(x) = (-1)^{j+n} \frac{ W( \{ f_k \}_{k \neq j} ; x) }{ W( \{ f_k \} ; x ) } .
 \end{equation}
 Therefore, the systems in equations (\ref{eq:betas}) and (\ref{gamma}) do not need to be solved if the Wronskians are calculated instead.
+The matrix of these systems is called the fundamental matrix.
 
 % compare order of operations for calculating all of the determinants vs. solving all of the systems
 
@@ -357,70 +358,25 @@ W(\{f_k\}; x) = W(\{f_k\}; 0) \exp \left ({ - \int_{0}^x q_1(s) ds } \right ).
 \end{equation}
 It is then a matter of finding the linear operator $\mathcal{L}$ for which the functions form a fundamental solution set.
 
-Through the use of Abel's identity and other results to be discussed later some Wronskians are easier to calculate than others.
-Moreover, in solving both equations (\ref{gamma}) and (\ref{eq:betas}) two sets of Wronskians are calculated.
-It is therefore convenient to have a straightforward way of representing the Wronskians of a linear sum of functions in terms of the Wronskians of those functions.
-To this end we present the following lemma:
-
-\begin{lemma}[Wronskian of linear sums of functions]
+Before proceeding, we employ the following notation.
+The fundamental matrix for the set $\set{P_n(x)}$ will be denoted by $P(x)$.
+The matrix $\hat{P}(x)$ will denote the same for $\set{\hat{P}_n(x)}$.
+The functions $\omega_j(x)$ and its corresponding vector $\omega(x)$ will be used to represent the solution to the system from equation (\ref{eq:Wronskian system}) for this set.
+As such, $\gamma_{kn} = \omega_n(v_k)$.
+Let $\Gamma$ represent the matrix of these coefficients:
 \begin{equation*}
-\W{ \set{ \sum_{k=1}^m a_{k,j} f_k(x) }_{j=1}^{m-1} }{ x} = \sum_{n=1}^m W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
-a_{1,1} & \dots & a_{1,m-1} \\
-\vdots & & \vdots \\
-a_{n-1,1} & \dots & a_{n-1,m-1} \\
-a_{n+1,1} & \dots & a_{n+1,m-1} \\
-\vdots & & \vdots \\
-a_{m,1} & \dots & a_{m,m-1}
-\end{vmatrix}
+\Gamma = \begin{bmatrix} \gamma_{11} & \dots & \gamma_{m1} \\ \vdots & & \vdots \\ \gamma_{1m} & \dots & \gamma_{mm} \end{bmatrix} .
 \end{equation*}
-\label{lem:sum}
-\end{lemma}
+Also let $\beta_j$ represent the vector of $\beta_{k,j}$ for a single $j$, as found in equation (\ref{eq:betas}).
 
-\begin{proof}
-Let $g_j(x) = \sum_{k=1}^m a_{k,j} f_k(x)$.
+One may rephrase equation (\ref{eq:betas}) in terms of $P(x)$, $\hat{P}(x)$, $\omega$ and $\Gamma$:
 \begin{align*}
-W(\{g_j\}_{j=1}^{m-1} ; x) & = \begin{vmatrix}
-g_1 & \dots & g_{m-1} \\
-\vdots & & \vdots \\
-g_1^{(m-2)} & \dots & g_{m-1}^{(m-2)} \end{vmatrix} \\
-& = \det \left ( \begin{bmatrix} f_1 & \dots & f_m \\ \vdots & & \vdots \\ f_1^{(m-2)} & \dots & f_m^{(m-2)} \end{bmatrix} \begin{bmatrix} a_{1,1} & \dots & a_{1,m-1} \\ \vdots & & \vdots \\ a_{m,1} & \dots & a_{m,m-1} \end{bmatrix} \right ) \\
-& = \sum_{n=1}^{m} W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
-a_{1,1} & \dots & a_{1,m-1} \\
-\vdots & & \vdots \\
-a_{n-1,1} & \dots & a_{n-1,m-1} \\
-a_{n+1,1} & \dots & a_{n+1,m-1} \\
-\vdots & & \vdots \\
-a_{m,1} & \dots & a_{m,m-1}
-\end{vmatrix}
+P(x_j) \beta_j = \hat{P}(x_j) \Gamma \beta_j = & \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} \\
+\implies \Gamma \beta_j = \hat{P}(x_j)^{-1} & \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} = \omega(x_j)
 \end{align*}
-by the Cauchy-Binet formula.
-\end{proof}
-
-Equation (\ref{eq:betas}) may now be rewritten to utilize the arbitrary set of fundamental solutions $\set{\hat{P}_n(x)}$ and the coefficients $\gamma_{kn}$ from equation (\ref{gamma}).
-For ease of notation, let $\Gamma$ represent the matrix of these coefficients:
-\begin{equation*}
-\Gamma = \begin{bmatrix} \gamma_{11} & \dots & \gamma_{m1} \\ \vdots & & \vdots \\ \gamma_{1m} & \dots & \gamma_{mm} \end{bmatrix}
-\end{equation*}
-and let $\Gamma_{k,n}$ be the submatrix resulting from removing row $n$ and column $k$.
-Then we may write:
-\begin{equation*}
-\begin{split}
-\beta_{k,j} & = (-1)^{m+k} \frac{\W{\set{\sum_{n=1}^m \gamma_{in} \hat{P}_n(x)}_{i \neq k}}{x_j}}{\W{\set{\sum_{n=1}^m \gamma_{in} \hat{P}_n(x)}_{i=1}^m}{x_j}} \\
-			& = (-1)^{m+k} \sum_{n=1}^m \frac{\W{\set{\hat{P}_i(x)}_{i \neq n}}{x_j}}{\W{\set{\hat{P}_i(x)}_{i=1}^m}{x_j}} \frac{\abs{\Gamma_{k,n}}}{\abs{\Gamma}} .
-\end{split}
-\end{equation*}
-
-One may rephrase equation (\ref{eq:betas}) in terms of the arbitrary fundamental solutions $\set{\hat{P}_n(x)}$ and the matrix $\Gamma$.
-To simplify the notation, the matrix $P(x_j)$ will represent the fundamental matrix of the set $\set{P_n(x)}$ evaluated at the point $x_j$, $\hat{P}(x_j)$ the same for the arbitrary set and $\beta_j$ the vector of $\beta_{k,j}$ for a single $j$.
-\begin{align*}
-P(x_j) \beta_j = \hat{P}(x_j) \Gamma \beta_j & = \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} \\
-\implies \Gamma \beta_j & = \hat{P}(x_j)^{-1} \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
-\\
-& = \frac{(-1)^m}{\W{\set{\hat{P}_n(x)}}{x_j}} \begin{bmatrix} -\W{\set{\hat{P}_n}_{n\neq 1}}{x_j} \\ \vdots \\ (-1)^m \W{\set{\hat{P}_n}_{n\neq m}}{x_j} \end{bmatrix}
-\end{align*}
-To calculate the coefficients $\beta_{k,j}$ we now need only one $m \times m$ inverse and apply it $N-m$ times to a matrix composed of the Wronskians evaluated at the various points $x_j$.
+To calculate the coefficients $\beta_{k,j}$ we now need only one $m \times m$ inverse and apply it $N-m$ times to the vectors $\omega(x)$.
 Note also that the values in $\Gamma$ are themselves evaluations of the Wronskians.
-The procedure is then to find the Wronskians of any arbitrary set of fundamental solutions, use its values at the points contained in $V$ to form the matrix $\Gamma$ and the remaining values as right-hand sides in the above system.
+The procedure is then to find the $\omega(x)$ function of any arbitrary set of fundamental solutions, use its values at the points contained in $V$ to form the matrix $\Gamma$ and the remaining values as right-hand sides in the above system.
 
 \section{Constant coefficients}
 
@@ -502,17 +458,13 @@ One may use lemma \ref{lem:exp} to calculate $\W{E \setminus E_i}{x}$ as the set
 As such, the only changes that need to be made to the Wronskian are the sum of the values $\lambda_k$ and the matrix $\Lambda$.
 In particular, the sum is as it was before minus the contribution of $\lambda_i$ and the matrix $\Lambda$ is replaced by $\Lambda_i$.
 
-We may now write down the values of $\gamma_{jn}$ from equation (\ref{gamma}), applying lemma \ref{lem:exp} to both the set $E$ and $E \setminus E_n$:
+We may now write down the functions $\omega_n(x)$ from equation (\ref{eq:Wronskian coeffs}), applying lemma \ref{lem:exp} to both the set $E$ and $E \setminus E_n$:
 \begin{equation*}
 \begin{split}
-\gamma_{jn} & = (-1)^{m+n} \frac{\W{E \setminus E_n}{v_j}}{\W{E}{v_j}} \\
-			& = (-1)^{m+n} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} \frac{e^{v_j \sum_{k \neq n} \lambda_k}}{e^{v_j \sum_{k=1}^m \lambda_k}} \\
-			& = (-1)^{m+n} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} e^{-\lambda_n v_j} .
+\omega_n(x) & = (-1)^{m+n} \frac{\W{E \setminus E_n}{x}}{\W{E}{x}} \\
+			& = (-1)^{m+n} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} \frac{e^{x \sum_{k \neq n} \lambda_k}}{e^{x \sum_{k=1}^m \lambda_k}} \\
+			& = (-1)^{m+n} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} e^{-\lambda_n x} .
 \end{split}
-\end{equation*}
-Likewise, $\beta_{k,j}$ simplifies to:
-\begin{equation*}
-\beta_{k,j} = (-1)^{m+k} \sum_{n=1}^m e^{-\lambda_n x_j} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} \frac{\abs{\Gamma_{k,n}}}{\abs{\Gamma}} .
 \end{equation*}
 
 \subsection{$\mathcal{L} u = u^{(m)}$}
@@ -583,15 +535,38 @@ by an identity of the binomial coefficients. (nb: cite)
 \end{description}
 \end{proof}
 
-As before we may now write out the values of $\gamma_{jn}$:
+As before we may now write out the functions $\omega_n(x)$:
 \begin{equation*}
 \begin{split}
-\gamma_{jn} & = (-1)^{m+n} \frac{ \W{E \setminus \set{\Poly{n}}}{v_j}}{\W{E}{v_j}} \\
-			& = (-1)^{m+n} \frac{\W{\set{\Poly{k}}_{k \neq n}}{v_j}}{1} \ \text{by $(i)$} \\
-			& = (-1)^{m+n} \W{\set{\Poly{k}}_{k=1}^{m-n}}{v_j} \ \text{by $(ii)$} \\
-			& = (-1)^{m+n} \frac{v_j^{m-n}}{(m-n)!} \ \text{by $(iii)$.}
+\omega_n(x) & = (-1)^{m+n} \frac{ \W{E \setminus \set{\Poly{n}}}{x}}{\W{E}{x}} \\
+			& = (-1)^{m+n} \frac{\W{\set{\Poly{k}}_{k \neq n}}{x}}{1} \ \text{by $(i)$} \\
+			& = (-1)^{m+n} \W{\set{\Poly{k}}_{k=1}^{m-n}}{x} \ \text{by $(ii)$} \\
+			& = (-1)^{m+n} \poly{m-n} \ \text{by $(iii)$.}
 \end{split}
 \end{equation*}
+
+As a corollary, we may establish the inverse of the fundamental matrix for the set of consecutive polynomials by noting that it is Toeplitz and upper triangular.
+\begin{cor}[Inverse of the fundamental matrix for polynomials] \label{cor:poly}
+\begin{equation*}
+\begin{bmatrix} 1 & x & \dots & \Poly{m} \\ 0 & \ddots & \ddots & \ddots \end{bmatrix}^{-1} =
+\begin{bmatrix} 1 & -x & \Poly{2} & -\Poly{3} & \dots & (-1)^m \Poly{m} \\ 0 & \ddots & \ddots & \ddots & \ddots & \ddots \end{bmatrix} 
+\end{equation*}
+\end{cor}
+
+\begin{proof}
+First note that the matrix is upper triangular and Toeplitz and so its inverse is upper triangular and Toeplitz (nb:cite).
+As such, it suffices to calculate the last column of the inverse.
+That is, it suffices to solve:
+\begin{equation*}
+\begin{bmatrix} 1 & x & \dots & \Poly{m} \\ 0 & \ddots & \ddots & \ddots \end{bmatrix} \omega = \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} .
+\end{equation*}
+Recall from equation (\ref{eq:Wronskian coeffs}) that the elements of $\omega$ are given by fractions of Wronskians, which have been found in lemma \ref{lem:poly} and presented immediately above the hypothesis.
+Thus, the vector $\omega$ is equal to:
+\begin{equation*}
+\omega = \begin{bmatrix} (-1)^m \poly{m} \\ \vdots \\ -x \\ 1 \end{bmatrix} .
+\end{equation*}
+This vector then defines the Toeplitz matrix in the hypothesis.
+\end{proof}
 
 \subsection{One root with multiplicity $m$}
 
@@ -655,9 +630,9 @@ Applying this lemma to the case of $M=1$ we find that:
 \W{E}{x} & = e^{m \lambda_1 x} \W{\set{\Poly{k}}_{k=0}^{m-1}}{x} = e^{m \lambda_1 x} , \\
 \W{E \setminus E_{1,j}}{x} & = e^{(m-1) \lambda_1 x} \poly{m-j} .
 \end{align*}
-The value of $\gamma_{jn}$ is then:
+The function $\omega_n(x)$ is then:
 \begin{equation*}
-\gamma_{jn} = (-1)^{m+n} \frac{v_j^{m-n}}{(m-n)!} e^{-\lambda_1 x} .
+\omega_n(x) = (-1)^{m+n} \poly{m-n} e^{-\lambda_1 x} .
 \end{equation*}
 
 \subsection{Mixed multiplicities}
@@ -785,11 +760,37 @@ Thus, by strong induction, it is true for all $0 \leq j \leq m_k-1$.
 Lemma \ref{lem:exp} is the special case of this theorem with $m_k = 1$ for all $k$ and so the summation in statement $(ii)$ is over a single element.
 The special case of $M=1$ has $\abs{\Omega_k^n} = \delta_{n,m_k-1}$ and so we may retrieve the results of lemma \ref{lem:poly} and those discussed in the previous subsection for $\lambda_1 \neq 0$.
 
-The general form of the values of $\gamma_{li}$ may now be written as:
+The general form of the functions $\omega_i(x)$ may now be written as:
 \begin{equation*}
-\gamma_{li} = (-1)^{m+i} e^{-\lambda_k v_l} \sum_{n=j}^{m_k-1} \poly{n-j} \frac{\abs{\Omega_k^n}}{\abs{\Omega}}
+\omega_i(x) = (-1)^{m+i} e^{-\lambda_k x} \sum_{n=j}^{m_k-1} \poly{n-j} \frac{\abs{\Omega_k^n}}{\abs{\Omega}}
 \end{equation*}
 where $\hat{P}_i(x) = \Poly{j} e^{\lambda_k x}$.
+
+A simpler procedure may be employed to calculate the functions $\omega_i(x)$ by solving matrix systems rather than processing determinants.
+To explain this procedure, recall that $\hat{P}(x)$ represents the fundamental matrix for the set $E$.
+It may be written as the product of two matrices: the matrix $\Omega$ and a block upper triangular matrix whose blocks are Toeplitz:
+\begin{equation*}
+\hat{P}(x) = \Omega \begin{bmatrix} e^{\lambda_1 x} & x e^{\lambda_1 x} & \dots \\
+0 & e^{\lambda_1 x} & \dots \\
+\vdots & \ddots & \ddots \end{bmatrix}.
+\end{equation*}
+
+Each upper triangular Toeplitz block corresponds to one of the $\lambda_k$ and can themselves be written as the product of $e^{\lambda_k x}$ and the fundamental matrix for consecutive polynomials up to degree $m_k-1$, denoted hereafter as $F_k(x)$.
+Since the blocks are disjoint and $F_k^{-1}(x)$ is known by corollary \ref{cor:poly} the inverse of the block upper triangular matrix is known.
+One may write out equation (\ref{eq:Wronskian system}) with this in mind:
+\begin{align*}
+\Omega \begin{bmatrix} e^{\lambda_1 x} F_1(x) & 0 & \dots & \\
+0 & e^{\lambda_2 x} F_2(x) & & \\
+\vdots & & \ddots & \\
+ & & & e^{\lambda_M x} F_M(x) \end{bmatrix} \omega(x) = \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} \\
+ \implies  \omega(x) = \begin{bmatrix} e^{-\lambda_1 x} F_1^{-1}(x) & 0 & \dots & \\
+0 & e^{-\lambda_2 x} F_2^{-1}(x) & & \\
+\vdots & & \ddots & \\
+ & & & e^{-\lambda_M x} F_M^{-1}(x) \end{bmatrix} \Omega^{-1} \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} \\
+ \implies \tilde{I}_k \omega(x) = e^{-\lambda_k x} F_k^{-1}(x) \tilde{I}_k \Omega^{-1} \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
+\end{align*}
+where $\tilde{I}_k $ indicates the selection of those rows corresponding to $\lambda_k$.
+Note that all $F_k^{-1}(x)$ are principal submatrices of $F_{k^*}^{-1}$, where $m_{k^*} \geq m_k$ for all $k=1,...,M$.
 
 \section{Application and experiments}
 

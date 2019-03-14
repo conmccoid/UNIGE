@@ -338,12 +338,12 @@ The Wronskian of a set of functions $\{ f_k(x) \}_{k=1}^n$, denoted here as $\W{
 Using Cramer's rule, the solution to the system:
 \begin{equation}
 \begin{bmatrix} f_1(x) & \dots & f_n(x) \\ \vdots & \ddots & \vdots \\ f^{(n-1)}_1(x) & \dots & f_n^{(n-1)}(x) \end{bmatrix} 
-\begin{bmatrix} a_1 \\ \vdots \\ a_n \end{bmatrix} =
+\begin{bmatrix} \omega_1(x) \\ \vdots \\ \omega_n(x) \end{bmatrix} =
 \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
 \end{equation}
 is equal to:
 \begin{equation} \label{eq:Wronskian coeffs}
-a_j = (-1)^{j+n} \frac{ W( \{ f_k \}_{k \neq j} ; x) }{ W( \{ f_k \} ; x ) } .
+\omega_j(x) = (-1)^{j+n} \frac{ W( \{ f_k \}_{k \neq j} ; x) }{ W( \{ f_k \} ; x ) } .
 \end{equation}
 Therefore, the systems in equations (\ref{eq:betas}) and (\ref{gamma}) do not need to be solved if the Wronskians are calculated instead.
 
@@ -409,6 +409,18 @@ Then we may write:
 			& = (-1)^{m+k} \sum_{n=1}^m \frac{\W{\set{\hat{P}_i(x)}_{i \neq n}}{x_j}}{\W{\set{\hat{P}_i(x)}_{i=1}^m}{x_j}} \frac{\abs{\Gamma_{k,n}}}{\abs{\Gamma}} .
 \end{split}
 \end{equation*}
+
+One may rephrase equation (\ref{eq:betas}) in terms of the arbitrary fundamental solutions $\set{\hat{P}_n(x)}$ and the matrix $\Gamma$.
+To simplify the notation, the matrix $P(x_j)$ will represent the fundamental matrix of the set $\set{P_n(x)}$ evaluated at the point $x_j$, $\hat{P}(x_j)$ the same for the arbitrary set and $\beta_j$ the vector of $\beta_{k,j}$ for a single $j$.
+\begin{align*}
+P(x_j) \beta_j = \hat{P}(x_j) \Gamma \beta_j & = \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} \\
+\implies \Gamma \beta_j & = \hat{P}(x_j)^{-1} \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
+\\
+& = \frac{(-1)^m}{\W{\set{\hat{P}_n(x)}}{x_j}} \begin{bmatrix} -\W{\set{\hat{P}_n}_{n\neq 1}}{x_j} \\ \vdots \\ (-1)^m \W{\set{\hat{P}_n}_{n\neq m}}{x_j} \end{bmatrix}
+\end{align*}
+To calculate the coefficients $\beta_{k,j}$ we now need only one $m \times m$ inverse and apply it $N-m$ times to a matrix composed of the Wronskians evaluated at the various points $x_j$.
+Note also that the values in $\Gamma$ are themselves evaluations of the Wronskians.
+The procedure is then to find the Wronskians of any arbitrary set of fundamental solutions, use its values at the points contained in $V$ to form the matrix $\Gamma$ and the remaining values as right-hand sides in the above system.
 
 \section{Constant coefficients}
 
@@ -806,12 +818,46 @@ As such, calculating the other four Wronskians should be no more than $\order{m}
 \begin{description}
 \item[Step 1:] Identify the roots and their multiplicities $\{ \lambda_k ; m_k \}_{k=1}^M$ of the polynomial associated with the linear operator.
 \item[Step 2:] Calculate $\abs{\Omega_k^j}$ for all $k$ and $j$, then use $\abs{\Omega_k^j}$ to calculate $\abs{\Omega}$.
+\begin{equation*}
+\abs{\Omega} = \sum_{i=0}^{m-1} (-1)^{m+i} \binom{m-1}{j} \lambda_k^{(m-1)-j} \abs{\Omega_k^j}, \ i = j + \sum_{n=1}^{k-1} m_n
+\end{equation*}
 \item[Step 3:] Calculate the coefficients $\gamma_{kn}$ and the corresponding determinants $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$. Use this information to form the scalar multipliers $\beta_{k,j}$.
+\begin{equation*}
+\gamma_{li} = (-1)^{m+i} e^{-\lambda_k v_l} \sum_{n=j}^{m_k-1} \frac{v_l^{n-j}}{(n-j)!} \frac{\abs{\Omega_k^n}}{\abs{\Omega}}, \ i = 1 + j + \sum_{n=1}^{k-1} m_n
+\end{equation*}
+\begin{equation*}
+\beta_{k,j} = (-1)^{m+k} \sum_{n=1}^m \frac{\abs{\Gamma_{k,n}}}{\abs{\Gamma}} e^{-\lambda_{k^*} x_j} \sum_{n^*=j^*}^{m_{k^*}-1} \frac{x_j^{n^*-j^*}}{(n^*-j^*)!} \frac{\abs{\Omega_{k^*}^{n^*}}}{\abs{\Omega}}, \ n = 1 + j^* + \sum_{i=1}^{k^*-1} m_i
+\end{equation*}
 \item[Step 4:] Form the Birkhoff interpolants $G_{k,j}(x)$ by first forming the Chebyshev polynomials and their integrals.
+\begin{equation*}
+\begin{gathered}
+G_{k,j} (x) = \beta_{k,j} \sum_{n=0}^{N-1} b^k_{nj} \partial_x^{-1} T_n(x), \\
+ b^k_{nj} = \frac{2}{c_n c_j N} \left ( T_n(x_j) - \frac{T_N(x_j)}{T_N(v_k)} T_n(v_k) \right ).
+\end{gathered}
+\end{equation*}
 \item[Step 5:] Using the determinants $\abs{\Omega_k^j}$, $\abs{\Omega}$, $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$ form the fundamental solution sets $\set{\hat{P}_i(x)}$ and $\set{P_i(x)}$.
+\begin{equation*}
+\begin{gathered}
+\hat{P}_i(x) = \Poly{j} e^{\lambda_k x}, \ i = 1 + j + \sum_{n=1}^{k-1} m_n, \\
+P_i(x) = \sum_{n=1}^m \gamma_{in} \hat{P}_n(x)
+\end{gathered}
+\end{equation*}
 \item[Step 6:] Calculate the constants $C_{k,j}$.
 Currently only a brute-force approach is provided, but it is expected that there are simplifications to be made given constant coefficients.
+\begin{equation*}
+\begin{aligned}
+\begin{bmatrix} \mathcal{B}_1 P_1(1) & \dots &  \mathcal{B}_1 P_m(1) \\ \vdots & \ddots & \vdots \\  \mathcal{B}_{k_0} P_1(1) & \dots &  \mathcal{B}_{k_0} P_m(1)  \end{bmatrix}
+\begin{bmatrix} C_{1,j} \\ \vdots \\ C_{m,j} \end{bmatrix}
+& = - \begin{bmatrix} \sum_{k=1}^m \mathcal{B}_1 P_k(1) G_{k,j}(1) \\ \vdots \\ \sum_{k=1}^m \mathcal{B}_{k_0} P_k(1) G_{k,j}(1) \end{bmatrix} \\
+\begin{bmatrix} \mathcal{B}_{k_0 + 1} P_1(-1) & \dots &  \mathcal{B}_{k_0+1} P_m(-1) \\ \vdots & \ddots & \vdots \\  \mathcal{B}_m P_1(-1) & \dots &  \mathcal{B}_m P_m(-1)  \end{bmatrix}
+\begin{bmatrix} C_{1,j} \\ \vdots \\ C_{m,j} \end{bmatrix}
+& = - \begin{bmatrix} \sum_{k=1}^m \mathcal{B}_{k_0+1} P_k(-1) G_{k,j}(-1) \\ \vdots \\ \sum_{k=1}^m \mathcal{B}_m P_k(-1) G_{k,j}(-1) \end{bmatrix} .
+\end{aligned}
+\end{equation*}
 \item[Step 7:] Form the functions $R_j(x)$ and by extension the IOM.
+\begin{equation*}
+R_j(x) = \sum_{k=1}^m (C_{k,j} + G_{k,j}(x) ) P_k(x)
+\end{equation*}
 \end{description}
 
 \end{document}

@@ -49,14 +49,53 @@ w = w./det(Y);
 P = exp(T(:,2)*y');             % this needs to change to account for roots with multiplicity
 Pm= P * diag(w) * (1./P(v,:)');
 
-%---Beta coefficients---%
-Coeffs = zeros(m,m);
-for j = 1:m
-    for k = 1:m
-        Coeffs(j,k) = (-1)^(j+k) * det( 1./P(v(ind~=k),ind(ind~=j))' );
-    end
+%---Pascal's Triangle---%
+PT = spalloc(m,m,m*(m+1)/2); PT(:,1) = ones(m,1);
+for i = 2:m
+    PT(i,2:m) = PT(i-1,2:m)+PT(i-1,1:m-1);
 end
-W = Coeffs' * (1./P') ./ det(1./P(v,:)');
+
+%---Omega matrices---%
+Om = sparse(m,m); ind = 0;
+for i = 1:M
+    Omtemp = spdiags(0:-1:1-m,y(i).^(0:m-1),m,mk(i));
+    Om(:,ind+(1:mk(i))) = Omtemp.*PT(:,1:mk(i));
+    ind = ind + mk(i);
+end
+
+detOm = det(Om);
+detOmmat = zeros(m,m);
+xx = ones(N,m); ee = zeros(N,m);
+ind = 0;
+for i = 1:M
+    for j = 1:mk(i)
+        detOmmat(ind + (j:-1:1),ind + (1:j)) = det(Om(1:m-1,(1:m)~=(ind+j))); %block diagonal and symmetric
+        if ind==0 || j>mk(1)
+            xx(:,ind+j+1) = xx(:,ind+j)*T(:,2)/j;
+        else
+            xx(:,ind+j+1) = xx(:,j+1);
+        end
+    end
+    ee(ind + 1:mk(i)) = exp(-T(:,2)*y(i));
+    ind = ind + mk(i);
+end
+
+%---Wronskians---%
+W = ee.*(xx * detOmmat)./ detOm;
+Gam = W(v,:);
+
+%---Fundamental solution set(s)---%
+Phat = ee .* xx; %hopefully unnecessary in final version? although this probably doesn't cost much
+P = Phat * Gam;
+
+% %---Beta coefficients---%
+% Coeffs = zeros(m,m);
+% for j = 1:m
+%     for k = 1:m
+%         Coeffs(j,k) = (-1)^(j+k) * det( 1./P(v(ind~=k),ind(ind~=j))' );
+%     end
+% end
+% W = Coeffs' * (1./P') ./ det(1./P(v,:)');
 
 %---Interpolants---%
 % G coefficient functions, homog. solns

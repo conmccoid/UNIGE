@@ -426,6 +426,51 @@ The regions yellow, green, blue and white correspond to the regions 1, 2, 3 and 
 
 While this only applies to this particular problem, it shows that the fixed point iteration $G(\gamma)$ may appear in any of the four regions with any slope.
 
+Consider a second example for which we may write out explicitly $G'(\gamma^*)$:
+\begin{equation*}
+\begin{cases} u_{xx} - C \sin(u) = 0 & x \in [-1,1] \\ u(-1) = u(1) = 0 \end{cases}
+\end{equation*}
+with $\alpha = -\beta = -0.2$ and $C>0$.
+The solution to the problem is $u=0$.
+Using the same Robin transmission conditions as earlier, we have the following equation for $G'(\gamma^*)$:
+\begin{equation*}
+G'(\gamma^*) = \frac{\sqrt{C} \cosh(0.8 \sqrt{C}) + C_2 \sinh (0.8 \sqrt{C})}{\sqrt{C} \cosh(1.2 \sqrt{C}) + C_1 \sinh(1.2 \sqrt{C})} \frac{\sqrt{C} \cosh((-0.8) \sqrt{C}) + C_1 \sinh ((-0.8) \sqrt{C})}{\sqrt{C} \cosh((-1.2) \sqrt{C}) + C_2 \sinh((-1.2) \sqrt{C})} .
+\end{equation*}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{exp12_01.png}
+\caption{$G'(\gamma^*)$ as a function of $C_1$ and $C_2$ for the second example problem with $C=1$.
+The regions yellow, green, blue and white correspond to the regions 1, 2, 3 and 4, respectively.}
+\end{figure}
+
+The regions that $G(\gamma)$ lies in are determined by the value of $G'(\gamma^*)$ and certain conditions.
+For example, if the problem is nonsingular then $G(\gamma)$ cannot cross between regions 1 and 2.
+If $G(\gamma)$ is known to be monotonic then it cannot cross between regions 2 and 3.
+The example problem presented here is known to be nonsingular and the corresponding $G(\gamma)$ is monotonic for all $C_1$ and $C_2$ (nb: prove?), and so $G'(\gamma^*)$ informs us whether the fixed point iteration lies within regions 1, 2 or the combination of 3 and 4 for every choice of $\gamma$.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{exp12_02.png}
+\caption{$G'(\gamma^*)$ as a function of $p = C_1 = -C_2$ and $C$.
+The region blue corresponds to region 2 and the region yellow to region 3.}
+\end{figure}
+
+For $C=1$ and $p = C_1 = -C_2 = -2$ we have that $G(\gamma)$ is in region 1.
+As such, the fixed point iteration diverges away from the root.
+The Newton-Raphson iteration, on the other hand, will converge.
+This may be seen in figure \ref{fig:exCsin3}.
+The choice $p>0$ is apparently natural and for most problems examined will place $G(\gamma)$ in region 2.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{exp12_03.png}
+\caption{The fixed point function $G(\gamma)$ and the corresponding Newton-Raphson iteration for the second example problem with $C=1$ and $p=C_1 = -C_2 = -2$.}
+\label{fig:exCsin3}
+\end{figure}
+
+For $C<0$ the problem in $u$ is possibly singular, especially with Robin boundary conditions and certain subintervals.
+
 Under certain conditions one may be able to show that $G(\gamma)$ is restricted to specific regions.
 As an example, we reprove a result from Lui \cite{lui1999schwarz}.
 
@@ -471,18 +516,19 @@ While it is ideal that this function is strictly monotonic, this cannot be guara
 
 Take as a counterexample the following differential equation:
 \begin{equation*}
-u''(x) - \sin(8 u(x)) = 0 .
+u''(x) - \sin(3.6 u(x)) = 0 .
 \end{equation*}
 With homogeneous Dirichlet boundary conditions the solution to this problem is the zero function.
 Using Dirichlet transmission conditions one arrives at the function $G(\gamma)$ depicted in figure \ref{fig:exsin}.
 
 \begin{figure}
-	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=\textwidth]{ExSin01.png}
-	\end{subfigure}
-	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=\textwidth]{ExSin02.png}
-	\end{subfigure}
+%	\begin{subfigure}{0.5\textwidth}
+%		\includegraphics[width=\textwidth]{ExSin01.png}
+%	\end{subfigure}
+%	\begin{subfigure}{0.5\textwidth}
+%		\includegraphics[width=\textwidth]{ExSin02.png}
+%	\end{subfigure}
+	\includegraphics[width=\textwidth]{exp9_02.png}
 	\caption{The function $G(\gamma)$.
 	On the left, the corresponding Newton-Raphson iteration is plotted along with the lines $y=\gamma$ and $y=2 \gamma^* - \gamma$.
 	On the right, the lines $g_C(\gamma)$ show the function $C(\gamma)$ is not monotonic for this problem.}
@@ -491,6 +537,7 @@ Using Dirichlet transmission conditions one arrives at the function $G(\gamma)$ 
 
 As seen in the figure, where $G(\gamma)$ is not monotonic with respect to the geometry of the lines $g_C(\gamma)$ (equivalent to $C(\gamma)$ no longer monotonic) the Newton-Raphson iteration enters into region 4.
 Due to the symmetry of the function $G(\gamma)$, this creates at least two 2-cycles where $G(\gamma)$ meets the line $y = 2 \gamma^* - \gamma$.
+One of these 2-cycles is stable, and taking $\gamma_0 = 1.6$ (or somewhere nearby) the Newton-Raphson preconditioning will cause the iterations to converge to this cycle.
 
 \section{Proposed algorithm}
 \label{sec:algo}

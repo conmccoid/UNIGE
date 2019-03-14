@@ -1,9 +1,56 @@
-%% Experiment 9 - testing different transmission conditions
-% We should be able to change properties of the method by changing the
-% transmission conditions. We will test what happens to the fixed point
-% function that underlies the problem as we change these conditions.
+%% Experiment 12 - Counterexamples
+% We collect a series of counterexamples to be used to dispute convergence
+% conjectures for FP and NR in transmission conditions of alternating
+% Schwarz methods.
 
-%% Mapping G(y)
+%% u'' - Csin(u)=0 with homogeneous Dirichlet BCs
+
+% Intervals
+a = -1;
+b =  1;
+al=-0.2;
+be= 0.2;
+
+% Parameter(s)
+C = linspace(0,2,1001);
+% C = sqrt(0.9) * pi / 2;
+% C = 1;
+% C1=linspace(-2,2,101);
+% C2=C1';
+p = linspace(-10,10,101)';
+
+% Possible regions
+% Gp= ( (sinh(C*al).*cosh(C*a) - cosh(C*al).*sinh(C*a)) .* ...
+%     (sinh(C*be).*cosh(C*b) - cosh(C*be).*sinh(C*b)) ) ./ ...
+%     ( (sinh(C*be).*cosh(C*a) - cosh(C*be).*sinh(C*a)) .* ...
+%     (sinh(C*al).*cosh(C*b) - cosh(C*al).*sinh(C*b)) );
+% Gp= ( (sin(C*al).*cos(C*a) - cos(C*al).*sin(C*a)) .* ...
+%     (sin(C*be).*cos(C*b) - cos(C*be).*sin(C*b)) ) ./ ...
+%     ( (sin(C*be).*cos(C*a) - cos(C*be).*sin(C*a)) .* ...
+%     (sin(C*al).*cos(C*b) - cos(C*al).*sin(C*b)) );
+% semilogy(C,Gp)
+% xlabel('C^{1/2}')
+% ylabel('G''(\gamma)')
+
+% Gp= bsxfun(@times, C*cosh(C*(al-a)) + C2*sinh(C*(al-a)), C*cosh(C*(be-b)) + C1*sinh(C*(be-b)));
+% Gp= bsxfun(@rdivide, Gp, C*cosh(C*(be-a)) + C1*sinh(C*(be-a)));
+% Gp= bsxfun(@rdivide, Gp, C*cosh(C*(al-b)) + C2*sinh(C*(al-b)));
+k1= bsxfun(@times, p, sinh(C*(al-a)));
+k2= bsxfun(@times, p, sinh(C*(be-b)));
+k3= bsxfun(@times, p, sinh(C*(be-a)));
+k4= bsxfun(@times, p, sinh(C*(al-b)));
+Gp= bsxfun(@times, C.*cosh(C*(al-a)) - k1, C.*cosh(C*(be-b)) + k2);
+Gp= bsxfun(@rdivide, Gp, C.*cosh(C*(be-a)) + k3);
+Gp= bsxfun(@rdivide, Gp, C.*cosh(C*(al-b)) - k4);
+
+contourf(C,p,Gp,[-1,0,1])
+xlabel('C')
+ylabel('p')
+% contourf(C1,C2,Gp,[-1,0,1])
+% xlabel('C_1')
+% ylabel('C_2')
+
+%%
 
 % Grid
 nx = 1001;
@@ -35,12 +82,10 @@ D22= spdiags(D22,[-1,0,1],l2,l2);
 % Problem parameters
 a1 = 0; b1 = 1;
 a2 = 0; b2 = 1;
-% c1 = 1; d1 =-5/6 + 1e-9;
-% c2 = 1; d2 =-5/4 + 1e-8;
-c1 = 0; d1 = 1;
-c2 = 0; d2 = 1;
+c1 = 1; d1 =-2;
+c2 = 1; d2 = 2;
 
-A  = 3.6;
+A  = 1;
 BCL= 0;
 BCR= 0;
 
@@ -51,7 +96,8 @@ J2BC = sparse([1,1,1,2,2,2],[1,2,3,l2-2,l2-1,l2],...
     [-3*c2/(2*h) + d2,4*c2/(2*h),-c2/(2*h),a2/(2*h),-4*a2/(2*h),3*a2/(2*h)+b2],2,l2);
 
 % Initialization
-yy = -2:0.01:2;
+L  = 1;
+yy = linspace(-L,L,1001);
 nonlinsolves = 50;
 G  = zeros(size(yy));
 Gp = G;
@@ -68,8 +114,8 @@ for k = 1:length(yy)
 %         J1 = D21 - spdiags(u1,0,l1,l1)*D11 - spdiags(D11*u1,0,l1,l1);
 %         F1 = D21*u1 - u1.^A;
 %         J1 = D21 - spdiags(A*u1.^(A-1),0,l1,l1);
-        F1 = D21*u1 - sin(A*u1);
-        J1 = D21 - spdiags(A*cos(A*u1),0,l1,l1);
+        F1 = D21*u1 - A*sin(u1);
+        J1 = D21 - spdiags(A*cos(u1),0,l1,l1);
         J1 = [J1BC(1,:);J1(2:end-1,:);J1BC(2,:)];
         F1(1) = J1BC(1,:)*u1 - BCL; F1(end) = J1BC(2,:)*u1 - yy(k);
         u1 = u1 - J1 \ F1;
@@ -84,8 +130,8 @@ for k = 1:length(yy)
 %         J2 = D22 - spdiags(u2,0,l2,l2)*D12 - spdiags(D12*u2,0,l2,l2);
 %         F2 = D22*u2 - u2.^A;
 %         J2 = D22 - spdiags(A*u2.^(A-1),0,l2,l2);
-        F2 = D22*u2 - sin(A*u2);
-        J2 = D22 - spdiags(A*cos(A*u2),0,l2,l2);
+        F2 = D22*u2 - A*sin(u2);
+        J2 = D22 - spdiags(A*cos(u2),0,l2,l2);
         J2 = [J2BC(1,:);J2(2:end-1,:);J2BC(2,:)];
         F2(1) = J2BC(1,:)*u2 - u1a; F2(end) = J2BC(2,:)*u2 - BCR;
         u2 = u2 - J2 \ F2;
@@ -98,40 +144,27 @@ for k = 1:length(yy)
     Gp(k)= g2b;
     N(k) = yy(k) - (u2b - yy(k))/(g2b - 1);
     
+%     plot(x1,u1,x2,u2)
+%     axis([-1,1,-1,1])
+%     pause(0.01)
+    
 end
 
 figure(1)
-subplot(1,2,1)
 plot(yy,G,'b',yy,N,'k',yy,yy,'--',yy,-yy,'--','Linewidth',2)
-axis([-2,2,-2,2])
+axis([-L,L,-L,L])
 axis square
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('G(\gamma)','NR')
 set(gca,'linewidth',2,'fontsize',26)
 
-xx = -2:0.01:2;
 C  = -10:0.5:10;
-yC = bsxfun(@times,C',sqrt(abs(xx))); yC = bsxfun(@plus,xx,yC);
+yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
 
-% figure(2)
-subplot(1,2,2)
-plot(yy,G,'b',xx,yC,'k')%,'linewidth',2)
-axis([-2,2,-2,2])
+figure(2)
+plot(yy,G,'b',yy,yC,'k')%,'linewidth',2)
+axis([-L,L,-L,L])
 axis square
 xlabel('\gamma')
 ylabel('G(\gamma)')
-set(gca,'linewidth',2,'fontsize',26)
-
-%% Map of possible angles for uxx=0 and Robin transmission conditions
-
-xx = -2:1e-2:2;
-yy = xx';
-
-G1 = (1+0.8*yy)./(1-1.2*yy);
-G2 = (1-0.8*xx)./(1+1.2*xx);
-G  = bsxfun(@times,G1,G2);
-
-contourf(xx,yy,G,[-1 0 1])
-xlabel('C_1')
-ylabel('C_2')

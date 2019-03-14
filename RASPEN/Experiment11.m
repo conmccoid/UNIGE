@@ -61,12 +61,13 @@ a1 = 0; b1 = 1;
 a2 = 0; b2 = 1;
 % c1 = 1; d1 =-5/6 + 1e-9;
 % c2 = 1; d2 =-5/4 + 1e-8;
-c1 = 1; d1 = 1;
-c2 = 1; d2 = 1;
+c1 = 1; d1 = 0.5;
+c2 = 1; d2 = -1.5;
 
 A  = 3.6;
-BCL= 0;
-BCR= 0;
+BCL= -1;
+BCR=  1;
+ee = 1;
 
 % Jacobian BCs
 J1BC = sparse([1,1,1,2,2,2],[1,2,3,l1-2,l1-1,l1],...
@@ -88,8 +89,8 @@ for k = 1:length(yy)
     
     % 1st domain
     for i=1:nonlinsolves
-        F1 = D21*u1 - D11*(u1.^2);
-        J1 = D21 - 2*spdiags(u1,0,l1,l1)*D11 - 2*spdiags(D11*u1,0,l1,l1);
+        F1 = ee*D21*u1 - D11*(u1.^2);
+        J1 = ee*D21 - 2*spdiags(u1,0,l1,l1)*D11 - 2*spdiags(D11*u1,0,l1,l1);
         J1 = [J1BC(1,:);J1(2:end-1,:);J1BC(2,:)];
         F1(1) = J1BC(1,:)*u1 - BCL; F1(end) = J1BC(2,:)*u1 - yy(k);
         u1 = u1 - J1 \ F1;
@@ -100,8 +101,8 @@ for k = 1:length(yy)
     
     % 2nd domain
     for i=1:nonlinsolves
-        F2 = D22*u2 - D12*(u2.^2);
-        J2 = D22 - 2*spdiags(u2,0,l2,l2)*D12 - 2*spdiags(D12*u2,0,l2,l2);
+        F2 = ee*D22*u2 - D12*(u2.^2);
+        J2 = ee*D22 - 2*spdiags(u2,0,l2,l2)*D12 - 2*spdiags(D12*u2,0,l2,l2);
         J2 = [J2BC(1,:);J2(2:end-1,:);J2BC(2,:)];
         F2(1) = J2BC(1,:)*u2 - u1a; F2(end) = J2BC(2,:)*u2 - BCR;
         u2 = u2 - J2 \ F2;
@@ -113,6 +114,10 @@ for k = 1:length(yy)
     G(k) = u2b;
     Gp(k)= g2b;
     N(k) = yy(k) - (u2b - yy(k))/(g2b - 1);
+    
+    plot(x1,u1,x2,u2)
+    axis([-1,1,-2,2])
+    pause(0.01)
     
 end
 

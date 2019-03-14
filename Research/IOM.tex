@@ -1,0 +1,817 @@
+\documentclass{article}
+
+\usepackage{/home/mccoid/LaTeX/preamble}
+
+\title{Collocation matrices representing inverse operators}
+\author{Conor McCoid}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+%to include: define Chebyshev points and Chebyshev collocation, reference previous work on PSIM (ie. Wang and myself)
+%copy most of this section from ch1 of thesis, esp. construction of collocation matrix A
+
+\label{sec:intro}
+
+Differentiation matrices are known to suffer from large round-off error, especially for high orders and fine discretization \cite{BB1999errors}.
+They give rise to ill-conditioned systems for solving differential equations numerically.
+To combat the conditioning of these systems one may precondition the problem through a number of means.
+One such preconditioner is the pseudospectral integration matrix (PSIM) (nb: cite Wang and myself), which performs integration on the differential equation being solved.
+
+Taking the ideas of the PSIM one can construct a preconditioning matrix that acts as an inverse operator to the linear operator involved in the given differential equation.
+This is equivalent to finding an approximation to the inverse of the spectral collocation matrix representing said linear operator.
+
+This paper will provide the equations to construct the inverse operator matrix (IOM) for a general linear ODE.
+Several simplifications for constant coefficient linear operators will then be made.
+The focus of this paper is on Chebyshev collocation methods.
+However, much of the theory is readily extendable to other spectral methods.
+
+\subsection{Chebyshev collocation system}
+
+We begin by defining the basics of Chebyshev collocation.
+This method is used to consider differential equations defined on the interval [-1,1].
+To approximate the equation discretely, a partition is used to consider the equations on a finite number of points.
+This partition, defined here as $X$, is known as the Chebyshev nodes, Chebyshev points of the second kind, or Chebyshev-Gauss-Lobatto (CGL) points:
+\begin{equation} \label{CGL}
+X = \left \{ x_k = \cos \left ( \frac{k \pi}{N} \right ) \right \}_{k=0}^N , \quad 1 = x_0 > x_1 > \dots > x_N = -1.
+\end{equation}
+
+Let the vector $\vec{U}$ represent the function $u(x)$ evaluated at the CGL points.
+Then the vector representing the derivative of $u(x)$ can be found by multiplying $\vec{U}$ by the Chebyshev differentiation matrix $D$, defined element-wise by \cite{mason2002chebyshev}:
+\begin{equation} \label{diff matrix}
+\begin{aligned}
+& D_{00} = \frac{2N^2 + 1}{6} \\
+& D_{kk} = - \frac{x_k}{2 ( 1-x^2_k )}, && k \neq 0,N \\
+& D_{jk} = \frac{c_j}{c_k} \frac{ (-1)^{j+k}}{x_j - x_k}, && k \neq j \\
+& D_{NN} = - D_{00}, \end{aligned}
+\end{equation}
+where
+\begin{equation} \label{weights}
+c_k = \begin{cases} 2 \quad \text{if} \quad k=0,N \\ 1 \quad \text{otherwise} . \end{cases}
+\end{equation}
+Higher order differentiation matrices can be found by multiplying $D$ together: $D^{(m)} = D^m$.
+To reduce round-off error in calculations, one can use the "negative sum trick" \cite{BaT2003}:
+\begin{equation}
+D_{kk} = - \sum_{j \neq k} D_{kj} .
+\end{equation}
+
+Chebyshev collocation implicitly decomposes functions into linear combinations of the Chebyshev polynomials, defined recursively by \cite{mason2002chebyshev}:
+\begin{equation} \label{Cheb poly}
+T_0(x) = 1, \quad T_1(x) = x, \quad T_k(x) = 2xT_{k-1}(x) - T_{k-2}(x) ,
+\end{equation}
+or in closed form by:
+\begin{equation} \label{closed form}
+T_k(x) = \cos ( k \arccos (x) ) .
+\end{equation}
+The $N$--th order Chebyshev polynomial has extrema at the CGL points (\ref{CGL}) \cite{mason2002chebyshev}.
+
+Consider the general $m$--th order linear differential operator:
+\begin{equation} \label{general operator}
+\mathcal{L} u(x) = u^{(m)}(x) + \sum_{n = 1}^m q_n(x) u^{(m-n)}(x) .
+\end{equation}
+Consider also $m$ boundary conditions:
+\begin{equation}
+\begin{aligned}
+\sum_{n = 1}^m a_n^k u^{(m-n)}(1) & = \mathcal{B}_k u(1) = a_0^k, & k = 1,...,k_0 , \\
+\sum_{n = 1}^m a_n^k u^{(m-n)}(-1) & = \mathcal{B}_k u(-1) = a_0^k, & k = k_0+1,...,m .
+\end{aligned}
+\end{equation}
+The ordinary differential equation to solve is then:
+\begin{equation}
+\begin{cases} \mathcal{L} u(x) = f(x) \\ \{ \mathcal{B}_k u(\pm 1) = a_0^k \}_{k=1}^m \end{cases}
+\end{equation}
+where $f(x)$ is a continuous function.
+
+Let the matrix $\bar{A}$ represent the Chebyshev collocation matrix for this operator:
+\begin{equation} \label{eq:Abar}
+\bar{A} = D^{(m)} + \sum_{n=1}^m Q_n D^{(m-n)}, \quad Q_n = \begin{bmatrix} q_n(x_0) & & \\ & \ddots & \\ & & q_n(x_N) \end{bmatrix} .
+\end{equation}
+The rows for the boundary conditions can be represented in Chebyshev collocation by taking linear combinations of the first and last rows of the various differentiation matrices.
+Let $\hat{A}$ be the matrix formed by the resulting rows, such that the $k$--th condition is $\hat{A}_k$, the $k$--th row of $\hat{A}$:
+\begin{equation} \label{eq:Ahat}
+\hat{A} = \begin{bmatrix} \sum_{n = 1}^m a_n^1 D^{(m-n)}_0 \\ \vdots \\ 
+\sum_{n = 1}^m a_n^{k_0} D^{(m-n)}_0 \\[10pt]
+\sum_{n = 1}^m a_n^{k_0+1} D^{(m-n)}_N \\ \vdots \\
+\sum_{n = 1}^m a_n^m D^{(m-n)}_N \end{bmatrix}
+\end{equation}
+where $D^{(j)}_0$ is the first row of the $j$--th order differentiation matrix, and $D^{(j)}_N$ the last row of the same matrix.
+
+The Chebyshev collocation system for this equation is:
+\begin{equation}
+\begin{bmatrix} \bar{A} \\ \hat{A} \end{bmatrix} \vec{U} =
+\begin{bmatrix} \vec{f} \\ a_0^1 \\ \vdots \\ a_0^m \end{bmatrix}
+\end{equation}
+where the elements of $\vec{f}$ are the values $\{ f(x_i) \}$.
+
+The matrix $\bar{A}$ is singular: if the vector $\vec{P}$ represents any homogeneous solution to the operator $\mathcal{L}$ evaluated at the CGL points, then $\bar{A} \vec{P} = 0$.
+Given that an $m$--th order linear operator has $m$ linearly independent homogeneous solutions, the null space of $\bar{A}$ has dimension $m$.
+As such, $m$ rows from $\bar{A}$ can be removed and the remaining matrix will have the same rank.
+
+Each row in $\bar{A}$ is associated with a CGL point.
+Specifically, the $i$--th row of $\bar{A}$ enforces the linear operator at the point $x_i \in X$.
+To avoid any counting errors, the rows of $\bar{A}$ are labelled from 0 to $N$.
+In this way, the first row, labelled $\bar{A}_0$, is associated with the point $x_0 = 1$ and the last row, labelled $\bar{A}_N$, with the point $x_N = -1$.
+Therefore, choosing rows to remove from $\bar{A}$ is equivalent to choosing $m$ points out of the CGL points $X$.
+
+The choice of row removal is arbitrary, and provides an additional parameter to adjust.
+To proceed with the construction, let $m$ rows be removed by choosing $m$ CGL points.
+Let these $m$ points form the set $V = \{ v_k \}_{k=1}^m$ such that $v_k = x_j \in X$ for each $k$ for some $j \in \{0, ..., N \}$.
+Then the $j$--th row of $\bar{A}$ will be replaced by the $k$--th row of $\hat{A}$.
+
+Let the matrix $A$ represent the square Chebyshev collocation matrix for this equation, defined by its rows:
+\begin{equation}
+A_i = \begin{cases} \bar{A}_i & x_i \notin V \\ \hat{A}_k & x_i = v_k \in V \end{cases}.
+\end{equation}
+The right-hand side for this system is defined element-wise as:
+\begin{equation}
+F_i = \begin{cases} f(x_i) & x_i \notin V \\ a_0^k & x_i = v_k \in V \end{cases}.
+\end{equation}
+The system to solve is then:
+\begin{equation} \label{eq:sys1}
+A \vec{U} = \vec{F}.
+\end{equation}
+
+Note that it is not necessary to remove rows to make room for boundary conditions.
+Rows can be added to $A$, creating an overdetermined system, and the system solved by least squares.
+However, for matrices $A$ with round-off error the boundary conditions will no longer be satisfied exactly.
+
+\newcommand{\W}[2]{W \left ( #1 ; #2 \right )}
+\newcommand{\poly}[1]{\frac{x^{#1}}{(#1)!}}
+\newcommand{\Poly}[1]{\frac{x^#1}{#1!}}
+
+\section{Inverse operators}
+
+Having defined the matrix $A$ we now seek its inverse.
+Consider the linear differential operator $\mathcal{L}$:
+\begin{equation}
+\mathcal{L} u(x) = u^{(m)}(x) + \sum_{n = 1}^m q_n(x) u^{(m-n)}(x)
+\end{equation}
+with a fundamental set of solutions to the homogeneous equation $\mathcal{L} u(x) = 0$ represented by $\{ P_k(x) \}_{k=1}^m$.
+Let the matrix $A$ be constructed as described in section \ref{sec:intro}.
+
+The round-off error in the matrix $D^{(m)}$ increases with $N$ and $m$.
+This causes the system to be poorly conditioned, and troublesome to solve.
+Rather than solve the system directly, we look for a matrix $R$ that acts as a right inverse to $A$:
+\begin{equation}
+A R \approx I.
+\end{equation}
+%The vector $\vec{U}$ can then be found by:
+%\begin{equation}
+%\vec{U} = R \vec{F}.
+%\end{equation}
+%The vector $\vec{U}$ can be thought of as a linear combination of the columns of $R$, with coefficients found in $\vec{F}$.
+
+\subsection{Construction of the inverse operator}
+
+Let the $j$--th column of $R$ be an $N$--th degree polynomial $R_j(x)$ evaluated at the Chebyshev points, such that $R$ can be defined element-wise as:
+\begin{equation}
+R_{ij} = R_j(x_i) .
+\end{equation}
+
+\begin{lemma}
+Let $A$ be constructed as in section \ref{sec:intro} for the linear differential operator $\mathcal{L}$ and $m$ boundary conditions $\{ \mathcal{B}_k \}$.
+Then $AR = I$ if and only if $R_j(x)$ satisfy:
+\begin{align} 
+\begin{split} \label{inverse conditions}
+\mathcal{L} R_j(x_i) & = \begin{cases} \delta_{ij} & x_j \notin V \\ 0 & x_j \in V \end{cases}, \quad x_i \notin V \\
+\mathcal{B}_k R_j(\pm 1) & = \begin{cases} 0 & x_j \neq v_k \in V \\ 1 & x_j = v_k \in V \end{cases} .
+\end{split}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+The matrix $A$ acts exactly on $N$--th degree polynomials.
+The $j$--th column of the product $A R$ is therefore the linear operator that $A$ represents acted on $R_j(x)$.
+Recall from section \ref{sec:intro} that the $i$--th row of $A$ performs the operator at the point $x_i \in X$
+for $x_i \notin V$, and the $k$--th boundary condition for $x_i = v_k \in V$.
+In this way, the matrix product $A R$ can be represented element-wise by:
+\begin{equation}
+(A R)_{ij} = \begin{cases} \mathcal{L} R_j(x_i) & x_i \notin V \\ \mathcal{B}_k R_j(\pm 1) & x_i = v_k \in V \end{cases}
+\end{equation}
+Therefore, $A R = I$ is equivalent to the conditions in equation (\ref{inverse conditions}).
+\end{proof}
+
+%Consider the dot product of the $i$--th row of $A$, $A_i$, and the $j$--th column of $R$, $R_j$.
+%Given that $R_j$ is the function $R_j(x)$ evaluated at the Chebyshev points, this product is $\mathcal{L} R_j(x_i)$ if $x_i \notin V$ and $\mathcal{B}_k R_j(\pm 1)$ if $x_i = v_k \in V$.
+%For $R$ to be the inverse of $A$, we require the following conditions on $R_j(x)$:
+%\begin{equation} \label{inverse conditions}
+%\begin{gathered}
+%\mathcal{L} R_j(x_i) = \begin{cases} \delta_{ij} \quad x_j \notin V \\ 0 \quad x_j \in V \end{cases} \\
+%\mathcal{B}_k R_j(\pm 1) = \begin{cases} 0 \quad x_j \neq v_k \in V \\ 1 \quad x_j = v_k \in V \end{cases} .
+%\end{gathered}
+%\end{equation}
+
+Recall that the functions $\{ P_k(x) \}$ are homogeneous solutions for the operator $\mathcal{L}$.
+We use the following ansatz for the form of $R_j(x)$:
+\begin{equation} \label{ansatz}
+R_j(x) = \sum_{k=1}^m G_{k,j}(x) P_k(x) .
+\end{equation}
+
+To find the function $G_{k,j}(x)$, we use variation of parameters.
+This enforces the following conditions:
+\begin{equation} \label{variation of parameters}
+\sum_{k=1}^m G_{k,j}'(x) P_k^{(l)}(x) = 0, \quad l = 0,...,m-2 .
+\end{equation}
+The first $m-1$ derivatives of $R_j(x)$ are then:
+\begin{equation}
+\begin{aligned}
+R'_j(x) & = \sum_{k=1}^m G'_{k,j}(x) P_k(x) + G_{k,j}(x) P'_k(x) && = \sum_{k=1}^m G_{k,j}(x) P'_k(x) \\
+R_j^{(l)}(x) & = \sum_{k=1}^m G'_{k,j}(x) P_k^{(l-1)}(x) + G_{k,j}(x) P_k^{(l)}(x) && = \sum_{k=1}^m G_{k,j}(x) P_k^{(l)}(x), && l \leq m-1 .
+\end{aligned}
+\end{equation}
+This implies:
+\begin{align} \label{L on R}
+\begin{split}
+\mathcal{L} R_j(x) & = R_j^{(m)}(x) + \sum_{n=1}^m q_n(x) R_j^{(m-n)}(x) \\
+& = \sum_{k=1}^m \left [ G'_{k,j}(x) P_k^{(m-1)}(x) + G_{k,j}(x) P_k^{(m)}(x) + \sum_{n=1}^m q_n(x) G_{k,j}(x) P_k^{(m-n)}(x) \right ] \\
+& = \sum_{k=1}^m G'_{k,j}(x) P_k^{(m-1)}(x) + G_{k,j}(x) \mathcal{L} P_k(x) \\
+& = \sum_{k=1}^m G_{k,j}'(x) P_k^{(m-1)}(x) ,
+\end{split} \\
+\begin{split} \label{B on R}
+\mathcal{B}_l R_j(\pm 1) & = \sum_{n=1}^m a_n^l R_j^{(m-n)}(\pm1) \\
+& = \sum_{k=1}^m \sum_{n=1}^m a_n^l G_{k,j}(\pm1) P_k^{(m-n)}(\pm1) \\
+& = \sum_{k=1}^m G_{k,j}(\pm1) \mathcal{B}_l P_k(\pm1) .
+\end{split}
+\end{align}
+
+Equations (\ref{inverse conditions}), (\ref{variation of parameters}) and (\ref{L on R}) can be combined for a set of conditions on $G_{k,j}(x)$ and $P_k(x)$:
+\begin{equation} \label{combined conditions}
+\sum_{k=1}^m G'_{k,j}(x_i) P_k^{(l)}(x_i) = \begin{cases} 0 & l < m-1 \\
+0 & x_j \in V \\
+0 & x_i \neq x_j, \ x_i \notin V \\
+1 & x_i = x_j, \ x_i \notin V , \ l = m-1.\end{cases} 
+\end{equation}
+By the last two conditions, $G_{k,j}(x)$ is a multiple of a Birkhoff interpolant seen in (nb: cite Wang and myself). %perhaps include discussion on Birkhoff interpolants in introduction
+As discussed there, the value of $G'_{k,j}(x)$ can be specified at all but one of the CGL points (\ref{CGL}).
+The point at which $G'_{k,j}(x)$ is unknown prescribes the row removal.
+Thus, to each $G_{k,j}(x)$ we assign the point $v_k \in V$ as the point where $G'_{k,j}(x)$ is unknown.
+
+The conditions on $G_{k,j}(x)$, as defined by equation (\ref{combined conditions}) and allowable by the algorithm in (nb: cite myself), are:
+\begin{equation} \label{G conditions}
+G_{k,j}'(x_i) = \begin{cases} \beta_{k,j} & x_i = x_j \\ 0 & x_i \neq x_j, v_k \end{cases}
+\end{equation}
+where $v_k$ is that element in $V$ associated with $G_{k,j}(x)$
+and $\beta_{k,j}$ is the scalar multiplier of the Birkhoff interpolant.
+Following the algorithm from (nb: cite myself), $G_{k,j}(x)$ is found to be:
+\begin{equation} \label{eq:G functions}
+\begin{gathered}
+G_{k,j} (x) = \beta_{k,j} \sum_{n=0}^{N-1} b^k_{nj} \partial_x^{-1} T_n(x), \\
+ b^k_{nj} = \frac{2}{c_n c_j N} \left ( T_n(x_j) - \frac{T_N(x_j)}{T_N(v_k)} T_n(v_k) \right ).
+\end{gathered}
+\end{equation}
+There is a remaining degree of freedom in $G_{k,j}(x)$: 
+adding any constant will not change any of the conditions $G'_{k,j}(x)$ needs to satisfy (\ref{G conditions}, \ref{variation of parameters}).
+That is, replacing $G_{k,j}(x)$ with $G_{k,j}(x) + C_{k,j}$ for any constant $C_{k,j}$ in the ansatz (\ref{ansatz}) will not change any of the above results.
+
+With $G_{k,j}(x)$ now defined, equation (\ref{variation of parameters}) enforces:
+\begin{equation}
+G'_{k,j}(v_k) P_k^{(l)}(v_k) = 0, \ l = 0,...,m-2, \ k = 1,...,m .
+\end{equation}
+As the value of $G'_{k,j}(v_k)$ cannot be specified, this requires $P_k(x)$ be the homogeneous solution satisfying: %explain more about why value can't be specified
+\begin{equation} \label{homog solns}
+\mathcal{L}P_k(x) = 0, \ P_k^{(l)}(v_k) = \begin{cases} 0 & l = 0,...,m-2 \\ 1 & l = m-1 \end{cases} .
+\end{equation}
+Note the value of $P_k^{(m-1)}(v_k)$ does not need to be 1, but all scalar multipliers can be placed on $G_{k,j}(x)$ and its scalar multiplier $\beta_{k,j}$ (\ref{G conditions}).
+
+This scalar multiplier $\beta_{k,j}$ is currently unknown.
+Equation (\ref{combined conditions}) enforces the following conditions on the values $\beta_{k,j}$:
+\begin{equation} \label{variation of parameters 2}
+\sum_{k=1}^m \beta_{k,j} P_k^{(l)}(x_j) = \begin{cases} 1 & l = m-1 \\ 0 & l =0,...,m-2 \end{cases}
+\end{equation}
+for $x_j \notin V$.
+The system for equation (\ref{variation of parameters 2}) can be written as:
+\begin{equation} \label{eq:betas}
+\begin{bmatrix} P_1(x_j) & \dots & P_m(x_j)
+\\ \vdots & \ddots & \vdots
+\\ P_1^{(m-1)}(x_j) & \dots & P_m^{(m-1)}(x_j) \end{bmatrix}
+\begin{bmatrix} \beta_{1,j} \\ \vdots \\ \beta_{m,j} \end{bmatrix} =
+\begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} .
+\end{equation}
+The system for this matrix is different for each $j$, meaning $(N - m)$ such $m \times m$ systems need to be solved in order to construct $R$.
+
+The function $R_j(x)$ can be written in its entirety as:
+\begin{equation}
+R_j(x) = \sum_{k=1}^m (C_{k,j} + G_{k,j}(x) ) P_k(x) ,
+\end{equation}
+where $C_{k,j}$ is the arbitrary constant added to $G_{k,j}(x)$.
+Regardless of the values of $C_{k,j}$ this formula enforces $\mathcal{L} R_j(x_i) = \delta_{ij}$ if $x_j, x_i \notin V$.
+All that remains are the boundary conditions: $\mathcal{B}_k R_j( \pm 1) = 0$ for all $k = 1,...,m$.
+
+Equation (\ref{B on R}) requires that $\mathcal{B}_s R_j(\pm 1) = \sum_{k=1}^m C_{k,j} \mathcal{B}_s P_k (\pm1) + G_{k,j} (\pm1) \mathcal{B}_s P_k(\pm1)$.
+This leads to two systems of equations:
+\begin{equation} \label{enforce bc}
+\begin{aligned}
+\begin{bmatrix} \mathcal{B}_1 P_1(1) & \dots &  \mathcal{B}_1 P_m(1) \\ \vdots & \ddots & \vdots \\  \mathcal{B}_{k_0} P_1(1) & \dots &  \mathcal{B}_{k_0} P_m(1)  \end{bmatrix}
+\begin{bmatrix} C_{1,j} \\ \vdots \\ C_{m,j} \end{bmatrix}
+& = - \begin{bmatrix} \sum_{k=1}^m \mathcal{B}_1 P_k(1) G_{k,j}(1) \\ \vdots \\ \sum_{k=1}^m \mathcal{B}_{k_0} P_k(1) G_{k,j}(1) \end{bmatrix} \\
+\begin{bmatrix} \mathcal{B}_{k_0 + 1} P_1(-1) & \dots &  \mathcal{B}_{k_0+1} P_m(-1) \\ \vdots & \ddots & \vdots \\  \mathcal{B}_m P_1(-1) & \dots &  \mathcal{B}_m P_m(-1)  \end{bmatrix}
+\begin{bmatrix} C_{1,j} \\ \vdots \\ C_{m,j} \end{bmatrix}
+& = - \begin{bmatrix} \sum_{k=1}^m \mathcal{B}_{k_0+1} P_k(-1) G_{k,j}(-1) \\ \vdots \\ \sum_{k=1}^m \mathcal{B}_m P_k(-1) G_{k,j}(-1) \end{bmatrix} .
+\end{aligned}
+\end{equation}
+
+For the function $R_j(x)$ such that $x_j = v_k \in V$, $G_{k,j}(x) = 0$ and the systems in equation (\ref{enforce bc}) have their right hand sides replaced by portions of the identity matrix.
+
+\subsection{The Wronskian}
+
+We use the particular set of homogeneous solutions, $\{ P_k(x) \ | \ P_k(x) \ \text{satisfies equation} \ (\ref{homog solns}) \}$, to construct $R$.
+Note that given any fundamental set of solutions, $\{ \hat{P}_n(x) \}$, we can always calculate $\{ P_k(x) \}$ by using the following system for each $k$:
+\begin{equation} \label{gamma}
+P_k(x) = \sum_{n=1}^m \gamma_{kn} \hat{P}_n(x), \quad 
+\begin{bmatrix} \hat{P}_1(v_k) & \dots & \hat{P}_m(v_k)
+\\ \vdots & \ddots & \vdots
+\\ \hat{P}_1^{(m-1)}(v_k) & \dots & \hat{P}_m^{(m-1)}(v_k) \end{bmatrix}
+\begin{bmatrix} \gamma_{k1} \\ \vdots \\ \gamma_{km} \end{bmatrix} =
+\begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix} .
+\end{equation}
+Notice the similarities between this system and that for $\beta_{k,j}$ (\ref{eq:betas}).
+
+The matrices presented in equations (\ref{eq:betas}) and (\ref{gamma}) have well-known inverses that rely on the Wronskians of the homogeneous solutions.
+The Wronskian of a set of functions $\{ f_k(x) \}_{k=1}^n$, denoted here as $\W{\set{f_k}}{x}$, is itself a function defined as the determinant of the matrix:
+\begin{equation}
+\begin{bmatrix} f_1(x) & \dots & f_n(x) \\ \vdots & \ddots & \vdots \\ f^{(n-1)}_1(x) & \dots & f_n^{(n-1)}(x) \end{bmatrix} .
+\end{equation}
+
+Using Cramer's rule, the solution to the system:
+\begin{equation}
+\begin{bmatrix} f_1(x) & \dots & f_n(x) \\ \vdots & \ddots & \vdots \\ f^{(n-1)}_1(x) & \dots & f_n^{(n-1)}(x) \end{bmatrix} 
+\begin{bmatrix} a_1 \\ \vdots \\ a_n \end{bmatrix} =
+\begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
+\end{equation}
+is equal to:
+\begin{equation} \label{eq:Wronskian coeffs}
+a_j = (-1)^{j+n} \frac{ W( \{ f_k \}_{k \neq j} ; x) }{ W( \{ f_k \} ; x ) } .
+\end{equation}
+Therefore, the systems in equations (\ref{eq:betas}) and (\ref{gamma}) do not need to be solved if the Wronskians are calculated instead.
+
+% compare order of operations for calculating all of the determinants vs. solving all of the systems
+
+To simplify calculating the Wronskians, one can apply Abel's identity \cite{Abel, BoyceDiPrima}:
+if the functions $\{ f_k \}_{k=1}^n$ form the fundamental solution set to a linear operator $\mathcal{L}$ such that 
+$\mathcal{L} u(x) = u^{(n)}(x) + \sum_{k=1}^n q_k(x) u^{(n - k)}(x)$, then the Wronskian can be expressed as:
+\begin{equation}
+W(\{f_k\}; x) = W(\{f_k\}; 0) \exp \left ({ - \int_{0}^x q_1(s) ds } \right ).
+\end{equation}
+It is then a matter of finding the linear operator $\mathcal{L}$ for which the functions form a fundamental solution set.
+
+Through the use of Abel's identity and other results to be discussed later some Wronskians are easier to calculate than others.
+Moreover, in solving both equations (\ref{gamma}) and (\ref{eq:betas}) two sets of Wronskians are calculated.
+It is therefore convenient to have a straightforward way of representing the Wronskians of a linear sum of functions in terms of the Wronskians of those functions.
+To this end we present the following lemma:
+
+\begin{lemma}[Wronskian of linear sums of functions]
+\begin{equation*}
+\W{ \set{ \sum_{k=1}^m a_{k,j} f_k(x) }_{j=1}^{m-1} }{ x} = \sum_{n=1}^m W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
+a_{1,1} & \dots & a_{1,m-1} \\
+\vdots & & \vdots \\
+a_{n-1,1} & \dots & a_{n-1,m-1} \\
+a_{n+1,1} & \dots & a_{n+1,m-1} \\
+\vdots & & \vdots \\
+a_{m,1} & \dots & a_{m,m-1}
+\end{vmatrix}
+\end{equation*}
+\label{lem:sum}
+\end{lemma}
+
+\begin{proof}
+Let $g_j(x) = \sum_{k=1}^m a_{k,j} f_k(x)$.
+\begin{align*}
+W(\{g_j\}_{j=1}^{m-1} ; x) & = \begin{vmatrix}
+g_1 & \dots & g_{m-1} \\
+\vdots & & \vdots \\
+g_1^{(m-2)} & \dots & g_{m-1}^{(m-2)} \end{vmatrix} \\
+& = \det \left ( \begin{bmatrix} f_1 & \dots & f_m \\ \vdots & & \vdots \\ f_1^{(m-2)} & \dots & f_m^{(m-2)} \end{bmatrix} \begin{bmatrix} a_{1,1} & \dots & a_{1,m-1} \\ \vdots & & \vdots \\ a_{m,1} & \dots & a_{m,m-1} \end{bmatrix} \right ) \\
+& = \sum_{n=1}^{m} W(\{f_k\}_{k\neq n} ; x) \begin{vmatrix}
+a_{1,1} & \dots & a_{1,m-1} \\
+\vdots & & \vdots \\
+a_{n-1,1} & \dots & a_{n-1,m-1} \\
+a_{n+1,1} & \dots & a_{n+1,m-1} \\
+\vdots & & \vdots \\
+a_{m,1} & \dots & a_{m,m-1}
+\end{vmatrix}
+\end{align*}
+by the Cauchy-Binet formula.
+\end{proof}
+
+Equation (\ref{eq:betas}) may now be rewritten to utilize the arbitrary set of fundamental solutions $\set{\hat{P}_n(x)}$ and the coefficients $\gamma_{kn}$ from equation (\ref{gamma}).
+For ease of notation, let $\Gamma$ represent the matrix of these coefficients:
+\begin{equation*}
+\Gamma = \begin{bmatrix} \gamma_{11} & \dots & \gamma_{m1} \\ \vdots & & \vdots \\ \gamma_{1m} & \dots & \gamma_{mm} \end{bmatrix}
+\end{equation*}
+and let $\Gamma_{k,n}$ be the submatrix resulting from removing row $n$ and column $k$.
+Then we may write:
+\begin{equation*}
+\begin{split}
+\beta_{k,j} & = (-1)^{m+k} \frac{\W{\set{\sum_{n=1}^m \gamma_{in} \hat{P}_n(x)}_{i \neq k}}{x_j}}{\W{\set{\sum_{n=1}^m \gamma_{in} \hat{P}_n(x)}_{i=1}^m}{x_j}} \\
+			& = (-1)^{m+k} \sum_{n=1}^m \frac{\W{\set{\hat{P}_i(x)}_{i \neq n}}{x_j}}{\W{\set{\hat{P}_i(x)}_{i=1}^m}{x_j}} \frac{\abs{\Gamma_{k,n}}}{\abs{\Gamma}} .
+\end{split}
+\end{equation*}
+
+\section{Constant coefficients}
+
+The IOM constructed in the previous section relies on knowledge of the homogeneous solutions of the linear operator and either their Wronskians or their derivatives.
+This precludes using the IOM as a black box preconditioner, as the upfront cost and foreknowledge required are prohibitive.
+Instead, one may focus on using the IOM for a simple class of linear operators: ones whose coefficients are constant:
+\begin{equation*}
+\mathcal{L}u(x) = u^{(m)}(x) + \sum_{j=1}^{m} a_j u^{(m-j)}(x) .
+\end{equation*}
+
+This operator has an associated polynomial $p(x) = x^m + \sum_{j=1}^{m} a_j x^{m-j}$.
+The fundamental solution set of this operator is a set of exponential functions multiplied by polynomials:
+\begin{equation*}
+\Set{x^{i} e^{\lambda_k x}}{p(\lambda_k) = 0 \ \text{with multiplicity } n>i \in \mathbb{N} \cup 0} .
+\end{equation*}
+The Wronskian of such a set may be written explicitly.
+Combined with lemma \ref{lem:sum} one may write out solutions to equations (\ref{gamma}) and (\ref{eq:betas}) without extraneous calculations.
+
+We present the Wronskians for these sets by first examining three special cases and then presenting the Wronskians in their most general form for constant coefficient linear operators.
+Before proceeding we make a few notes on notation.
+$\mathcal{L}$ and its associated polynomial $p(x)$ we have already defined.
+There are $M$ unique roots of the polynomial $p(x)$, $\set{\lambda_k}_{k=1}^M$.
+The root $\lambda_k$ of the polynomial $p(x)$ has multiplicity $m_k$, and $\sum_{k=1}^M m_k = m$.
+The sets of functions associated with the root $\lambda_k$, their union over the degrees of polynomials and the union of the unions over $k$ are denoted by $E_{k,j}$, $E_k$ and $E$, respectively:
+\begin{equation*}
+E_{k,j} = \set{\Poly{j} e^{\lambda_k x}}, \ E_k = \bigcup_{j=0}^{m_k - 1} E_{k,j}, \ E = \bigcup_{k=1}^M E_k .
+\end{equation*}
+
+\subsection{$m$ unique roots}
+
+Consider the case where $M=m$ and there are $m$ unique roots of the polynomial $p(x)$.
+In this case, $E_k$ is the set containing only the exponential function $e^{\lambda_k x}$.
+The Wronskians involve only these exponential functions.
+By Abel's identity it is clear that $\W{E}{x} = \W{E}{0} e^{-a_1 x}$.
+
+The value of $\W{E}{0}$ must be expressed as the determinant of a matrix.
+The same is true for $\W{E \setminus{E_i}}{0}$.
+These matrices will be denoted by:
+\begin{align*}
+\Lambda & = \begin{bmatrix} 1 & \dots & 1 \\ \lambda_1 & \dots & \lambda_m \\ \vdots & \ddots & \vdots \\ \lambda_1^{m-1} & \dots & \lambda_m^{m-1} \end{bmatrix}, \\
+\Lambda_i & = \begin{bmatrix} 1 & \dots & 1 & 1 & \dots & 1 \\ \lambda_1 & \dots & \lambda_{i-1} & \lambda_{i+1} & \dots & \lambda_m \\ \vdots & & \vdots & \vdots & & \vdots \\ \lambda_1^{m-2} & \dots & \lambda_{i-1}^{m-2} & \lambda_{i+1}^{m-2} & \dots & \lambda_m^{m-2} \end{bmatrix} .
+\end{align*}
+
+For the Wronskians of $E \setminus E_i$ we present the following lemma:
+
+\begin{lemma}[Wronskians of exponential functions]
+Let $\set{\lambda_k}_{k=1}^m \in \mathbb{R}$ and $\Lambda$ the matrix defined earlier for such a set, then
+\begin{equation*}
+\W{\set{e^{\lambda_k x}}_{k=1}^m}{x} = \abs{\Lambda}
+e^{x \sum_{k=1}^m \lambda_k} .
+\end{equation*}
+\label{lem:exp}
+\end{lemma}
+
+\begin{proof}
+The case of any two $\lambda_k$ being equal is trivially true as both sides are necessarily zero.
+For the nontrivial case, $\lambda_k \neq \lambda_i$ for all $k \neq i$.
+
+Let $p(x)$ be the polynomial with roots $\lambda_k$ and with coefficients $a_j$ such that:
+\begin{equation*}
+p(x) = \Pi_{k=1}^m \left (x - \lambda_k \right) = x^m + \sum_{j=1}^m a_j x^{m-j}.
+\end{equation*}
+Note that $a_1 = -\sum_{k=1}^m \lambda_k$.
+
+%this paragraph might be unnecessary
+Let $\mathcal{L}$ be the linear operator with coefficients equal to $a_j$:
+$$
+\mathcal{L} u(x) = u^{(m)}(x) + \sum_{j=1}^m a_j u^{(m-j)}(x).
+$$
+Then $\mathcal{L} e^{\lambda_k x} = e^{\lambda_k x} p(\lambda_k) = 0$.
+Therefore, $\set{e^{\lambda_k x}}$ is the fundamental solution set of $\mathcal{L}$.
+
+By Abel's identity $\W{\set{e^{\lambda_k x}}_{k=1}^m}{x} = \W{\set{e^{\lambda_k x}}_{k=1}^m}{0} e^{-\int_0^x a_1}.$
+The remainder follows from the definition of $\W{\set{e^{\lambda_k x}}_{k=1}^m}{0}$.
+%(nb: this lemma and proof likely already exists in literature)
+\end{proof}
+
+One may use lemma \ref{lem:exp} to calculate $\W{E \setminus E_i}{x}$ as the set $E \setminus E_i$ is still a set of purely exponential functions.
+As such, the only changes that need to be made to the Wronskian are the sum of the values $\lambda_k$ and the matrix $\Lambda$.
+In particular, the sum is as it was before minus the contribution of $\lambda_i$ and the matrix $\Lambda$ is replaced by $\Lambda_i$.
+
+We may now write down the values of $\gamma_{jn}$ from equation (\ref{gamma}), applying lemma \ref{lem:exp} to both the set $E$ and $E \setminus E_n$:
+\begin{equation*}
+\begin{split}
+\gamma_{jn} & = (-1)^{m+n} \frac{\W{E \setminus E_n}{v_j}}{\W{E}{v_j}} \\
+			& = (-1)^{m+n} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} \frac{e^{v_j \sum_{k \neq n} \lambda_k}}{e^{v_j \sum_{k=1}^m \lambda_k}} \\
+			& = (-1)^{m+n} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} e^{-\lambda_n v_j} .
+\end{split}
+\end{equation*}
+Likewise, $\beta_{k,j}$ simplifies to:
+\begin{equation*}
+\beta_{k,j} = (-1)^{m+k} \sum_{n=1}^m e^{-\lambda_n x_j} \frac{\abs{\Lambda_n}}{\abs{\Lambda}} \frac{\abs{\Gamma_{k,n}}}{\abs{\Gamma}} .
+\end{equation*}
+
+\subsection{$\mathcal{L} u = u^{(m)}$}
+
+\newcommand{\Wpoly}[2]{\W{\set{\Poly{k}}_{#1}^{#2}}{x}}
+
+We now consider the special case where the linear operator is $m$--th order differentiation.
+The PSIM may already be used as the inverse for the matrix $A$ for such a problem, but an alternative formulation of these matrices is presented here for completeness.
+
+The special case is equivalent to $M=1$ and $\lambda_1 = 0$.
+As such, the set $E = \set{\Poly{j}}_{j=0}^{m-1}$.
+The following lemma presents the Wronskians for such polynomials:
+
+\begin{lemma}[Wronskians of polynomials]
+\begin{align*}
+(i) && \Wpoly{k=0}{m} & = 1 \\
+(ii) && \Wpoly{k=0,k \neq j}{m} & = \Wpoly{k=1}{m-j} \\
+(iii) && \Wpoly{k=1}{m} & = \Poly{m}
+\end{align*}
+\label{lem:poly}
+\end{lemma}
+
+\begin{proof}
+\begin{description}
+\item[$(i)$] This is simply the determinant of an upper triangular matrix with ones along the diagonal:
+\begin{equation*}
+\Wpoly{k=0}{m} = \begin{vmatrix} 1 & x & \Poly{2} & \dots & \Poly{m} \\
+0 & 1 & x & \dots & \poly{m-1} \\
+\vdots & \ddots & \ddots & \ddots & \vdots \\
+0 & 0 & \dots & 0 & 1 \end{vmatrix} = 1 .
+\end{equation*}
+\item[$(ii)$] \begin{align*}
+\Wpoly{k=0,k \neq j}{m} & =
+\begin{vmatrix}
+1      & x & \dots  & \poly{j-1} & \poly{j+1} & \dots & \Poly{m}    \\
+0      & 1 & \dots  & \poly{j-2} & \Poly{j}   & \dots & \poly{m-1}  \\
+\vdots &   & \ddots & \ddots     & \ddots     & \ddots& \vdots      \\
+0      &   & \dots  & 1          & \Poly{2}   & \dots & \poly{m-j+1}\\
+       &   &        & 0          & x          &       & \poly{m-j}  \\
+       &   &        & 0          & 1          &       & \poly{m-j-1}\\
+       &   &        & \vdots     & \vdots     & \ddots& \vdots      \\
+       &   &        & 0          & 0          & \dots & 1
+\end{vmatrix} \\
+& = \Wpoly{k=0}{j-1} \Wpoly{k=1}{m-j} \\
+& = \Wpoly{k=1}{m-j} .
+\end{align*}
+\item[$(iii)$] The statement is trivially true for $m=1$.
+Apply strong induction by supposing it is true for $n<m$.
+Calculate the Wronskian by expanding through the top row of the matrix:
+\begin{align*}
+\Wpoly{k=1}{m} & = \begin{vmatrix}
+x & \dots & \Poly{m} \\
+1 & \ddots & \vdots \\
+0 & 1 & x \end{vmatrix}
+%\\
+%\vdots & \ddots & \\
+%0 & \dots & 1
+%\end{vmatrix}
+\\
+& = x \begin{vmatrix} x & \dots & \poly{m-1} \\ 1 & \ddots & \vdots \\ 0 & 1 & x \end{vmatrix} - \dots + (-1)^{m+1} \Poly{m} \begin{vmatrix} 1 & \dots & \poly{m-2} \\  & \ddots & \vdots \\ 0 &  & 1 \end{vmatrix} \\
+& = \sum_{n=1}^m (-1)^{n+1} \Poly{n} \Wpoly{k=0,k \neq n-1}{m-1} \\
+& = \sum_{n=1}^m (-1)^{n+1} \Poly{n} \Wpoly{k=1}{m-n} \quad \text{by $(ii)$} \\
+& = \sum_{n=1}^m (-1)^{n+1} \Poly{n} \poly{m-n} \quad \text{by our induction hypothesis} \\
+& = \Poly{m} \sum_{n=1}^m (-1)^{n+1} \binom{m}{n} \\
+& = \Poly{m}
+\end{align*}
+by an identity of the binomial coefficients. (nb: cite)
+\end{description}
+\end{proof}
+
+As before we may now write out the values of $\gamma_{jn}$:
+\begin{equation*}
+\begin{split}
+\gamma_{jn} & = (-1)^{m+n} \frac{ \W{E \setminus \set{\Poly{n}}}{v_j}}{\W{E}{v_j}} \\
+			& = (-1)^{m+n} \frac{\W{\set{\Poly{k}}_{k \neq n}}{v_j}}{1} \ \text{by $(i)$} \\
+			& = (-1)^{m+n} \W{\set{\Poly{k}}_{k=1}^{m-n}}{v_j} \ \text{by $(ii)$} \\
+			& = (-1)^{m+n} \frac{v_j^{m-n}}{(m-n)!} \ \text{by $(iii)$.}
+\end{split}
+\end{equation*}
+
+\subsection{One root with multiplicity $m$}
+
+The case for one root with multiplicity $m$, represented by $M=1$, is a generalization of the previous case.
+The set $E = E_1 = \set{\Poly{k} e^{\lambda_1 x}}_{k=1}^m$ which is the set $E$ from the previous case multiplied by $e^{\lambda_1 x}$.
+The following lemma then makes the generalization simple.
+
+\begin{lemma}
+\begin{equation*}
+W(\{ f_k g \}_{k=1}^m ; x) = g^m W(\{ f_k \}_{k=1}^m ; x )
+\end{equation*}
+\label{lem:group}
+\end{lemma}
+
+\begin{proof}
+It is trivially true for $m=1$.
+Apply strong induction by supposing it is true for $n<m$, for any set of functions.
+Calculate the Wronskian by expanding through the bottom row of the matrix:
+\begin{equation*}
+\begin{split}
+\W{\set{f_k g}_{k=1}^m}{x}
+& = \begin{vmatrix}
+f_1 g & \dots & f_m g \\
+\vdots & & \vdots \\
+\sum_{j=0}^{m-1} \binom{m-1}{j} f_1^{(m-1-j)} g^{(j)}
+& \dots & \sum_{j=0}^{m-1} \binom{m-1}{j} f_m^{(m-1-j)} g^{(j)}
+\end{vmatrix} \\
+& = \sum_{i=1}^m (-1)^{i+m} W(\{f_k g\}_{k \neq i} ; x) \sum_{j=0}^{m-1} \binom{m-1}{j} f_i^{(m-1-j)} g^{(j)} \\
+& = \sum_{i=1}^m (-1)^{i+m} g^{m-1} W(\{ f_k \}_{k \neq i} ; x) \sum_{j=0}^{m-1} \binom{m-1}{j} f_i^{(m-1-j)} g^{(j)}
+\end{split}
+\end{equation*}
+by our induction hypothesis.
+We next need to interchange the summations:
+\begin{equation*}
+\begin{split}
+\W{\set{f_k g}_{k=1}^m}{x}
+& = g^{m-1} \sum_{j=0}^{m-1} \binom{m-1}{j} g^{(j)}
+\sum_{i=1}^m (-1)^{i+m} W(\{f_k\}_{k\neq i} ; x) f_i^{(m-1-j)} \\
+& = g^{m-1} \sum_{j=0}^{m-1} \binom{m-1}{j} g^{(j)}
+\begin{vmatrix} f_1 & \dots & f_m \\
+\vdots & & \vdots \\
+f_1^{(m-2)} & \dots & f_m^{(m-2)} \\
+f_1^{(m-1-j)} & \dots & f_m^{(m-1-j)} \end{vmatrix} .
+\end{split}
+\end{equation*}
+Note that for $j \neq 0$ the last row of the matrix is identical to one of the previous rows.
+Therefore, its determinant is only nonzero for $j = 0$.
+This gives:
+\begin{equation*}
+\begin{split}
+\W{\set{f_k g}_{k=1}^m}{x}
+& = g^{m-1} \sum_{j=0}^{m-1} \binom{m-1}{j} g^{(j)} \times \begin{cases} 0 & j\neq 0 \\
+W(\{f_k\}_{k=1}^m ; x) & j = 0 \end{cases} \\
+& = g^m W(\{f_k\}_{k=1}^m ; x) .
+\end{split}
+\end{equation*}
+\end{proof}
+
+Applying this lemma to the case of $M=1$ we find that:
+\begin{align*}
+\W{E}{x} & = e^{m \lambda_1 x} \W{\set{\Poly{k}}_{k=0}^{m-1}}{x} = e^{m \lambda_1 x} , \\
+\W{E \setminus E_{1,j}}{x} & = e^{(m-1) \lambda_1 x} \poly{m-j} .
+\end{align*}
+The value of $\gamma_{jn}$ is then:
+\begin{equation*}
+\gamma_{jn} = (-1)^{m+n} \frac{v_j^{m-n}}{(m-n)!} e^{-\lambda_1 x} .
+\end{equation*}
+
+\subsection{Mixed multiplicities}
+
+% Recall notation: E_{k,j}, with k for root and j for polynomial, m for order of problem, M for number of roots, m_k for multiplicity of kth root
+% Counting variables left over: i, n, l, N?
+
+We now examine the most general case of constant coefficients: $1 < M < m$, so that $m_k > 1$ for at least one $k$.
+We begin by defining two objects which will be necessary in both the proofs and results to come.
+First is the vector $w_k^n$, whose $i$--th entry is defined as:
+\begin{equation*}
+\left ( w_k^n \right )_i = \begin{cases} \binom{i}{n} \lambda_k^{i - n} & \lambda \neq 0 \\
+\delta_{i,n} & \lambda = 0, \end{cases}
+\end{equation*}
+where $\delta_{i,n}$ is the Kronecker delta and we use the convention that $\binom{i}{n} = 0$ if $n>i$.
+For ease of notation, the length of $w_k^n$ will be context sensitive: when considering the Wronskian of the set $E$ $w_k^n \in \mathbb{R}^m$, but when considering $E \setminus E_{k,j}$ $w_k^n \in \mathbb{R}^{m-1}$.
+
+Second is a matrix $\Omega \in \mathbb{R}^{m \times m}$ composed of the vectors $w_k^n$:
+\begin{equation*}
+\Omega = \begin{bmatrix} w_1^0 & \dots w_1^{m_1 - 1} & w_2^0 & \dots & w_M^{m_M-1} \end{bmatrix} .
+\end{equation*}
+The submatrix of $\Omega$ resulting from removing row $m$ and the column equal to $w_k^j$ is represented by $\Omega_k^j$.
+
+\begin{thm}[Wronskians for constant coefficient operators] \label{thm:cc}
+\begin{align*}
+(i) && \W{E}{x} & = e^{a_1 x} \abs{\Omega}, \\
+(ii) && \W{E \setminus E_{k,j}}{x} & = e^{(a_1 - \lambda_k) x} \sum_{n=j}^{m_k - 1} \poly{n-j} \abs{\Omega_k^n} .
+\end{align*}
+\end{thm}
+
+\begin{proof}
+First consider $\lambda_k \neq 0$.
+Let $\hat{w}_{k,j}$ be the vector whose elements are the sequential derivatives of the function contained in $E_{k,j}$.
+Take the $i$--th derivative of the function contained in $E_{k,j}$:
+\begin{equation*}
+\left ( \Poly{j} e^{\lambda_k x} \right )^{(i)} = \sum_{n=0}^j \binom{i}{n} \lambda_k^{i-n} \poly{j-n} e^{\lambda_k x} .
+\end{equation*}
+The presence of $\binom{i}{n} \lambda_k^{i-n}$ indicates that $\hat{w}_{k,j}$ is equal to a linear combination of the vectors $w_k^n$:
+\begin{equation*}
+\hat{w}_{k,j} = e^{\lambda_k x} \sum_{n=0}^j \poly{j-n} w_k^n .
+\end{equation*}
+This statement may also be shown for $\lambda_k = 0$.
+
+Since we are concerned with the determinant of the matrix composed of the vectors $\hat{w}_{k,j}$ we may orthogonalize these vectors in a Gram-Schmidt process (nb: cite).
+For example, $\hat{w}_{k,0} = e^{\lambda_k x} w_k^0$ and $\hat{w}_{k,1} = e^{\lambda_k x} w_k^1 + e^{\lambda_k x} x w_k^2$.
+Because $w_k^0$ is a part of both vectors, we may remove it from $\hat{w}_{k,1}$ without changing the determinant.
+We may repeat this for all $\hat{w}_{k,j}$ such that $w_k^0$ appears explicitly only in the first column.
+We may then repeat this procedure for $w_k^1$, such that $w_k^1$ appears only in the second column.
+In this way, we have that:
+\begin{equation*}
+\begin{split}
+\W{E}{x} & = \begin{vmatrix} e^{\lambda_1 x} w_1^0 & \dots & e^{\lambda_1 x} w_1^{m_1-1} & e^{\lambda_2 x} w_2^0 & \dots & e^{\lambda_M x} w_M^{m_M-1} \end{vmatrix} \\
+		 & = e^{x \sum_{k=1}^M m_k \lambda_k} \abs{\Omega} \\
+		 & = e^{a_1 x} \abs{\Omega}.
+\end{split}
+\end{equation*}
+and statement $(i)$ is proven.
+
+To begin proving statement $(ii)$ consider the set $\hat{E} = E \setminus E_{k,m_k-1}$.
+Such a set represents the fundamental solution set of a $(m-1)$--th order linear constant coefficient operator, the corresponding polynomial of which is $p(x) / (x - \lambda_k)$.
+The matrix $\Omega$ for this set is exactly $\Omega_k^{m_k-1}$.
+Therefore, by statement $(i)$ $\W{\hat{E}}{x} = e^{(a_1 - \lambda_k)x} \abs{\Omega_k^{m_k-1}}$ and statement $(ii)$ is true for $j = m_k-1$ for any $1 \leq k \leq M$.
+
+We proceed by strong induction: we suppose statement $(ii)$ is true for $j^* < j \leq m_k-1$ and prove it is true for $j = j^* \geq 0$. (nb: remember to replace all instances of $j^*$ with $j^*$)
+First, we perform the Gram-Schmidt process described previously.
+We may also take out the exponential functions from the determinant:
+\begin{equation*}
+\begin{split}
+\W{E \setminus E_{k,j^*}}{x} = & \begin{vmatrix} \dots & \hat{w}_{k,0} & \dots & \hat{w}_{k,j^*-1} & \hat{w}_{k,j^*+1} & \dots & \hat{w}_{k,m_k-1} & \dots \end{vmatrix} \\
+ = e^{(a_1 - \lambda_k)x}	  & \begin{vmatrix} \dots & w_k^0 & \dots & w_k^{j^*-1} & w_k^{j^*+1} + x w_k^{j^*} & \dots & \sum\limits_{n=j^*}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} .
+\end{split}
+\end{equation*}
+
+Consider the column associated with $E_{k,j^*+1}$:
+its two component vectors appear in the subsequent columns.
+One may rewrite the determinant of this matrix as a summation of two determinants, arising from splitting up these two component vectors:
+\begin{equation*}
+\begin{split}
+\W{E \setminus E_{k,j^*}}{x} & e^{(\lambda_k - a_1) x} \\
+= & \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} + x w_k^{j^*} & \dots & \sum\limits_{n=j^*}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+= & \begin{vmatrix} \dots & w_k^{j^*-1} & x w_k^{j^*} & \dots & \sum\limits_{n=j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+& + \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} & \dots & \sum\limits_{n=j^*, n\neq j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+= & x \W{E \setminus E_{k,j^*+1}}{x} e^{(\lambda_k - a_1) x} \\
+& + \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} & w_k^{j^*+2} + \Poly{2} w_k^{j^*} & \dots & \sum\limits_{n=j^*, n\neq j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} \\
+= & x \W{E \setminus E_{k,j^*+1}}{x} e^{(\lambda_k - a_1) x} \\
+& - \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+2} + \Poly{2} w_k^{j^*} & w_k^{j^*+1} & \dots & \sum\limits_{n=j^*, n\neq j^*+1}^{m_k-1} \poly{m_k-1-n} w_k^n & \dots \end{vmatrix} .
+\end{split}
+\end{equation*}
+We may then repeat the procedure with the second determinant in the last line, writing it as the sum of two determinants, each choosing one of the component vectors for the given column.
+
+The procedure may be repeated until we have reduced the determinant to a summation of Wronskians that, by the induction hypothesis, we already have results for.
+At each step we subdivide along the column containing $w_k^{j^*+l} + \Poly{l} w_k^{j^*}$ into two parts, such that one addend contains $w_k^{j^*+l}$ and the other contains $\Poly{l} w_k^{j^*}$.
+The latter addend is now identical to $\Poly{l} \W{E \setminus E_{k,j^*+l}}{x} e^{(\lambda_k - a_1)x}$ as one may bring the polynomial out of the determinant and the vectors $w_k^j$ are arranged in order for $0 \leq j < j^*+l$, with $w_k^{j^*+l}$ missing.
+Meanwhile, one may perform the Gram-Schmidt process on the addend containing $w_k^{j^*+l}$, thereby removing this vector from all subsequent columns.
+In particular, the column associated with $E_{k,j^*+l+1}$ becomes $w_k^{j^*+l+1} + \poly{l+1} w_k^{j^*}$.
+Exchanging this column with the one containing $w_k^{j^*+l}$ and introducing a minus sign in front of the determinant we arrive at the start of the $(l+1)$--th step.
+
+We stop the procedure at $j^*+l=m_k-1$: %nb: check signs
+\begin{equation*}
+\begin{split}
+\W{E \setminus E_{k,j^*}}{x} & e^{(\lambda_k - a_1)x} \\
+= & \sum_{l=1}^{m_k-1-j^*} (-1)^{l+1} \Poly{l} \W{E \setminus E_{k,j^*+l}}{x} e^{(\lambda_k - a_1)x} \\
+& + \begin{vmatrix} \dots & w_k^{j^*-1} & w_k^{j^*+1} & \dots & w_k^{m_k-1} & \dots \end{vmatrix} \\
+= & \sum_{l=1}^{m_k-1-j^*} (-1)^{l+1} \Poly{l} \W{E \setminus E_{k,j^*+l}}{x} e^{(\lambda_k - a_1)x} + \abs{\Omega_k^{j^*}} .
+\end{split}
+\end{equation*}
+We now use our induction hypothesis to arrive at our result:
+\begin{equation*}
+\begin{split}
+\W{E \setminus E_{k,j^*}}{x} & e^{(\lambda_k - a_1)x} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{l=1}^{m_k-1-j^*} (-1)^{l+1} \Poly{l} \sum_{n=j^*+l}^{m_k-1} \poly{n-j^*-l} \abs{\Omega_k^n} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{l=1}^{m_k-1-j^*} \sum_{n=j^*+l}^{m_k-1} (-1)^{l+1} \poly{n-j^*} \frac{ (n-j^*)! }{(n-j^*-l)! l!} \abs{\Omega_k^n} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{l=1}^{m_k-1-j^*} \sum_{n=j^*+l}^{m_k-1} (-1)^{l+1} \poly{n-j^*} \binom{n-j^*}{l} \abs{\Omega_k^n} \\
+= & \abs{\Omega_k^{j^*}} + \sum_{n=j^*+1}^{m_k-1} \poly{n-j^*} \abs{\Omega_k^n} \sum_{l=1}^{n-j^*} (-1)^{l+1}  \binom{n-j^*}{l} \\
+= & \Poly{0} \abs{\Omega_k^{j^*}} + \sum_{n=j^*+1}^{m_k-1} \poly{n-j^*} \abs{\Omega_k^n} \\
+= & \sum_{n=j^*}^{m_k-1} \poly{n-j^*} \abs{\Omega_k^n} .
+\end{split}
+\end{equation*}
+Note that the second-to-last step uses an identity of the binomial coefficients (nb: cite).
+
+We thus have that if statement $(ii)$ is true for $j^* < j \leq m_k-1$ then it is true for $j=j^*$.
+Thus, by strong induction, it is true for all $0 \leq j \leq m_k-1$.
+\end{proof}
+
+Lemma \ref{lem:exp} is the special case of this theorem with $m_k = 1$ for all $k$ and so the summation in statement $(ii)$ is over a single element.
+The special case of $M=1$ has $\abs{\Omega_k^n} = \delta_{n,m_k-1}$ and so we may retrieve the results of lemma \ref{lem:poly} and those discussed in the previous subsection for $\lambda_1 \neq 0$.
+
+The general form of the values of $\gamma_{li}$ may now be written as:
+\begin{equation*}
+\gamma_{li} = (-1)^{m+i} e^{-\lambda_k v_l} \sum_{n=j}^{m_k-1} \poly{n-j} \frac{\abs{\Omega_k^n}}{\abs{\Omega}}
+\end{equation*}
+where $\hat{P}_i(x) = \Poly{j} e^{\lambda_k x}$.
+
+\section{Application and experiments}
+
+\subsection{Example}
+
+To illustrate the application of this work we consider a problem with $m=4$ and two roots, each with multiplicity two.
+This gives $E = \{e^{\lambda_1 x}, x e^{\lambda_1 x}, e^{\lambda_2 x}, x e^{\lambda_2 x} \}$.
+From Abel's identity and lemma \ref{thm:cc} we know
+\begin{equation*}
+\W{E}{x} = \begin{vmatrix} 1 & 0 & 1 & 0 \\ \lambda_1 & 1 & \lambda_2 & 1 \\
+\lambda_1^2 & 2 \lambda_1 & \lambda_2^2 & 2 \lambda_2 \\
+\lambda_1^3 & 3 \lambda_1^2 & \lambda_2^3 & 3 \lambda^2_2 \end{vmatrix} e^{ (2 \lambda_1 + 2 \lambda_2 ) x } .
+\end{equation*}
+To calculate the IOM we need the functions $\W{E \setminus E_{k,j}}{x}$, of which there are four:
+\begin{align*}
+\W{E \setminus E_{1,0}}{x} e^{ -( \lambda_1 + 2 \lambda_2 ) x } & = \begin{vmatrix} 0 & 1 & 0 \\ 1 & \lambda_2 & 1 \\ 2 \lambda_1 & \lambda_2^2 & 2 \lambda_2 \end{vmatrix} + x \begin{vmatrix} 1 & 1 & 0 \\ \lambda_1 & \lambda_2 & 1 \\ \lambda_1^2 & \lambda_2^2 & 2 \lambda_2 \end{vmatrix}, \\
+\W{E \setminus E_{1,1}}{x} e^{ -( \lambda_1 + 2 \lambda_2 ) x } & = \begin{vmatrix} 1 & 1 & 0 \\ \lambda_1 & \lambda_2 & 1 \\ \lambda_1^2 & \lambda_2^2 & 2 \lambda_2 \end{vmatrix}, \\
+\W{E \setminus E_{2,0}}{x} e^{ -(2 \lambda_1 + \lambda_2 ) x } & = \begin{vmatrix} 1 & 0 & 0 \\ \lambda_1 & 1 & 1 \\ \lambda_1^2 & \lambda_1 & \lambda_2 \end{vmatrix} + x \begin{vmatrix} 1 & 0 & 1 \\ \lambda_1 & 1 & \lambda_2 \\ \lambda_1^2 & 2 \lambda_1 & \lambda_2^2 \end{vmatrix}, \\
+\W{E \setminus E_{2,1}}{x} e^{ -(2 \lambda_1 + \lambda_2 ) x } & = \begin{vmatrix} 1 & 0 & 1 \\ \lambda_1 & 1 & \lambda_2 \\ \lambda_1^2 & 2 \lambda_1 & \lambda_2^2 \end{vmatrix} .
+\end{align*}
+Note that all of the $3 \times 3$ determinants could be calculated as part of calculating the $4 \times 4$ determinant of $W(E;x)$ if one expands along the bottom row.
+As such, calculating the other four Wronskians should be no more than $\order{m}$ additional operations.
+
+\subsection{Algorithm for IOM for constant coefficients}
+
+\begin{description}
+\item[Step 1:] Identify the roots and their multiplicities $\{ \lambda_k ; m_k \}_{k=1}^M$ of the polynomial associated with the linear operator.
+\item[Step 2:] Calculate $\abs{\Omega_k^j}$ for all $k$ and $j$, then use $\abs{\Omega_k^j}$ to calculate $\abs{\Omega}$.
+\item[Step 3:] Calculate the coefficients $\gamma_{kn}$ and the corresponding determinants $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$. Use this information to form the scalar multipliers $\beta_{k,j}$.
+\item[Step 4:] Form the Birkhoff interpolants $G_{k,j}(x)$ by first forming the Chebyshev polynomials and their integrals.
+\item[Step 5:] Using the determinants $\abs{\Omega_k^j}$, $\abs{\Omega}$, $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$ form the fundamental solution sets $\set{\hat{P}_i(x)}$ and $\set{P_i(x)}$.
+\item[Step 6:] Calculate the constants $C_{k,j}$.
+Currently only a brute-force approach is provided, but it is expected that there are simplifications to be made given constant coefficients.
+\item[Step 7:] Form the functions $R_j(x)$ and by extension the IOM.
+\end{description}
+
+\end{document}

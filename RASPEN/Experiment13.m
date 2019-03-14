@@ -9,10 +9,11 @@
 %% Implementing test
 
 % Problem parameters
-C = 0.15;
-F = @(x) tan(C*x);
-Fp= @(x) C*sec(C*x).^2;
-P = 1;
+C = 10;  a = C;
+F = @(x) C*sin(a*x);
+Fp= @(x) C*a*cos(a*x);
+P = 8;
+A = 0; B = 0;
 
 % Grid
 nx = 1001;
@@ -45,7 +46,8 @@ G = zeros(1,101);
 Gp= G;
 itersaveNewton = G;
 itersaveReg = G;
-testu2 = linspace(-10,10,101);
+L = 2;
+testu2 = linspace(-L,L,1001);
 % testu2=0.03;
 nonlinsolves = 50;
 for u2b0 = testu2
@@ -55,8 +57,8 @@ for u2b0 = testu2
     k      = k+1;
     error  = 1;
     iter   = 1;
-    u1 = 0*ones(size(x1)); u1(1)  = 0;
-    u2 = 0*ones(size(x2)); u2(end)= 0;
+    u1 = 0*ones(size(x1)); u1(1)  = A;
+    u2 = 0*ones(size(x2)); u2(end)= B;
     while error > tol && iter < itermax
 
         % Step 1: solve u in first domain
@@ -119,8 +121,8 @@ for u2b0 = testu2
     k      = k+1;
     error  = 1;
     iter   = 1;
-    u1 = 0*ones(size(x1)); u1(1)  = 0;
-    u2 = 0*ones(size(x2)); u2(end)= 0;
+    u1 = 0*ones(size(x1)); u1(1)  = A;
+    u2 = 0*ones(size(x2)); u2(end)= B;
     while error > tol && iter < itermax
 
         % Step 1: solve u in first domain
@@ -159,10 +161,23 @@ for u2b0 = testu2
         
 end
 
-figure(2)
-plot(testu2,G,'r',testu2,Gp,'k',testu2,testu2,testu2,-testu2,'linewidth',2)
+yy = linspace(-L,L,101);
+C  = -10:1:10;
+yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
+xC = bsxfun(@plus,C',yy);
+
+figure(1)
+plot(testu2,G,'r',testu2,Gp,'b',yy,yC,'k',yy,xC,'k','linewidth',2)
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('FP','NR')
-axis([-10,10,-10,10])
+% axis([-L,L,-L,L])
+set(gca,'fontsize',26,'linewidth',2)
+
+figure(2)
+plot(testu2,G,'r.',testu2,Gp,'k.',yy,yy,yy,-yy,'linewidth',2)
+xlabel('\gamma')
+ylabel('G(\gamma)')
+legend('FP','NR')
+axis([-L,L,-L,L])
 set(gca,'fontsize',26,'linewidth',2)

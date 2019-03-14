@@ -1,0 +1,96 @@
+\documentclass{beamer}
+
+\usetheme{Berlin}
+
+\usecolortheme{dolphin}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{animate}
+
+\title{Pi may be a normal number}
+\author{Conor McCoid}
+\institute{University of Geneva}
+\date{03.14.19}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{The Conjecture}
+\begin{block}{Conjecture}
+$\pi$ is a normal number.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{So what is a normal number?}
+\begin{block}{Definition}
+A real number (necessarily irrational) is NORMAL in base b if all whole numbers in base b are distributed uniformly in its infinite sequence of digits.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{An illustration}
+Consider a number x that is normal in base 2.
+The odds of a random digit of x being 0 are 50\%, as are the odds of said digit being 1.
+Moreover, the odds of a random pair of digits being 00 are 1 in $2^2$, or 25\%, as are the odds of said pair being 01, 10 or 11.
+
+~
+
+Generally, the odds of a random block of $n$ digits being a given whole number of $n$ digits are 1 in $b^n$, where $b$ is the base.
+\end{frame}
+
+\begin{frame}
+\frametitle{Some examples}
+In base 10 (and possibly all bases?):
+\begin{itemize}
+\item 0.123456789101112...
+\item 0.23571113171923...
+\item 0.149162536496481100...
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{The history of normal numbers}
+\begin{description}
+\item[\cite{borel1909probabilites}:] almost all numbers are normal (the non-normal numbers constitute a Lebesgue measure zero set)
+\item[\cite{sierpinski1917demonstration}:] one can specify a normal number
+\item[\cite{becher2002example}:] there exist computable numbers that are normal in every base
+\end{description}
+\end{frame}
+
+\begin{frame}
+\frametitle{Something everyone knows but no one can prove}
+\begin{block}{Conjecture}
+Every irrational algebraic number (including $\pi$) is normal.
+\end{block}
+
+It should be noted that no irrational algebraic number has been proven to be normal.
+
+Likewise, no irrational algebraic number has been proven to be non-normal.
+\end{frame}
+
+\begin{frame}
+\frametitle{Why do we think $\pi$ is normal?}
+\begin{description}
+\item[\cite{bailey2012empirical}] Statistical calculations on the first four trillion base-16 digits of $\pi$ show it is almost certainly normal in base 16.
+\item[\cite{artacho2012walking}] Graphical representations, such as \href{http://gigapan.org/gigapans/106803}{\color{blue}{this one of 100 billion base-4 digits of $\pi$}}, show similarities with pseudorandom walks.
+\end{description}
+\end{frame}
+
+\begin{frame}
+\frametitle{A fun exercise}
+Prove that any positive real number is the product of two normal numbers.
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+\frametitle{References}
+\bibliographystyle{apalike}
+\bibliography{/home/mccoid/LaTeX/references}
+%\bibliography{C:/Users/conmc/Documents/LaTeX/references}
+\end{frame}
+
+\end{document}\grid

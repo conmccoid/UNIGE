@@ -818,6 +818,26 @@ As such, calculating the other four Wronskians should be no more than $\order{m}
 
 \begin{description}
 \item[Step 1:] Identify the roots and their multiplicities $\{ \lambda_k ; m_k \}_{k=1}^M$ of the polynomial associated with the linear operator.
+Order them such that $m_1$ is the largest of the $m_k$.
+\item[Step 2:] Construct the matrix $\Omega$.
+This may be done by constructing Pascal's triangle with $m$ rows and a lower triangular $m \times m_k$ Toeplitz matrix with each diagonal corresponding to a power of $\lambda_k$.
+Take the Hadamard product of Pascal's triangle with each of the $M$ matrices so constructed and concatenate these products.
+\item[Step 3:] Form $F_1^{-1}(x)$ for all $x$.
+This is a $m_k \times m_k \times N+1$ size object, each page of which is an upper triangular Toeplitz matrix with each diagonal corresponding to $(-1)^j \Poly{j}$.
+The polynomials may be calculated sequentially then used to construct the matrices.
+\item[Step 4:] Calculate $\omega(x)$ for all $x$.
+This creates a $m \times N+1$ matrix.
+This is done by first solving $\Omega z = \begin{bmatrix} 0 & \dots & 0 & 1 \end{bmatrix}^\top$ then multiplying the first $m_1$ rows of $z$ by $F_1^{-1}(x) e^{-\lambda_1 x}$.
+Next, multiply the next $m_2$ rows of $z$ by the $m_2 \times m_2$ principal submatrix of $F_1^{-1}(x) e^{-\lambda_2 x}$.
+Continue in this fashion for $k=1,...,M$.
+\item[Step 5:] Let $\Gamma$ be the matrix formed by taking the columns of $\omega(x)$ corresponding to the points in $V$.
+Calculate the coefficients $\beta_{k,j}$ by solving the system $\Gamma \beta = \omega(x)$, where $\beta$ is the $m \times N+1$ matrix containing the coefficients $\beta_{k,j}$.
+\item[Step 6:] Form the Birkhoff interpolants $G_{k,j}(x)$.
+One must first form the Chebyshev polynomials and their integrals.
+Once this is done, they may be calculated with the formulas given in equation (\ref{eq:G functions}).
+\item[Step 7:] Form the fundamental solution set.
+The best solution here seems to be to use a Hadamard product of a matrix of the exponential functions layered with their multiplicities in mind with a matrix of the polynomials, the information for which may be extracted from $F_1^{-1}(x)$ calculated in step 3.
+Right multiply this Hadamard product by $\Gamma$.
 \item[Step 2:] Calculate $\abs{\Omega_k^j}$ for all $k$ and $j$, then use $\abs{\Omega_k^j}$ to calculate $\abs{\Omega}$.
 \begin{equation*}
 \abs{\Omega} = \sum_{i=0}^{m-1} (-1)^{m+i} \binom{m-1}{j} \lambda_k^{(m-1)-j} \abs{\Omega_k^j}, \ i = j + \sum_{n=1}^{k-1} m_n

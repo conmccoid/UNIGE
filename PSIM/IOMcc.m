@@ -26,6 +26,8 @@ if m~=length(v)
 end
 
 %---Roots and their multiplicities---%
+% need to find the roots with their multiplicities and order them so mk(1)
+% is the largest multiplicity
 y = sort(roots(P));                   % calculates the characteristics(?) of the operator (column vector)
 Y = y(1);
 M = length(y==Y);
@@ -37,65 +39,64 @@ while isempty(y)~=1
     y = y(y~=newy);
 end
 
-Y = bsxfun(@power,y',(0:m-1)');
-
-w = zeros(m,1);
-ind = 1:m;
-for j = 1:m
-    w(j) = (-1)^(j+m) * det(Y(1:m-1,ind~=j));
-end
-w = w./det(Y);
-
-P = exp(T(:,2)*y');             % this needs to change to account for roots with multiplicity
-Pm= P * diag(w) * (1./P(v,:)');
-
-%---Pascal's Triangle---%
-PT = spalloc(m,m,m*(m+1)/2); PT(:,1) = ones(m,1);
-for i = 2:m
-    PT(i,2:m) = PT(i-1,2:m)+PT(i-1,1:m-1);
+%---Pascal's Triangle and Polynomials---%
+PT = zeros(mk(1),mk(1)); PT(:,1) = ones(mk(1),1);
+xx = ones(N,mk(1));
+for i = 2:mk(1)
+    PT(i,2:mk(1)) = PT(i-1,2:mk(1))+PT(i-1,1:mk(1)-1);
+    xx(:,i) = xx(:,i-1) .* T(:,2) / (i-1);
 end
 
 %---Omega matrices---%
-Om = sparse(m,m); ind = 0;
+Om = zeros(m,m); ind = 0;
 for i = 1:M
-    Omtemp = spdiags(0:-1:1-m,y(i).^(0:m-1),m,mk(i));
-    Om(:,ind+(1:mk(i))) = Omtemp.*PT(:,1:mk(i));
+    indk = 1:mk(i);
+    Om(:,ind+indk) = toeplitz(y(i).^(0:m-1),eye(1,mk(i))) .* PT(:,indk);
     ind = ind + mk(i);
 end
+z = Om \ [ zeros(m-1,1); 1];
 
-detOm = det(Om);
-detOmmat = zeros(m,m);
-xx = ones(N,m); ee = zeros(N,m);
+%---Fundamental matrix and Wronskian---%
+W = zeros(m,N);
+Im= toeplitz(eye(1,mk(1)),(-1).^(0:mk(1)-1));
+for i = 1:N
+    F = toeplitz(eye(mk(1),1),xx(i,:));
+    ind = 0;
+    for k = 1:M
+        indk = 1:mk(k);
+        W(ind+indk,i) = exp(-y(k)*xx(i,2)) * (Im(indk,indk).*F(indk,indk)) * z(ind+indk');
+        ind = ind + mk(k);
+    end
+    if i==1
+        F1 = F;
+    elseif i==N
+        F2 = F;
+    end
+end
+
+%---Fundamental solution set---%
+% Arbitrary
+P = ones(N,m);
 ind = 0;
 for i = 1:M
-    for j = 1:mk(i)
-        detOmmat(ind + (j:-1:1),ind + (1:j)) = det(Om(1:m-1,(1:m)~=(ind+j))); %block diagonal and symmetric
-        if ind==0 || j>mk(1)
-            xx(:,ind+j+1) = xx(:,ind+j)*T(:,2)/j;
-        else
-            xx(:,ind+j+1) = xx(:,j+1);
-        end
-    end
-    ee(ind + 1:mk(i)) = exp(-T(:,2)*y(i));
-    ind = ind + mk(i);
+    indk =     1:mk(i);
+    P(:,ind + indk) = exp(T(:,2)*y(i)) .* xx(:,indk);
+    ind  = ind + mk(i);
+end
+% Particular
+P = P * W(:,v);
+% Derivatives at x=1 and -1
+Pd = zeros(m,m,2);
+ind = 0;
+for k = 1:M
+    indk =     1:mk(k);
+    Pd(ind+indk,:,1  ) = exp( y(k)) * F1(indk,indk) * W(ind+indk,v);
+    Pd(ind+indk,:,end) = exp(-y(k)) * F2(indk,indk) * W(ind+indk,v);
+    ind  = ind + mk(k);
 end
 
-%---Wronskians---%
-W = ee.*(xx * detOmmat)./ detOm;
-Gam = W(v,:);
-
-%---Fundamental solution set(s)---%
-Phat = ee .* xx; %hopefully unnecessary in final version? although this probably doesn't cost much
-P = Phat * Gam;
-
-% %---Beta coefficients---%
-% Coeffs = zeros(m,m);
-% for j = 1:m
-%     for k = 1:m
-%         Coeffs(j,k) = (-1)^(j+k) * det( 1./P(v(ind~=k),ind(ind~=j))' );
-%     end
-% end
-% W = Coeffs' * (1./P') ./ det(1./P(v,:)');
+%---Beta coefficients---%
+Beta = W(:,v) \ W;
 
 %---Interpolants---%
 % G coefficient functions, homog. solns
@@ -104,36 +105,28 @@ Inverse = zeros(N,N,m);
 for k = 1:m
     B(:,:,k) = T' - T(v(k),:)'*T(:,N)'/T(v(k),N);     % (eq. 3.13)
     B(:,:,k) = cmat.*B(:,:,k);
-    B(:,:,k) = dT*B(:,:,k);
-    Inverse(:,:,k) = ( Pm(:,k)*W(k,:) ).*B(:,:,k);  % (eq. 3.18)
+    B(:,:,k) =   dT *B(:,:,k);
+    Inverse(:,:,k) = ( P(:,k)*Beta(k,:) ).*B(:,:,k);  % (eq. 3.18)
 end
 Inverse = sum(Inverse,3);
 
 %---Boundary conditions---% (eq. 3.19)
-% Pm = permute( Pm,[3,2,1] );
-Pd = zeros(m,m,2);
-Pd(1,:,1) = Pm(1,:);
-Pd(1,:,end) = Pm(end,:);
-for l=2:m
-    Pd(l,:,:) = P([1,end],:) * diag(w .* y.^(l-1)) * (1./P(v,:)');
-end
 B  = permute( B,[3,2,1] );
-
 if isempty(U2)
-    Lhs = U1*Pd(:,:,1);
-    Rhs = Lhs*( W.*B(:,:,1) );
+    Lhs = U1*Om*Pd(:,:,1);
+    Rhs = Lhs*( Beta.*B(:,:,1) );
 elseif isempty(U1)
-    Lhs = U2*Pd(:,:,end);
-    Rhs = Lhs*( W.*B(:,:,end) );
+    Lhs = U2*Om*Pd(:,:,end);
+    Rhs = Lhs*( Beta.*B(:,:,end) );
 else
-    BCplus  = U1*Pd(:,:,1); 
-    BCminus = U2*Pd(:,:,end);
+    BCplus  = U1*Om*Pd(:,:,1); 
+    BCminus = U2*Om*Pd(:,:,end);
     Lhs = [ BCplus ; BCminus ];
-    Rhs = [ BCplus*( W.*B(:,:,1) ) ; BCminus*( W.*B(:,:,end) ) ];
+    Rhs = [ BCplus*( Beta.*B(:,:,1) ) ; BCminus*( Beta.*B(:,:,end) ) ];
 end
 
-Inverse = Inverse - Pm*( Lhs\Rhs );
-Inverse(:,v) = Pm*( Lhs\eye(m) );
+Inverse = Inverse - P*( Lhs\Rhs );
+Inverse(:,v) = P*( Lhs\eye(m) );
 
 end
 

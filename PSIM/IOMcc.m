@@ -28,16 +28,22 @@ end
 %---Roots and their multiplicities---%
 % need to find the roots with their multiplicities and order them so mk(1)
 % is the largest multiplicity
-y = sort(roots(P));                   % calculates the characteristics(?) of the operator (column vector)
-Y = y(1);
-M = length(y==Y);
-y = y(y~=Y);
-while isempty(y)~=1
-    newy = y(1);
-    Y = [ Y ; newy ];
-    M = [ M ; length(y==newy) ];
-    y = y(y~=newy);
+Y = roots(P);
+y = zeros(1,m);
+mk= y;
+ind  = 1;
+y(1) = Y(1);
+mk(1)= sum(Y==y(1));
+Y = Y(Y~=y(1));
+while isempty(Y)~=1
+    ind    = ind + 1;
+    y(ind) = Y(1);
+    mk(ind)= sum(Y==Y(1));
+    Y = Y(Y~=Y(1));
 end
+M = ind;
+y = y(1:M);
+mk=mk(1:M);
 
 %---Pascal's Triangle and Polynomials---%
 PT = zeros(mk(1),mk(1)); PT(:,1) = ones(mk(1),1);
@@ -56,7 +62,7 @@ for i = 1:M
 end
 z = Om \ [ zeros(m-1,1); 1];
 
-%---Fundamental matrix and Wronskian---%
+%---Fundamental matrix, Wronskian and Beta coefficients---%
 W = zeros(m,N);
 Im= toeplitz(eye(1,mk(1)),(-1).^(0:mk(1)-1));
 for i = 1:N
@@ -73,6 +79,7 @@ for i = 1:N
         F2 = F;
     end
 end
+Beta = W(:,v) \ W;
 
 %---Fundamental solution set---%
 % Arbitrary
@@ -94,9 +101,6 @@ for k = 1:M
     Pd(ind+indk,:,end) = exp(-y(k)) * F2(indk,indk) * W(ind+indk,v);
     ind  = ind + mk(k);
 end
-
-%---Beta coefficients---%
-Beta = W(:,v) \ W;
 
 %---Interpolants---%
 % G coefficient functions, homog. solns

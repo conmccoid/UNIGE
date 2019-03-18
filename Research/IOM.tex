@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage{C:/Users/conmc/Documents/LaTeX/preamble}
+\usepackage{/home/mccoid/LaTeX/preamble}
 
 \title{Collocation matrices representing inverse operators}
 \author{Conor McCoid}
@@ -832,53 +832,15 @@ Next, multiply the next $m_2$ rows of $z$ by the $m_2 \times m_2$ principal subm
 Continue in this fashion for $k=1,...,M$.
 \item[Step 5:] Let $\Gamma$ be the matrix formed by taking the columns of $\omega(x)$ corresponding to the points in $V$.
 Calculate the coefficients $\beta_{k,j}$ by solving the system $\Gamma \beta = \omega(x)$, where $\beta$ is the $m \times N+1$ matrix containing the coefficients $\beta_{k,j}$.
-\item[Step 6:] Form the Birkhoff interpolants $G_{k,j}(x)$.
-One must first form the Chebyshev polynomials and their integrals.
-Once this is done, they may be calculated with the formulas given in equation (\ref{eq:G functions}).
-\item[Step 7:] Form the fundamental solution set.
+\item[Step 6:] Form the fundamental solution set.
 The best solution here seems to be to use a Hadamard product of a matrix of the exponential functions layered with their multiplicities in mind with a matrix of the polynomials, the information for which may be extracted from $F_1^{-1}(x)$ calculated in step 3.
 Right multiply this Hadamard product by $\Gamma$.
-\item[Step 2:] Calculate $\abs{\Omega_k^j}$ for all $k$ and $j$, then use $\abs{\Omega_k^j}$ to calculate $\abs{\Omega}$.
-\begin{equation*}
-\abs{\Omega} = \sum_{i=0}^{m-1} (-1)^{m+i} \binom{m-1}{j} \lambda_k^{(m-1)-j} \abs{\Omega_k^j}, \ i = j + \sum_{n=1}^{k-1} m_n
-\end{equation*}
-\item[Step 3:] Calculate the coefficients $\gamma_{kn}$ and the corresponding determinants $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$. Use this information to form the scalar multipliers $\beta_{k,j}$.
-\begin{equation*}
-\gamma_{li} = (-1)^{m+i} e^{-\lambda_k v_l} \sum_{n=j}^{m_k-1} \frac{v_l^{n-j}}{(n-j)!} \frac{\abs{\Omega_k^n}}{\abs{\Omega}}, \ i = 1 + j + \sum_{n=1}^{k-1} m_n
-\end{equation*}
-\begin{equation*}
-\beta_{k,j} = (-1)^{m+k} \sum_{n=1}^m \frac{\abs{\Gamma_{k,n}}}{\abs{\Gamma}} e^{-\lambda_{k^*} x_j} \sum_{n^*=j^*}^{m_{k^*}-1} \frac{x_j^{n^*-j^*}}{(n^*-j^*)!} \frac{\abs{\Omega_{k^*}^{n^*}}}{\abs{\Omega}}, \ n = 1 + j^* + \sum_{i=1}^{k^*-1} m_i
-\end{equation*}
-\item[Step 4:] Form the Birkhoff interpolants $G_{k,j}(x)$ by first forming the Chebyshev polynomials and their integrals.
-\begin{equation*}
-\begin{gathered}
-G_{k,j} (x) = \beta_{k,j} \sum_{n=0}^{N-1} b^k_{nj} \partial_x^{-1} T_n(x), \\
- b^k_{nj} = \frac{2}{c_n c_j N} \left ( T_n(x_j) - \frac{T_N(x_j)}{T_N(v_k)} T_n(v_k) \right ).
-\end{gathered}
-\end{equation*}
-\item[Step 5:] Using the determinants $\abs{\Omega_k^j}$, $\abs{\Omega}$, $\abs{\Gamma_{k,n}}$ and $\abs{\Gamma}$ form the fundamental solution sets $\set{\hat{P}_i(x)}$ and $\set{P_i(x)}$.
-\begin{equation*}
-\begin{gathered}
-\hat{P}_i(x) = \Poly{j} e^{\lambda_k x}, \ i = 1 + j + \sum_{n=1}^{k-1} m_n, \\
-P_i(x) = \sum_{n=1}^m \gamma_{in} \hat{P}_n(x)
-\end{gathered}
-\end{equation*}
-\item[Step 6:] Calculate the constants $C_{k,j}$.
-Currently only a brute-force approach is provided, but it is expected that there are simplifications to be made given constant coefficients.
-\begin{equation*}
-\begin{aligned}
-\begin{bmatrix} \mathcal{B}_1 P_1(1) & \dots &  \mathcal{B}_1 P_m(1) \\ \vdots & \ddots & \vdots \\  \mathcal{B}_{k_0} P_1(1) & \dots &  \mathcal{B}_{k_0} P_m(1)  \end{bmatrix}
-\begin{bmatrix} C_{1,j} \\ \vdots \\ C_{m,j} \end{bmatrix}
-& = - \begin{bmatrix} \sum_{k=1}^m \mathcal{B}_1 P_k(1) G_{k,j}(1) \\ \vdots \\ \sum_{k=1}^m \mathcal{B}_{k_0} P_k(1) G_{k,j}(1) \end{bmatrix} \\
-\begin{bmatrix} \mathcal{B}_{k_0 + 1} P_1(-1) & \dots &  \mathcal{B}_{k_0+1} P_m(-1) \\ \vdots & \ddots & \vdots \\  \mathcal{B}_m P_1(-1) & \dots &  \mathcal{B}_m P_m(-1)  \end{bmatrix}
-\begin{bmatrix} C_{1,j} \\ \vdots \\ C_{m,j} \end{bmatrix}
-& = - \begin{bmatrix} \sum_{k=1}^m \mathcal{B}_{k_0+1} P_k(-1) G_{k,j}(-1) \\ \vdots \\ \sum_{k=1}^m \mathcal{B}_m P_k(-1) G_{k,j}(-1) \end{bmatrix} .
-\end{aligned}
-\end{equation*}
-\item[Step 7:] Form the functions $R_j(x)$ and by extension the IOM.
-\begin{equation*}
-R_j(x) = \sum_{k=1}^m (C_{k,j} + G_{k,j}(x) ) P_k(x)
-\end{equation*}
+\item[Step 7:] Form the Birkhoff interpolants $G_{k,j}(x)$.
+One must first form the Chebyshev polynomials and their integrals.
+Once this is done, they may be calculated with the formulas given in equation (\ref{eq:G functions}).
+\item[Step 8:] Find $C_{kj}$ and combine ingredients to form the IOM.
+The system for the $C_{kj}$ requires storing the derivatives of the fundamental solution set at $x=1$ and $-1$, done by multiplying $\Omega$, $e^{\pm \lambda_k}$, $F_k(\pm 1)$ and $\Gamma$.
+The right hand side requires the same as well as $G_{k,j}(\pm 1)$.
 \end{description}
 
 \end{document}

@@ -3,3 +3,13 @@
 *.aux
 *.pdf
 *.Rhistory
+
+*.log
+*.nav
+*.bbl
+*.snm
+*.synctex.gz
+*.toc
+
+*.jpg
+*.png

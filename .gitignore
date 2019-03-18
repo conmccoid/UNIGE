@@ -3,3 +3,14 @@
 *.aux
 *.pdf
 *.Rhistory
+
+*.log
+*.nav
+*.bbl
+*.snm
+*.synctex.gz
+*.toc
+
+*.jpg
+*.png
+>>>>>>> adaa0d6805990f812cebab4a9598d791e786cc86

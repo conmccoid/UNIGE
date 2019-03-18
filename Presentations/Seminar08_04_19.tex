@@ -1,0 +1,65 @@
+\documentclass{beamer}
+
+\usetheme{Berlin}
+
+\usecolortheme{dolphin}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{animate}
+
+\title{Introduction to Spectral Collocation}
+\author{Conor McCoid}
+\institute{University of Geneva}
+\date{April 8th, 2019}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+
+\begin{block}{The continuous problem}
+$\mathcal{L} u(x) = f(x)$
+\end{block}
+
+\begin{description}
+\item[$\mathcal{L}$:] Some linear operator acting on the function $u(x)$
+\item[$u(x)$:] Some real-valued function (with some regularity) acting on a point $x \in \Omega \in \mathbb{R}$
+\item[$f(x)$:] Some real-valued function (with possibly different regularity than $u(x)$) acting on the same point $x$
+\end{description}
+
+\end{frame}
+
+\begin{frame}
+
+\begin{block}{The discrete problem}
+$L_N u_N = f_N$
+\end{block}
+
+\begin{description}
+\item[$L_N$:] Some operator taking $N$ pieces of information from $u_N$ and returning $N$ pieces of information in $f_N$, ie. $L_N : \mathbb{R}^N \rightarrow \mathbb{R}^N$
+\item[$u_N$:] Some set of $N$ pieces of information, ie. $u_N \in \mathbb{R}^N$
+\item[$f_N$:] Some set of $N$ pieces of information, ie. $f_N \in \mathbb{R}^N$
+\end{description}
+
+\end{frame}
+
+\begin{frame}
+
+By the description of the discrete problem $L_N$ is some matrix of size $N \times N$ and $u_N$ and $f_N$ are both vectors of length $N$.
+The solution vector $u_N$ is then $u_N = L_N^{-1} f_N$.
+
+~
+
+We want our solution vector $u_N$ to correspond in some way to the solution function of the continuous problem.
+That is, we want
+\begin{equation*}
+\lim_{N \to \inf} u_N \equiv u(x)
+\end{equation*}
+in some sense.
+
+\end{frame}
+
+\end{document}

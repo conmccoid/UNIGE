@@ -15,6 +15,8 @@
 \newcommand{\set}[1]{\left \{ #1 \right \}}
 \newcommand{\Set}[2]{\left \{ #1 \middle \vert #2 \right \}}
 
+\newcommand{\inner}[2]{\left \langle #1, #2 \right \rangle}
+
 \title{Introduction to Spectral Collocation}
 \author{Conor McCoid}
 \institute{University of Geneva}
@@ -71,12 +73,139 @@ in some sense.
 
 \begin{frame}
 
-The discrete space may be defined by a set of basis functions, $\set{\phi_k(x)}_{k=1}^N$.
+The discrete space may be defined by a set of basis functions (called \textit{trial functions}), $\set{\phi_k(x)}_{k=1}^N$.
 Our approximation $u_N$ then defines a linear combination of these functions:
 \begin{equation*}
 u_N \equiv \sum_{k=1}^N a_k \phi_k(x) .
 \end{equation*}
 
+\end{frame}
+
+\begin{frame}
+
+We want now that when we apply $\mathcal{L}$ to this linear combination, we'll retrieve an approximation to $f(x)$:
+\begin{equation*}
+\sum_{k=1}^N a_k \mathcal{L} \phi_k(x) \approx f(x) .
+\end{equation*}
+More specifically, we want that
+\begin{equation*}
+\inner{\sum_{k=1}^N a_k \mathcal{L} \phi_k(x) - f(x) }{\psi_j(x) } = 0 \ \forall j=1,...,N
+\end{equation*}
+for some inner product defined on the space of functions and for some set of \textit{test functions} $\psi_j(x)$.
+
+\end{frame}
+
+\begin{frame}
+This allows us to choose three things:
+\begin{itemize}
+\item the inner product $\inner{\cdot}{\cdot}$,
+\item the trial functions $\phi_k(x)$,
+\item and the test functions $\psi_j(x)$.
+\end{itemize}
+
+Different sets of these choices lead to different classes of methods.
+\end{frame}
+
+\begin{frame}
+
+\begin{block}{Finite Element Methods}
+$\phi_k(x)$ and $\psi_j(x)$ have finite support (locally defined).
+\end{block}
+~
+\begin{block}{Spectral Methods}
+$\phi_k(x)$ and $\psi_j(x)$ have infinite support (globally defined).
+\end{block}
+% main difference, not only difference
+\end{frame}
+
+\begin{frame}
+
+\begin{block}{Galerkin}
+The trial functions individually satisfy the boundary conditions.
+\end{block}
+
+\begin{block}{Tau} % I don't think this is right
+$\inner{\phi_k(x)}{\psi_j(x)} = \begin{cases} 1 & k = j \\ 0 & k \neq j \end{cases} $
+\end{block}
+
+\begin{block}{Collocation}
+$\inner{\phi_k(x)}{\psi_j(x)} = \phi_k(x_j)$
+\end{block}
+% not exactly their definitions but they'll give us the right idea
+\end{frame}
+
+\begin{frame}
+\begin{description}
+\item[Galerkin] $u_N$ contains the coefficients in the \textit{Galerkin basis}.
+\item[Tau] $u_N$ also contains coefficients, but for a more general basis.
+\item[Collocation] $u_N$ contains the values of the approximation at some set of \textit{collocation points}, $u_N(x_j)$.
+\end{description}
+\end{frame}
+
+\begin{frame}
+
+We will focus on spectral collocation (global basis functions, minimize residual point by point).
+That is,
+\begin{equation*}
+L_N \begin{bmatrix}
+u_N(x_1) \\ u_N(x_2) \\ \vdots \\ u_N(x_N)
+\end{bmatrix} = \begin{bmatrix}
+f(x_1) \\ f(x_2) \\ \vdots \\ f(x_N)
+\end{bmatrix}
+\end{equation*}
+with $L_N$ being a matrix representing the linear operator.
+
+~
+
+We need to know $L_N$ to solve this system.
+For that, we need to know the differentiation matrix, $D_N$.
+
+\end{frame}
+
+\begin{frame}
+
+$D_N$ must work perfectly for the trial functions, $\phi_k(x)$:
+\begin{equation*}
+D_N \begin{bmatrix}
+\phi_k(x_1) \\ \phi_k(x_2) \\ \vdots \\ \phi_k(x_N)
+\end{bmatrix} = \begin{bmatrix}
+\phi_k'(x_1) \\ \phi_k'(x_2) \\ \vdots \\ \phi_k'(x_N)
+\end{bmatrix}
+\end{equation*}
+for all $k = 1,...,N$.
+
+~
+
+$D_N$ is singular since $D_N \begin{bmatrix} 1 & 1 & \dots & 1 \end{bmatrix}^\top = 0$.
+The matrix representing second order differentiation is the square of $D_N$.
+Likewise, $D^{(m)}_N = D^m_N$.
+% you can think of D_N like you would a finite difference matrix: it performs differentiation on functions defined on a given set of points
+\end{frame}
+
+\begin{frame}
+
+\begin{block}{The continuous operator}
+\begin{equation*}
+\mathcal{L} u(x) = u^{(m)}(x) + \sum_{k=1}^m p_k(x) u^{(m-k)}(x)
+\end{equation*}
+\end{block}
+\begin{block}{The discrete operator}
+\begin{equation*}
+L_N = D^m_N + \sum_{k=1}^m P_k D^{m-k}_N
+\end{equation*}
+where $P_k$ is a $N \times N$ diagonal matrix with entries $p_k(x_j)$.
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+$L_N$ is singular because $D_N$ and all of its powers are singular.
+Boundary conditions are needed to make $L_N$ nonsingular.
+The number of BCs matches the order of the problem, $m$.
+
+~
+
+BCs may be concatenated so the system is overdetermined or they can be used to replace rows in $L_N$.
 \end{frame}
 
 \end{document}

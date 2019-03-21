@@ -9,10 +9,14 @@
 %% Implementing test
 
 % Problem parameters
-C = 10;  a = C;
-F = @(x) C*sin(a*x);
+% 2-cycles: 3.6
+% 4-cycles: 3.72
+% 8-cycles: 3.731
+%    Chaos: 3.735
+C = 1;  a = 3.52;
+F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
-P = 8;
+P = 2;
 A = 0; B = 0;
 
 % Grid
@@ -46,8 +50,9 @@ G = zeros(1,101);
 Gp= G;
 itersaveNewton = G;
 itersaveReg = G;
-L = 2;
-testu2 = linspace(-L,L,1001);
+% L = 2;
+% testu2 = linspace(-L,L,101);
+testu2 = linspace(-1.8,-1.4,1001);
 % testu2=0.03;
 nonlinsolves = 50;
 for u2b0 = testu2
@@ -162,22 +167,23 @@ for u2b0 = testu2
 end
 
 yy = linspace(-L,L,101);
-C  = -10:1:10;
-yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
-xC = bsxfun(@plus,C',yy);
-
-figure(1)
-plot(testu2,G,'r',testu2,Gp,'b',yy,yC,'k',yy,xC,'k','linewidth',2)
-xlabel('\gamma')
-ylabel('G(\gamma)')
-legend('FP','NR')
-% axis([-L,L,-L,L])
-set(gca,'fontsize',26,'linewidth',2)
+% C  = -10:1:10;
+% yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
+% xC = bsxfun(@plus,C',yy);
+% 
+% figure(1)
+% plot(testu2,G,'r',testu2,Gp,'b',yy,yC,'k',yy,xC,'k','linewidth',2)
+% xlabel('\gamma')
+% ylabel('G(\gamma)')
+% legend('FP','NR')
+% % axis([-L,L,-L,L])
+% set(gca,'fontsize',26,'linewidth',2)
 
 figure(2)
 plot(testu2,G,'r.',testu2,Gp,'k.',yy,yy,yy,-yy,'linewidth',2)
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('FP','NR')
-axis([-L,L,-L,L])
+% axis([-L,L,-L,L])
+axis([-1.8,-1.4,-1.8,-1.4])
 set(gca,'fontsize',26,'linewidth',2)

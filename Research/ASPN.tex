@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage{C:/Users/conmc/Documents/LaTeX/preamble}
+\usepackage{/home/mccoid/LaTeX/preamble}
 
 \begin{document}
 
@@ -538,6 +538,28 @@ Using Dirichlet transmission conditions one arrives at the function $G(\gamma)$ 
 As seen in the figure, where $G(\gamma)$ is not monotonic with respect to the geometry of the lines $g_C(\gamma)$ (equivalent to $C(\gamma)$ no longer monotonic) the Newton-Raphson iteration enters into region 4.
 Due to the symmetry of the function $G(\gamma)$, this creates at least two 2-cycles where $G(\gamma)$ meets the line $y = 2 \gamma^* - \gamma$.
 One of these 2-cycles is stable, and taking $\gamma_0 = 1.6$ (or somewhere nearby) the Newton-Raphson preconditioning will cause the iterations to converge to this cycle.
+
+Indeed, the differential equation
+\begin{equation*}
+u''(x) - \sin \left ( a u(x) \right ) = 0
+\end{equation*}
+admits a period doubling set of cycles in the parameter $a$ for the domain $[-1,1]$, $\alpha = -\beta = -0.2$ and $\gamma_0 = \pm 1.6$.
+The bifurcation diagram is shown in figure \ref{fig:bifurc}.
+The red points displayed result from choosing $\gamma_0 = -1.6$, while the black points from choosing $\gamma_0 = 1.6$.
+The first bifurcation is the separation of the 2-cycle into two separate 2-cycles instead of the usual 4-cycle.
+Once this is done, period doubling sets in for each of these 2-cycles until the onset of chaos.
+
+The chaos of this system collapses once it spreads out sufficiently to include the region where Newton-Raphson is convergent.
+That is, when the slope moves close enough to 1 the range of the cycles is so wide that it intersects with areas near enough to the fixed point such that Newton-Raphson converges quadratically.
+This collapse occurs between $a = 3.812$ and $a=3.813$, after which these values of $\gamma_0$ (and possibly all values) lead to quadratically convergent sequences.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{bifurcation_all.png}
+\caption{The bifurcation diagram for the sinusoid counterexample in the parameter $a$.
+The first bifurcation point is the separation of the 2-cycle into two separate 2-cycles, rather than one 4-cycle.
+After this, the bifurcation proceeds normally.}
+\label{fig:bifurc}
+\end{figure}
 
 \section{Proposed algorithm}
 \label{sec:algo}

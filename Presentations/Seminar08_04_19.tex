@@ -9,6 +9,12 @@
 \usepackage{setspace}
 \usepackage{animate}
 
+\newcommand{\abs}[1]{\left \vert #1 \right \vert}
+\newcommand{\norm}[1]{\left \Vert #1 \right \Vert}
+\newcommand{\order}[1]{\mathcal{O} \left ( #1 \right )}
+\newcommand{\set}[1]{\left \{ #1 \right \}}
+\newcommand{\Set}[2]{\left \{ #1 \middle \vert #2 \right \}}
+
 \title{Introduction to Spectral Collocation}
 \author{Conor McCoid}
 \institute{University of Geneva}
@@ -26,7 +32,7 @@ $\mathcal{L} u(x) = f(x)$
 
 \begin{description}
 \item[$\mathcal{L}$:] Some linear operator acting on the function $u(x)$
-\item[$u(x)$:] Some real-valued function (with some regularity) acting on a point $x \in \Omega \in \mathbb{R}$
+\item[$u(x)$:] Some real-valued function (with some regularity) acting on a point $x \in \Omega \subset \mathbb{R}$
 \item[$f(x)$:] Some real-valued function (with possibly different regularity than $u(x)$) acting on the same point $x$
 \end{description}
 
@@ -56,9 +62,20 @@ The solution vector $u_N$ is then $u_N = L_N^{-1} f_N$.
 We want our solution vector $u_N$ to correspond in some way to the solution function of the continuous problem.
 That is, we want
 \begin{equation*}
-\lim_{N \to \inf} u_N \equiv u(x)
+\lim_{N \to \infty} u_N \equiv u(x)
 \end{equation*}
 in some sense.
+
+% At this stage it would be helpful to draw a diagram, showing the discrete spaces inside the continuous ones and how the projection would work
+\end{frame}
+
+\begin{frame}
+
+The discrete space may be defined by a set of basis functions, $\set{\phi_k(x)}_{k=1}^N$.
+Our approximation $u_N$ then defines a linear combination of these functions:
+\begin{equation*}
+u_N \equiv \sum_{k=1}^N a_k \phi_k(x) .
+\end{equation*}
 
 \end{frame}
 

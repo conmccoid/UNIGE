@@ -176,7 +176,7 @@ for all $k = 1,...,N$.
 
 ~
 
-$D_N$ is singular since $D_N \begin{bmatrix} 1 & 1 & \dots & 1 \end{bmatrix}^\top = 0$.
+$D_N$ is singular since $D_N \begin{bmatrix} 1 & 1 & \dots & 1 \end{bmatrix}^\top = 0$ (nilpotent, actually).
 The matrix representing second order differentiation is the square of $D_N$.
 Likewise, $D^{(m)}_N = D^m_N$.
 % you can think of D_N like you would a finite difference matrix: it performs differentiation on functions defined on a given set of points
@@ -206,6 +206,29 @@ The number of BCs matches the order of the problem, $m$.
 ~
 
 BCs may be concatenated so the system is overdetermined or they can be used to replace rows in $L_N$.
+\end{frame}
+
+\begin{frame}
+
+What should we choose for $\phi_k(x)$?
+\begin{itemize}
+\item $\phi_k(x)$ span a finite dimensional space
+\item they should be orthogonal with respect to some inner product (generally a weighted $L_2$ inner product)
+\item they can be used to approximate functions in the infinite space arbitrarily well
+\end{itemize}
+
+Some candidates:
+\begin{itemize}
+\item Sinusoids (Fourier series)
+\item Polynomials (Weierstrass approximation theorem)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+
+
+
 \end{frame}
 
 \end{document}

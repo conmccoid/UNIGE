@@ -13,16 +13,16 @@
 % 4-cycles: 3.72
 % 8-cycles: 3.731
 %    Chaos: 3.735
-C = 1;  a = 3.52;
+C = 1;  a = 2.5;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
-P = 2;
+P = 1;
 A = 0; B = 0;
 
 % Grid
 nx = 1001;
-a  = -0.2;
-b  = 0.2;
+a  = -0.1;
+b  = 0.1;
 x  = linspace(-1,1,nx)';
 dx = 1./abs(x(2) - x(1));
 x1 = x(x<=b); b = x1(end);
@@ -50,11 +50,11 @@ G = zeros(1,101);
 Gp= G;
 itersaveNewton = G;
 itersaveReg = G;
-% L = 2;
-% testu2 = linspace(-L,L,101);
-testu2 = linspace(-1.8,-1.4,1001);
+L = 4;
+testu2 = linspace(-L,L,1001);
+% testu2 = linspace(-1.8,-1.4,1001);
 % testu2=0.03;
-nonlinsolves = 50;
+nonlinsolves = 10;
 for u2b0 = testu2
 % u2b0 = 0;
     u2b    = u2b0;
@@ -184,6 +184,6 @@ plot(testu2,G,'r.',testu2,Gp,'k.',yy,yy,yy,-yy,'linewidth',2)
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('FP','NR')
-% axis([-L,L,-L,L])
-axis([-1.8,-1.4,-1.8,-1.4])
+axis([-L,L,-L,L])
+% axis([-1.8,-1.4,-1.8,-1.4])
 set(gca,'fontsize',26,'linewidth',2)

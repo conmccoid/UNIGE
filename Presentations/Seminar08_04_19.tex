@@ -272,11 +272,12 @@ If $\mathcal{L}_{SL}$ is self-adjoint ($\inner{\mathcal{L}_{SP}u}{v} = \inner{u}
 
 \begin{frame}
 
-The projection of a function $u(x) \in L_w^2(-1,1)$ onto a finite space spanned by the first $N$ eigenfunctions may be written as
+\begin{block}{Projection of $u(x) \in L_w^2(-1,1)$}
 \begin{equation*}
 P_N u(x) = \sum_{k=1}^N \hat{u}_k \phi_k(x)
 \end{equation*}
-where $\hat{u}_k = \int_{-1}^1 \phi_k(x) u(x) w(x) dx / \lambda_k$.
+where $\hat{u}_k = \int_{-1}^1 \phi_k(x) u(x) w(x) dx / \lambda_k$
+\end{block}
 
 ~
 
@@ -307,9 +308,9 @@ P_n(x) = \frac{1}{2^n n!} \frac{d^n}{dx^n} (x^2-1)^n
 \end{equation*}
 \end{block}
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{legendreP.png}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{legendreP.png}
+%\end{figure}
 
 \end{frame}
 
@@ -323,9 +324,68 @@ T_n(x) = \cos \left ( n \arccos \left ( x \right ) \right )
 \end{equation*}
 \end{block}
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{chebyshevT.png}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{chebyshevT.png}
+%\end{figure}
+
+\end{frame}
+
+\begin{frame}
+
+\begin{block}{Weighted Gaussian quadrature}
+\begin{equation*}
+\int_{-1}^1 f(x) w(x) dx = \sum_{k=1}^N w_k f(x_k)
+\end{equation*}
+\end{block}
+
+~
+
+We use the points $x_k$ as our collocation points.
+The weight function $w(x)$ is used in the weighted inner product
+$
+\inner{\cdot}{\cdot}_w .
+$
+
+\end{frame}
+
+\begin{frame}
+
+\begin{description}
+\item[Gauss-Jacobi:] $w(x) = (1-x)^\alpha (1+x)^\beta$
+\item[Gauss-Legendre:] $w(x) = 1$
+\item[Chebyshev-Gauss:] $w(x) = \sqrt{1-x^2}$
+\end{description}
+
+~
+
+The corresponding polynomials are orthogonal both with respect to $\inner{\cdot}{\cdot}_w$ and the quadrature rule.
+%explain this more clearly in words
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{The BEST choice}
+
+\begin{block}{Chebyshev polynomials}
+\begin{equation*}
+T_n(x) = \cos \left ( n \arccos \left ( x \right ) \right )
+\end{equation*}
+\end{block}
+
+\begin{block}{Chebyshev-Gauss(-Lobatto) quadrature}
+\begin{equation*}
+\int_{-1}^1 f(x) \sqrt{1-x^2} dx = \sum_{k=0}^N w_k f \left ( \cos \left ( \frac{ k \pi}{N} \right ) \right )
+\end{equation*}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+
+So our trial functions are $T_n(x)$, the Chebyshev functions and our collocation points are $x_k = \cos \left ( \frac{k \pi}{N} \right )$, the Chebyshev points.
+
+% add the Cheb. diff mat to this slide
 
 \end{frame}
 

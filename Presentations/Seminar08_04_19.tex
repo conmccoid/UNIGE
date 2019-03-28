@@ -15,6 +15,10 @@
 \newcommand{\set}[1]{\left \{ #1 \right \}}
 \newcommand{\Set}[2]{\left \{ #1 \middle \vert #2 \right \}}
 
+\newcommand{\W}[2]{W \left ( #1 ; #2 \right )}
+\newcommand{\poly}[1]{\frac{x^{#1}}{(#1)!}}
+\newcommand{\Poly}[1]{\frac{x^#1}{#1!}}
+
 \newcommand{\inner}[2]{\left \langle #1, #2 \right \rangle}
 
 \title{Introduction to Spectral Collocation}
@@ -365,7 +369,7 @@ The corresponding polynomials are orthogonal both with respect to $\inner{\cdot}
 
 \begin{frame}
 
-\frametitle{The BEST choice}
+\frametitle{A good choice}
 
 \begin{block}{Chebyshev polynomials}
 \begin{equation*}
@@ -384,9 +388,141 @@ T_n(x) = \cos \left ( n \arccos \left ( x \right ) \right )
 \begin{frame}
 
 So our trial functions are $T_n(x)$, the Chebyshev functions and our collocation points are $x_k = \cos \left ( \frac{k \pi}{N} \right )$, the Chebyshev points.
+The differentiation matrix $D_N$ is then:
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{ChebDiffMat.pdf}
+\end{figure}
 
-% add the Cheb. diff mat to this slide
+% point out each element is defined explicitly
+\end{frame}
 
+\begin{frame}
+$u''(x) - u(x) = \cos(\pi x / 2)$, $u(\pm 1) = 0$, $u(x) = -\cos(\pi x/2) / ( (\pi/2)^2 + 1)$
+\begin{figure}
+\includegraphics[width=\textwidth]{example_seminar1.png}
+\end{figure}
+% comparison of collocation v finite diff solving a linear ode
+% point out (by drawing on board) the error behaviour: spectral convergence of approximation, linear increase of round-off error
+\end{frame}
+
+% we want to reduce this round-off error by eliminating the need to perform a matrix system solve
+% that is, we want to find the inverse of the matrix LN
+
+\begin{frame}
+\frametitle{$L_N L_N^{-1} = I$}
+Let $R_j$ be the $j$--th column of $L_N^{-1}$.
+% this column is a vector of N+1 values, just like the vectors uN and fN, which represent functions
+% so we can think of Rj as a function
+\begin{equation*}
+\mathcal{L} R_j(x_i) = \begin{cases} 1 & i = j \\ 0 & i \neq j \end{cases}
+\end{equation*}
+% there's also a number of boundary conditions we need to consider, but for now we'll ignore them
+% There's also the question of the rows we removed to make LN invertible
+% we'll use this ansatz to find Rj(x)
+\begin{equation*}
+R_j(x) = \sum_{k=1}^m G_{k,j}(x) P_k(x)
+\end{equation*}
+where $\mathcal{L} P_k(x) = 0$.
+\end{frame}
+
+\begin{frame}
+% to find what both G and P need to be, we use variation of parameters
+\begin{block}{Variation of parameters}
+\begin{equation*}
+\sum_{k=1}^m G_{k,j}'(x) P_k^{(n)}(x) = 0, \quad n = 0,...,m-2
+\end{equation*}
+\end{block}
+% do the steps between these two lines on the board?
+\begin{equation*}
+\implies \mathcal{L} R_j(x) = \sum_{k=1}^m G_{k,j}'(x) P_k^{(m-1)}(x)
+\end{equation*}
+% evaluating this at a point xi we need this to be zero unless i equals j
+\end{frame}
+
+\begin{frame}
+% so we need these conditions on G
+\begin{equation*}
+\implies G_{k,j}'(x_i) = \begin{cases} \beta_{k,j} & i = j \\ 0 & i \neq j \end{cases}
+\end{equation*}
+% then we need the beta coefficients to satisfy these conditions
+\begin{equation*}
+\implies \sum_{k=1}^m \beta_{k,j} P_k^{(n)}(x_j) = \begin{cases} 1 & n = m-1 \\ 0 & n = 0,...,m-1 \end{cases}
+\end{equation*}
+% which may be represented by the system
+\begin{equation*}
+\implies \begin{bmatrix} P_1(x_j) & \dots & P_m(x_j) \\ \vdots & & \vdots \\ P_1^{(m-1)}(x_j) & \dots & P_m^{(m-1)}(x_j) \end{bmatrix} \begin{bmatrix} \beta_{1,j} \\ \vdots \\ \beta_{m,j} \end{bmatrix} = \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
+\end{equation*}
+% the conditons on G we know how to satisfy, though I won't go into the details
+% one thing to note though is that there is one point for each Gkj that cannot be made to satisfy these conditions
+% these points come from the row removal and form a set V
+\end{frame}
+
+\begin{frame}
+% so for each Gkj there is a point vk where Gkj' is nonzero but should be
+% to make sure all the right conditions are still satisfied, we need the functions Pk to satisfy
+\begin{equation*}
+P_k^{(n)}(v_k) = \begin{cases} 1 & n = 1 \\ 0 & n = 0,...,m-2 \end{cases}
+\end{equation*}
+% so we need a specific set of homogeneous solutions to the linear operator
+% suppose we don't have this set but we do have another, then we can construct this set by taking a linear combination
+\begin{equation*}
+P_k(x) = \sum_{n=1}^m \gamma_{k,n} \hat{P}_n(x)
+\end{equation*}
+% then the conditions on Pk and the form it takes gives us a nearly identical system to the one for beta
+\begin{equation*}
+\implies \begin{bmatrix} \hat{P}_1(v_k) & \dots & \hat{P}_m(v_k) \\ \vdots & & \vdots \\ \hat{P}_1^{(m-1)}(v_k) & \dots & \hat{P}_m^{(m-1)}(v_k) \end{bmatrix} \begin{bmatrix} \gamma_{k,1} \\ \vdots \\ \gamma_{k,m} \end{bmatrix} = \begin{bmatrix} 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}
+\end{equation*}
+\end{frame}
+
+\begin{frame}
+% the matrices of these systems are special, and are called fundamental matrices
+\begin{block}{Fundamental matrix and Wronskian}
+\begin{equation*}
+\det \left ( \begin{bmatrix} f_1(x) & \dots & f_m(x) \\ \vdots & & \vdots \\ f_1^{(m-1)}(x) & \dots & f_m^{(m-1)}(x) \end{bmatrix} \right ) = \W{\set{f_k}_{k=1}^m}{x}
+\end{equation*}
+\end{block}
+% we can use Cramer's rule to get the values of gamma and beta
+\begin{equation*}
+\implies \gamma_{k,n} = (-1)^{n+m} \frac{ \W{\set{\hat{P}_i}_{i \neq n}}{v_k} }{ \W{\set{\hat{P}_i}_{i=1}^m}{v_k} }
+\end{equation*}
+% generally the Wronskians are a challenge to compute, so this doesn't help us immediately
+\end{frame}
+
+\begin{frame}
+% note, however, that the fundamental matrix in P is a product of the fundamental matrix in hatP times the matrix of gamma coefficients
+\begin{align*}
+& \begin{bmatrix} P_1(x) & \dots & P_m(x) \\ \vdots & & \vdots \\ P_1^{(m-1)}(x) & \dots & P_m^{(m-1)}(x) \end{bmatrix} \\
+& = \begin{bmatrix} \hat{P}_1(x) & \dots & \hat{P}_m(x) \\ \vdots & & \vdots \\ \hat{P}_1^{(m-1)}(x) & \dots & \hat{P}_m^{(m-1)}(x) \end{bmatrix} \begin{bmatrix} \gamma_{1,1} & \dots & \gamma_{m,1} \\ \vdots & & \vdots \\ \gamma_{1,m} & \dots & \gamma_{m,m} \end{bmatrix}
+\end{align*}
+% (write this in a simplified form on the board: P beta = hatP Gamma beta = [0 ... 1] -> beta = Gamma^-1 hatP^-1 [0 ... 1]
+% so if we can find the Wronskian for the fundamental solution set we know then we can get it for the set we don't know very easily
+\end{frame}
+
+\begin{frame}
+% so when are the Wronskians easy to find? for constant coefficient linear operators
+\begin{block}{Constant coefficient linear operators}
+$\mathcal{L} u(x) = u^{(m)}(x) + \sum_{k=1}^m a_k u^{(m-k)}(x)$
+\end{block}
+% the fundamental solution set of these operators is polynomials times exponentials
+\begin{equation*}
+\hat{P}_{k,j}(x) = \Poly{j} e^{\lambda_k x}
+\end{equation*}
+where $\lambda_k$ is a root with multiplicity $m_k$ ($\sum m_k = m$) of the polynomial with coefficients $a_k$ and $j = 0,...,m_k-1$.
+\end{frame}
+
+% the fundamental matrix for such a set has a very specific form (draw on board, incl. the matrix Omega and the pieces Fk(x))
+% the inverses of the Fk(x) must be upper triangular and toeplitz since Fk(x) are
+% then we only need the last column of Fk(x)^-1 to get all of it, and for that we only need the Wronskians of consecutive polynomials (present without proof)
+% so to get the inverse(s) of hatP we need only the following procedure (on board)
+
+% for the boundary conditions we add constants to Gkj, which doesn't change any of our results since they depend only on Gkj'
+% then we solve for these constants in a brute force fashion to get Rj to satisfy the BCs
+
+\begin{frame}
+$u''(x) - u(x) = \cos(\pi x / 2)$, $u(\pm 1) = 0$, $u(x) = -\cos(\pi x/2) / ( (\pi/2)^2 + 1)$
+\begin{figure}
+\includegraphics[width=\textwidth]{example_seminar2.png}
+\end{figure}
 \end{frame}
 
 \end{document}

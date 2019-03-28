@@ -70,7 +70,7 @@ for i = 1:N
     ind = 0;
     for k = 1:M
         indk = 1:mk(k);
-        W(ind+indk,i) = exp(-y(k)*xx(i,2)) * (Im(indk,indk).*F(indk,indk)) * z(ind+indk');
+        W(ind+indk,i) = exp(-y(k)*T(i,2)) * (Im(indk,indk).*F(indk,indk)) * z(ind+indk');
         ind = ind + mk(k);
     end
     if i==1

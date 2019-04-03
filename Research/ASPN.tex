@@ -514,6 +514,8 @@ C(\gamma) = \frac{ G(\gamma) - \gamma}{\sqrt{\abs{\gamma - \gamma^*}}} .
 \end{equation*}
 While it is ideal that this function is strictly monotonic, this cannot be guaranteed.
 
+\section{Period doubling in RASPEN (or RASPEN-like methods)}
+
 Take as a counterexample the following differential equation:
 \begin{equation*}
 u''(x) - \sin(3.6 u(x)) = 0 .
@@ -540,9 +542,9 @@ Due to the symmetry of the function $G(\gamma)$, this creates at least two 2-cyc
 One of these 2-cycles is stable, and taking $\gamma_0 = 1.6$ (or somewhere nearby) the Newton-Raphson preconditioning will cause the iterations to converge to this cycle.
 
 Indeed, the differential equation
-\begin{equation*}
+\begin{equation} \label{eq:sin}
 u''(x) - \sin \left ( a u(x) \right ) = 0
-\end{equation*}
+\end{equation}
 admits a period doubling set of cycles in the parameter $a$ for the domain $[-1,1]$, $\alpha = -\beta = -0.2$ and $\gamma_0 = \pm 1.6$.
 The bifurcation diagram is shown in figure \ref{fig:bifurc}.
 The red points displayed result from choosing $\gamma_0 = -1.6$, while the black points from choosing $\gamma_0 = 1.6$.
@@ -560,6 +562,96 @@ The first bifurcation point is the separation of the 2-cycle into two separate 2
 After this, the bifurcation proceeds normally.}
 \label{fig:bifurc}
 \end{figure}
+
+\subsection{Wellposedness}
+
+\begin{lemma}[Wellposedness]
+Equation \ref{eq:sin} with homogeneous boundary conditions on the domain $[-1,1]$ is well-posed for $u \in C^2[-1,1]$ and real-valued.
+\end{lemma}
+
+\begin{proof}
+Firstly we prove that any solution $u(x)$ to the equation lies between $1$ and $-1$.
+First note that $\abs{u''(x)} \leq 1$ since $u''(x) = \sin(au(x))$.
+Suppose there is a point $\hat{x}$ such that $u(\hat{x}) = 1$.
+Then by the mean value theorem there exist $c_1 \in [-1,\hat{x})$ and $c_2 \in (\hat{x}, 1]$ such that
+$u'(c_1) = 1 / (\hat{x} + 1)$
+and
+$u'(c_2) = -1 / (1 - \hat{x})$.
+By the same theorem there exists $c_3 \in (c_1,c_2)$ such that
+$u''(c_3) = (u'(c_2) - u'(c_1)) / (c_2 - c_1)$.
+That is
+\begin{align*}
+u''(c_3) & = \frac{ -\frac{1}{1 - \hat{x}} - \frac{1}{\hat{x}+1} }{c_2 - c_1}
+		  = \frac{ -\frac{ \hat{x} - 1 + \hat{x} - 1}{(1+\hat{x})(1-\hat{x})} }{c_2 - c_1}
+		  = \frac{ \frac{-2}{1 - \hat{x}^2} }{c_2 - c_1} \\
+		 & \leq \frac{ \frac{-2}{1 - \hat{x}^2} }{2} = \frac{-1}{1 - \hat{x}^2} \leq -1
+\end{align*}
+which contradicts $\abs{u''(x)} \leq 1$ and so $u(x) < 1$.
+Similarly, $u(x) > -1$.
+
+Secondly we prove that $u(x) = 0$ is the only solution lying between $1$ and $-1$.
+Since the value of $u(x)$ is less than one in magnitude for all values of $x \in [-1,1]$ we may write
+\begin{equation*}
+u(x) = \epsilon u_1(x) + \epsilon^2 u_2(x) + \epsilon^3 u_3(x) + \dots
+\end{equation*}
+for some $0 < \epsilon < 1$ such that $-1 \leq u_i(x) \leq 1$ for all $x \in [-1,1]$.
+Then one may expand $\sin(au(x))$ into a Taylor series:
+\begin{align*}
+\sin(au(x)) & = au(x) - a^3 u^3(x) / 6 + \dots \\
+			& = \epsilon a u_1(x) + \epsilon^2 a u_2(x) + \epsilon^3 a u_3(x) - \epsilon^3 a^3 u_1^3(x)/6 + \dots
+\end{align*}
+The equation in $\order{\epsilon}$ is:
+\begin{equation*}
+u_1''(x) - au_1(x) = 0
+\end{equation*}
+which, combined with the homogeneous boundary conditions, has the unique solution $u_1(x) = 0$.
+The same is true of $u_2(x)$ in solving the equation in $\order{\epsilon^2}$.
+For $\order{\epsilon^3}$, given that $u_1(x) = 0$ we have the same equation for $u_3(x)$, so that $u_3(x) = 0$ as well.
+One may continue this for all orders of $\epsilon$.
+Therefore, $u(x) = 0$.
+% does the presence of $a$ change the result?
+\end{proof}
+
+\subsection{Changing overlap}
+
+The overlap affects the position and length of the interval in $a$ where the bifurcation occurs.
+For $\alpha = -\beta = -0.1$, the interval is roughly $[2.25,2.4]$ with $\gamma_0 = \pm 2$.
+For $\alpha = -\beta = -0.4$, the interval is roughly $[9.10,9.155]$ with $\gamma_0 = \pm 1.45$.
+
+The bifurcation becomes smaller the larger the overlap, as may be seen when comparing figures \ref{fig:overlap1} and \ref{fig:overlap2}.
+Note that we may not have chosen $\gamma_0$ such that we land within a cycle for all values of $a$, $\alpha$ and $\beta$.
+As such, the exact length of each bifurcation diagram here is only an estimate, though the distance between each bifurcation should be indicative of their sizes.
+
+For exampe, for $\alpha = -\beta = -0.1$ we estimate the distance between the 4-cycle and the 8-cycle as approximately 0.03.
+For $\alpha = -\beta = -0.2$ this value is roughly 0.07 and for $\alpha = -\beta = -0.4$ it is roughly 0.018.
+The dependence of these distances on the size of the overlap is then nonlinear.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{bifurcation_overlap1.png}
+\caption{Bifurcation diagram with $\alpha = -\beta = -0.1$ and $\gamma_0 = \pm 2$.}
+\label{fig:overlap1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{bifurcation_overlap2.png}
+\caption{Bifurcation diagram with $\alpha = -\beta = -0.4$ and $\gamma_0 = \pm 1.45$.}
+\label{fig:overlap2}
+\end{figure}
+
+\subsection{Robin transmission conditions}
+
+We may change to Robin transmission conditions and find the same period doubling bifurcation pattern, albeit on a smaller scale.
+Replace the Dirichlet transmission conditions ($u_1(\beta) = \gamma_n$, $u_2(\alpha) = u_1(\alpha)$) with the optimal Robin transmission conditions ($u_1'(\beta) + p u_1(\beta) = \gamma_n$, $u_2'(\alpha) - p u_2(\alpha) = u_1'(\alpha) - p u_1'(\alpha)$).
+The bifurcation for $p=1$ and $\alpha = -\beta = -0.2$ may be seen in figure \ref{fig:Robin}.
+The initial guesses are $\gamma_0 = \pm 3.1$.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{bifurcation_Robin.png}
+\caption{Bifurcation diagram using Robin transmission conditions with $p=1$, $\alpha = -\beta = -0.2$ and $\gamma_0 = \pm 3.1$.}
+\label{fig:Robin}
+\end{figure}
+
+\subsection{2D version}
 
 \section{Proposed algorithm}
 \label{sec:algo}

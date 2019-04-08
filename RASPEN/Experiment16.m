@@ -8,10 +8,10 @@
 % 4-cycles: 3.72
 % 8-cycles: 3.731
 %    Chaos: 3.735
-C = 1;  a = 21;
+C = 1;  a = 33.755;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
-P = 1;
+P = 2;
 
 % Grid
 nx = 21;
@@ -47,8 +47,8 @@ a1 = 0; b1 = 1;
 a2 = 0; b2 = 1;
 c1 = 0; d1 = 1; BCb = [-c1*dx, d1, c1*dx];
 c2 = 0; d2 = 1; BCa = [-c2*dx, d2, c2*dx];
-BCL= zeros(1,nx-2);
-BCR= zeros(1,nx-2);
+BCL= zeros(1,nx);
+BCR= zeros(1,nx);
 
 % Jacobian BCs
 J1BC = sparse([1,1,1,2,2,2],[1,2,3,l1-2,l1-1,l1],...
@@ -60,25 +60,26 @@ D2 = [J2BC(1,:) ; D2(2:end-1,:) ; J2BC(2,:)];
 DD = [II(1,:)   ; DD(2:end-1,:) ; II(end,:)];
 
 % Laplacian
-Lap1 = kron(IIint,D1) + kron(DD,I1int) + kron(II-IIint,I1-I1int);
-Lap2 = kron(IIint,D2) + kron(DD,I2int) + kron(II-IIint,I2-I2int);
-ind1x= kron(IIint,I1-I1int) * ones(nx*l1,1) == 1;
-ind1y= (kron(II-IIint,I1int) + kron(II-IIint,I1-I1int)) * ones(nx*l1,1) == 1;
-ind2x= kron(IIint,I2-I2int) * ones(nx*l2,1) == 1;
-ind2y= (kron(II-IIint,I2int) + kron(II-IIint,I1-I2int)) * ones(nx*l2,1) == 1;
+Lap1 = kron(II,D1) + kron(DD,I1int);
+Lap2 = kron(II,D2) + kron(DD,I2int);
+ind1x= kron(II,I1-I1int)   * ones(nx*l1,1) == 1;
+ind1y= kron(II-IIint,I1int)* ones(nx*l1,1) == 1;
+ind2x= kron(II,I2-I2int)   * ones(nx*l2,1) == 1;
+ind2y= kron(II-IIint,I2int)* ones(nx*l2,1) == 1;
 
 % Initialization
 tol = 1e-8;
 itermax = P+1;
-L = 1; N = 201;
+fx= 1-x'.^2;
+L = 5/norm(fx); N = 201;
 testu2 = linspace(-L,L,N);
-G = zeros(N,nx-2);
+G = zeros(N,1);
 Gp= G;
 itersaveNewton= G;
 itersaveReg   = G;
 nonlinsolves  =10;
 for k = 1:N
-    u2b    = testu2(k)*ones(1,nx-2);
+    u2b    = testu2(k)*fx;
     u2bold = u2b;
     error  = 1;
     iter   = 1;
@@ -93,11 +94,11 @@ for k = 1:N
             J1 = Lap1 - spdiags(J1,0,l1*nx,l1*nx);
             F1 = Lap1*u1(:) - F(u1(:));
             F1(ind1y) = 0;
-            BCx1 = J1BC * u1(:,2:end-1) - [ BCL ; u2b ];
+            BCx1 = J1BC * u1 - [ BCL ; u2b ];
             F1(ind1x) = BCx1(:);
             u1(:) = u1(:) - J1 \ F1;
         end
-        u1a= BCa * u1(abs(x1-a)<=(h+2*eps),2:end-1);
+        u1a= BCa * u1(abs(x1-a)<=(h+2*eps),:);
         
         % Step 2: solve u in second domain
         for i = 1:nonlinsolves
@@ -106,31 +107,31 @@ for k = 1:N
             J2 = Lap2 - spdiags(J2,0,l2*nx,l2*nx);
             F2 = Lap2*u2(:) - F(u2(:));
             F2(ind2y) = 0;
-            BCx2 = J2BC * u2(:,2:end-1) - [ u1a ; BCR ];
+            BCx2 = J2BC * u2 - [ u1a ; BCR ];
             F2(ind2x) = BCx2(:);
             u2(:) = u2(:) - J2 \ F2;
         end
-        u2b = BCb * u2(abs(x2-b)<=(h+2*eps),2:end-1);
+        u2b = BCb * u2(abs(x2-b)<=(h+2*eps),:);
 
         % Preconditioning with Newton
         % Step 3: solve g in first domain
         dF1= Fp(u1(:)); dF1(ind1x) = 0; dF1(ind1y) = 0;
         dF1= Lap1 - spdiags(dF1,0,l1*nx,l1*nx);
         g1(:) = dF1 \ kron([0 ; ones(nx-2,1) ; 0],[ zeros(l1-1,1); 1]);
-        g1a= BCa * g1(abs(x1-a)<=(h+2*eps),2:end-1);
+        g1a= BCa * g1(abs(x1-a)<=(h+2*eps),:);
 
         % Step 4: solve g in second domain
         dF2= Fp(u2(:)); dF2(ind2x) = 0; dF2(ind2y) = 0;
         dF2= Lap2 - spdiags(dF2,0,l2*nx,l2*nx);
         g2(:) = dF2 \ kron([0 ; ones(nx-2,1) ; 0],[ 1; zeros(l2-1,1)]);
-        g2b= BCb * g2(abs(x2-b)<=(h+2*eps),2:end-1); g2b = g2b .* g1a;
+        g2b= BCb * g2(abs(x2-b)<=(h+2*eps),:); g2b = g2b .* g1a;
 
         % Step 5: update u2b
         u2b = u2bold - (u2b - u2bold)./(g2b - 1);
         u2bold= u2b;
         
         if iter==P
-            Gp(k,:) = u2b;
+            Gp(k) = norm(u2b);
         end
 
         error = norm(u2b - u2bold);
@@ -149,7 +150,7 @@ end
 
 % k=0;
 for k = 1:N
-    u2b    = testu2(k)*ones(1,nx-2);
+    u2b    = testu2(k)*fx;
     u2bold = u2b;
     error  = 1;
     iter   = 1;
@@ -164,11 +165,11 @@ for k = 1:N
             J1 = Lap1 - spdiags(J1,0,l1*nx,l1*nx);
             F1 = Lap1*u1(:) - F(u1(:));
             F1(ind1y) = 0;
-            BCx1 = J1BC * u1(:,2:end-1) - [ BCL ; u2b ];
+            BCx1 = J1BC * u1 - [ BCL ; u2b ];
             F1(ind1x) = BCx1(:);
             u1(:) = u1(:) - J1 \ F1;
         end
-        u1a= BCa * u1(abs(x1-a)<=(h+2*eps),2:end-1);
+        u1a= BCa * u1(abs(x1-a)<=(h+2*eps),:);
         
         % Step 2: solve u in second domain
         for i = 1:nonlinsolves
@@ -177,14 +178,14 @@ for k = 1:N
             J2 = Lap2 - spdiags(J2,0,l2*nx,l2*nx);
             F2 = Lap2*u2(:) - F(u2(:));
             F2(ind2y) = 0;
-            BCx2 = J2BC * u2(:,2:end-1) - [ u1a ; BCR ];
+            BCx2 = J2BC * u2 - [ u1a ; BCR ];
             F2(ind2x) = BCx2(:);
             u2(:) = u2(:) - J2 \ F2;
         end
-        u2b = BCb * u2(abs(x2-b)<=(h+2*eps),2:end-1);
+        u2b = BCb * u2(abs(x2-b)<=(h+2*eps),:);
         
         if iter==1
-            G(k,:) = u2b;
+            G(k) = norm(u2b);
         end
 
         error = norm(u2b - u2bold);
@@ -202,6 +203,7 @@ for k = 1:N
 end
 
 %%
+L  = norm(fx) * L;
 yy = linspace(-L,L,101);
 % C  = -10:1:10;
 % yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
@@ -216,7 +218,8 @@ yy = linspace(-L,L,101);
 % set(gca,'fontsize',26,'linewidth',2)
 
 figure(2)
-plot(testu2,G(:,round(nx/2)-1),'r.',testu2,Gp(:,round(nx/2)-1),'k.',yy,yy,yy,-yy,'linewidth',2)
+% plot(testu2,G(:,round(nx/2)-1),'r.',testu2,Gp(:,round(nx/2)-1),'k.',yy,yy,yy,-yy,'linewidth',2)
+plot(testu2*norm(fx),G,'r.',testu2*norm(fx),Gp,'k.',yy,yy,yy,-yy,'linewidth',2)
 xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('FP','NR')

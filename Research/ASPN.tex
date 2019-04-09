@@ -653,6 +653,50 @@ The initial guesses are $\gamma_0 = \pm 3.1$.
 
 \subsection{2D version}
 
+We set up the following problem in 2D:
+\begin{equation*}
+\Delta u - \sin(au) = 0
+\end{equation*}
+on the square $[-1,1] \times [-1,1]$ with homogeneous Dirichlet boundary conditions on all sides.
+The function $G(\gamma)$ is now a function acting on the space of functions over $[-1,1]$ and returns an element of the same.
+In the discrete version, $G(\gamma)$ takes a vector and returns a vector of the same size.
+We are now concerned with where $\norm{G(\gamma) - \gamma^*} \leq \norm{\gamma - \gamma^*}$.
+
+A cursory search for values of $a$ that will produce cycles results in figure \ref{fig:Lap1} with $a = 33.8$.
+Note that the initial guess is now a function, and we use $\gamma_0 = \tilde{\gamma}_0 (1 - x^2)$.
+As it is impossible to present the fixed point function as the high dimensional object it is, figure \ref{fig:Lap1} shows the norm of $N(\gamma)$ as a function of $\tilde{\gamma}_0$.
+
+There are clearly regions where $N(\gamma)$ is farther from the fixed point than $\gamma$.
+However, tests of these regions show that the iterations there do not result in period doubling but instead are a random mixture of divergent, convergent and chaotic behaviour.
+For example, $a = 33.755$ has a chaotic behaviour when $\tilde{\gamma}_0 = 1.8$, but a perturbation on the order of machine epsilon to this value of $a$ has convergent behaviour.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{exp16_01.png}
+\caption{The norm of $G(\gamma)$ and $N(\gamma)$ using $\gamma_0 = \tilde{\gamma}_0 (1 - x^2)$, plotted against the norm of $\gamma_0$.}
+\label{fig:Lap1}
+\end{figure}
+
+We remove the $y$--derivatives from the equation and repeat the experiments.
+The search for values of $a$ yields figure \ref{fig:2Dsearch}.
+For this figure $\alpha = -\beta = -0.2$ and there are 21 points in both the $x$-- and $y$--directions.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{exp16_02.png}
+\caption{}
+\label{fig:2Dsearch}
+\end{figure}
+
+Using $\gamma_0 = \pm 8 (1-x^2) / \norm{1 - x^2}$ we find the bifurcation diagram shown in figure \ref{fig:2Dbifurc}.
+Note also that $\alpha = -\beta = -0.2$ and there are 51 points in both the $x$-- and $y$--directions.
+The number of points affects the requisite $\gamma_0$ for bifurcation but not its overall shape, it appears.
+We note that the interval of bifurcation is roughly the same as that for the 1D case, suggesting a connection.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{exp15_02.png}
+\caption{}
+\label{fig:2Dbifurc}
+\end{figure}
+
 \section{Proposed algorithm}
 \label{sec:algo}
 

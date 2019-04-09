@@ -5,8 +5,12 @@
 
 %% Bifurcation diagram
 
+clf
+figure(1)
+
 % Grid
-nx = 21;
+% nx = 21;
+nx = 51;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -30,7 +34,7 @@ D2 = dx^2 * [ D2, -2*D2, D2 ];
 D2 = spdiags(D2,[-1,0,1],l2,l2);
 
 II = speye(nx); IIint = II; IIint(1) = 0; IIint(end) = 0;
-DD = ones(nx,1);
+DD = zeros(nx,1); % removed y derivatives
 DD = dx^2 * [ DD, -2*DD, DD ];
 DD = spdiags(DD,[-1,0,1],nx,nx);
 
@@ -60,9 +64,9 @@ ind2x= kron(II,I2-I2int)   * ones(nx*l2,1) == 1;
 ind2y= kron(II-IIint,I2int)* ones(nx*l2,1) == 1;
 
 % Plotting bifurcation region
-strpt = 33.753;
-endpt = 33.755;
-res   = 0.002;
+strpt = 3.5;
+endpt = 3.8;
+res   = 0.01;
 % strpt = 9.10;
 % endpt = 9.155;
 % res   = 0.001;
@@ -71,6 +75,7 @@ fx  = 1-x'.^2;
 ind = round((endpt - strpt) / res);
 gam = zeros(ind,64);
 nonlinsolves = 10;
+stab= 50;
 
 for k = 1:ind
     C = strpt + k*res;
@@ -79,10 +84,79 @@ for k = 1:ind
     
     u1 = zeros(l1,nx); g1 = u1;
     u2 = zeros(l2,nx); g2 = u2;
-    u2b= 1.8 * fx;
-%     u2b= 1.45;
+    u2b= 8 * fx/norm(fx);
     u2bold = u2b;
-    for iter = 1:(50+64+8)
+    for iter = 1:(stab+64)
+        % Step 1: solve u in first domain
+        for i = 1:nonlinsolves
+            J1 = Fp(u1(:));
+            J1(ind1x) = 0; J1(ind1y) = 0;
+            J1 = Lap1 - spdiags(J1,0,l1*nx,l1*nx);
+            F1 = Lap1*u1(:) - F(u1(:));
+            F1(ind1y) = 0;
+            BCx1 = J1BC * u1 - [ BCL ; u2b ];
+            F1(ind1x) = BCx1(:);
+            u1(:) = u1(:) - J1 \ F1;
+        end
+        u1a= BCa * u1(abs(x1-a)<=(h+2*eps),:);
+        
+        % Step 2: solve u in second domain
+        for i = 1:nonlinsolves
+            J2 = Fp(u2(:));
+            J2(ind2x) = 0; J2(ind2y) = 0;
+            J2 = Lap2 - spdiags(J2,0,l2*nx,l2*nx);
+            F2 = Lap2*u2(:) - F(u2(:));
+            F2(ind2y) = 0;
+            BCx2 = J2BC * u2 - [ u1a ; BCR ];
+            F2(ind2x) = BCx2(:);
+            u2(:) = u2(:) - J2 \ F2;
+        end
+        u2b = BCb * u2(abs(x2-b)<=(h+2*eps),:);
+        
+        surf(x1,x,u1')
+        pause(0.1)
+
+        % Preconditioning with Newton
+        % Step 3: solve g in first domain
+        dF1= Fp(u1(:)); dF1(ind1x) = 0; dF1(ind1y) = 0;
+        dF1= Lap1 - spdiags(dF1,0,l1*nx,l1*nx);
+        g1(:) = dF1 \ kron([0 ; ones(nx-2,1) ; 0],[ zeros(l1-1,1); 1]);
+        g1a= BCa * g1(abs(x1-a)<=(h+2*eps),:);
+
+        % Step 4: solve g in second domain
+        dF2= Fp(u2(:)); dF2(ind2x) = 0; dF2(ind2y) = 0;
+        dF2= Lap2 - spdiags(dF2,0,l2*nx,l2*nx);
+        g2(:) = dF2 \ kron([0 ; ones(nx-2,1) ; 0],[ 1; zeros(l2-1,1)]);
+        g2b= BCb * g2(abs(x2-b)<=(h+2*eps),:); g2b = g2b .* g1a;
+
+        % Step 5: update u2b
+        u2b = u2bold - (u2b - u2bold)./(g2b - 1);
+        u2bold= u2b;
+        
+        if iter > stab
+            gam(k,iter-stab) = sum(u2b);
+%             surf(x2,x,abs(u2'))
+%             title(num2str(C))
+%             pause(0.5)
+%             plot(x,u2b,'.--')
+%             hold on
+        end
+        
+    end
+end
+
+gam_neg = zeros(size(gam));
+
+for k = 1:ind
+    C = strpt + k*res;
+    F = @(x)   sin(C*x);
+    Fp= @(x) C*cos(C*x);
+    
+    u1 = zeros(l1,nx); g1 = u1;
+    u2 = zeros(l2,nx); g2 = u2;
+    u2b=-8 * fx/norm(fx);
+    u2bold = u2b;
+    for iter = 1:(stab+64)
         % Step 1: solve u in first domain
         for i = 1:nonlinsolves
             J1 = Fp(u1(:));
@@ -126,88 +200,21 @@ for k = 1:ind
         u2b = u2bold - (u2b - u2bold)./(g2b - 1);
         u2bold= u2b;
         
-        if iter > 50+32+16+8
-            gam(k,iter-50-32-16-8) = norm(u2b);
-            surf(x2,x,abs(u2'))
-            title(num2str(C))
-            pause(0.5)
-%             plot(x,u2b,'.--')
-%             hold on
+        if iter > 50
+            gam_neg(k,iter-stab) = sum(u2b);
         end
         
     end
 end
 
-% gam_neg = zeros(size(gam));
-% 
-% for k = 1:ind
-%     C = strpt + k*res;
-%     F = @(x)   sin(C*x);
-%     Fp= @(x) C*cos(C*x);
-%     
-%     u1 = zeros(l1,nx); g1 = u1;
-%     u2 = zeros(l2,nx); g2 = u2;
-%     u2b=-1.75 * fx;
-%     u2bold = u2b;
-%     for iter = 1:(50+64)
-%         % Step 1: solve u in first domain
-%         for i = 1:nonlinsolves
-%             J1 = Fp(u1(:));
-%             J1(ind1x) = 0; J1(ind1y) = 0;
-%             J1 = Lap1 - spdiags(J1,0,l1*nx,l1*nx);
-%             F1 = Lap1*u1(:) - F(u1(:));
-%             F1(ind1y) = 0;
-%             BCx1 = J1BC * u1 - [ BCL ; u2b ];
-%             F1(ind1x) = BCx1(:);
-%             u1(:) = u1(:) - J1 \ F1;
-%         end
-%         u1a= BCa * u1(abs(x1-a)<=(h+2*eps),:);
-%         
-%         % Step 2: solve u in second domain
-%         for i = 1:nonlinsolves
-%             J2 = Fp(u2(:));
-%             J2(ind2x) = 0; J2(ind2y) = 0;
-%             J2 = Lap2 - spdiags(J2,0,l2*nx,l2*nx);
-%             F2 = Lap2*u2(:) - F(u2(:));
-%             F2(ind2y) = 0;
-%             BCx2 = J2BC * u2 - [ u1a ; BCR ];
-%             F2(ind2x) = BCx2(:);
-%             u2(:) = u2(:) - J2 \ F2;
-%         end
-%         u2b = BCb * u2(abs(x2-b)<=(h+2*eps),:);
-% 
-%         % Preconditioning with Newton
-%         % Step 3: solve g in first domain
-%         dF1= Fp(u1(:)); dF1(ind1x) = 0; dF1(ind1y) = 0;
-%         dF1= Lap1 - spdiags(dF1,0,l1*nx,l1*nx);
-%         g1(:) = dF1 \ kron([0 ; ones(nx-2,1) ; 0],[ zeros(l1-1,1); 1]);
-%         g1a= BCa * g1(abs(x1-a)<=(h+2*eps),:);
-% 
-%         % Step 4: solve g in second domain
-%         dF2= Fp(u2(:)); dF2(ind2x) = 0; dF2(ind2y) = 0;
-%         dF2= Lap2 - spdiags(dF2,0,l2*nx,l2*nx);
-%         g2(:) = dF2 \ kron([0 ; ones(nx-2,1) ; 0],[ 1; zeros(l2-1,1)]);
-%         g2b= BCb * g2(abs(x2-b)<=(h+2*eps),:); g2b = g2b .* g1a;
-% 
-%         % Step 5: update u2b
-%         u2b = u2bold - (u2b - u2bold)./(g2b - 1);
-%         u2bold= u2b;
-%         
-%         if iter > 50
-%             gam_neg(k,iter-50) = norm(u2b);
-%         end
-%         
-%     end
-% end
-
 %%
 figure(2)
 aa = strpt + (1:ind)*res;
 % subplot(2,1,1)
-semilogy(aa,gam,'k.')%,aa,gam_neg,'r.')
+plot(aa,gam,'k.',aa,gam_neg,'r.')
 % axis([strpt,endpt,1.4,1.5])
 xlabel('a')
-ylabel('\gamma')
+ylabel('$$\Vert \gamma \Vert$$','interpreter','latex')
 set(gca,'fontsize',26,'linewidth',2)
 % 
 % subplot(2,1,2)

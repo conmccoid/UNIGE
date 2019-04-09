@@ -8,13 +8,13 @@
 % 4-cycles: 3.72
 % 8-cycles: 3.731
 %    Chaos: 3.735
-C = 1;  a = 33.755;
+C = 1;  a = 4;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
-P = 2;
+P = 1;
 
 % Grid
-nx = 21;
+nx = 51;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -38,7 +38,7 @@ D2 = dx^2 * [ D2, -2*D2, D2 ];
 D2 = spdiags(D2,[-1,0,1],l2,l2);
 
 II = speye(nx); IIint = II; IIint(1) = 0; IIint(end) = 0;
-DD = ones(nx,1);
+DD = zeros(nx,1); % removed y derivatives
 DD = dx^2 * [ DD, -2*DD, DD ];
 DD = spdiags(DD,[-1,0,1],nx,nx);
 
@@ -71,7 +71,7 @@ ind2y= kron(II-IIint,I2int)* ones(nx*l2,1) == 1;
 tol = 1e-8;
 itermax = P+1;
 fx= 1-x'.^2;
-L = 5/norm(fx); N = 201;
+L = 10/norm(fx); N = 1001;
 testu2 = linspace(-L,L,N);
 G = zeros(N,1);
 Gp= G;
@@ -220,8 +220,8 @@ yy = linspace(-L,L,101);
 figure(2)
 % plot(testu2,G(:,round(nx/2)-1),'r.',testu2,Gp(:,round(nx/2)-1),'k.',yy,yy,yy,-yy,'linewidth',2)
 plot(testu2*norm(fx),G,'r.',testu2*norm(fx),Gp,'k.',yy,yy,yy,-yy,'linewidth',2)
-xlabel('\gamma')
-ylabel('G(\gamma)')
+xlabel('$$\Vert \gamma \Vert$$','interpreter','latex')
+ylabel('$$\Vert G(\gamma) \Vert$$','interpreter','latex')
 legend('FP','NR')
 axis([-L,L,-L,L])
 % axis([-1.8,-1.4,-1.8,-1.4])

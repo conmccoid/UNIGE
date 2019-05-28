@@ -4,6 +4,7 @@
 
 NN = round(logspace(log10(2),log10(1024),50));
 errm = zeros(size(NN));
+erri = errm;
 errL = errm;
 for k = 1:length(NN)
     N  = NN(k);

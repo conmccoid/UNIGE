@@ -44,6 +44,8 @@ end
 M = ind;
 y = y(1:M);
 mk=mk(1:M);
+[mk,ind] = sort(mk,'descend');
+y = y(ind);
 
 %---Pascal's Triangle and Polynomials---%
 PT = zeros(mk(1),mk(1)); PT(:,1) = ones(mk(1),1);

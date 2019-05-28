@@ -31,7 +31,7 @@ D2 = ones(l2,1);
 D2 = dx^2 * [ D2, -2*D2, D2 ];
 D2 = spdiags(D2,[-1,0,1],l2,l2);
 
-pert    = 1e-2;
+pert    = 1;
 epsilon = 1; %1e-3 gives period doubling
 II = speye(nx); IIint = II; IIint(1) = 0; IIint(end) = 0;
 DD = epsilon * ones(nx,1); % perturbed y derivatives
@@ -52,7 +52,8 @@ J1BC = sparse([1,1,1,2,2,2],[1,2,3,l1-2,l1-1,l1],...
 J2BC = sparse([1,1,1,2,2,2],[1,2,3,l2-2,l2-1,l2],...
     [-3*c2/(2*h) + d2,4*c2/(2*h),-c2/(2*h),a2/(2*h),-4*a2/(2*h),3*a2/(2*h)+b2],2,l2);
 DDBC = sparse([1,1,1,2,2,2],[1,2,3,nx-2,nx-1,nx],...
-    0.5 * dx * [-3, 4, -1, 1, -4, 3],2,nx);
+    0.5 * dx * [-3, 4, -1, 1, -4, 3],2,nx); % Neumann BCs in y
+% DDBC = [II(1,:) ; II(end,:)]; % Dirichlet BCs in y
 D1 = [J1BC(1,:) ; D1(2:end-1,:) ; J1BC(2,:)];
 D2 = [J2BC(1,:) ; D2(2:end-1,:) ; J2BC(2,:)];
 DD = [DDBC(1,:) ; DD(2:end-1,:) ; DDBC(2,:)];
@@ -66,14 +67,14 @@ ind2x= kron(IIint,I2-I2int)* ones(nx*l2,1) == 1;
 ind2y= kron(II-IIint,   I2)* ones(nx*l2,1) == 1;
 
 % Plotting bifurcation region
-strpt = 3;
-endpt = 4;
+strpt = 5.5;
+endpt = 6;
 res   = 0.01;
 % strpt = 9.10;
 % endpt = 9.155;
 % res   = 0.001;
 
-fx  = 1.65*ones(1,nx-2);
+fx  = 1.69*ones(1,nx-2); %1.65 for limiting behaviour
 ind = round((endpt - strpt) / res);
 gam = zeros(ind,64);
 nonlinsolves = 10;
@@ -84,8 +85,8 @@ for k = 1:ind
     F = @(x)   sin(C*x);
     Fp= @(x) C*cos(C*x);
     
-    u1 = zeros(l1,nx); g1 = zeros(l1,nx);
-    u2 = zeros(l2,nx); g2 = zeros(l2,nx);
+    u1 = zeros(l1,nx);
+    u2 = zeros(l2,nx);
     u2b= fx;
     u2bold = u2b;
     for iter = 1:(stab+64)
@@ -139,22 +140,11 @@ for k = 1:ind
     end
 end
 
-% gam_neg = zeros(size(gam));
-
 %%
-figure(2)
+figure(1)
 aa = strpt + (1:ind)*res;
-% subplot(2,1,1)
-plot(aa,gam,'k.')%,aa,gam_neg,'r.')
-% axis([strpt,endpt,1.4,1.5])
+plot(aa,gam,'k.')
 xlabel('a')
 ylabel('$$\Vert \gamma \Vert$$','interpreter','latex')
+title(['Perturbation = ', num2str(pert)])
 set(gca,'fontsize',26,'linewidth',2)
-% 
-% subplot(2,1,2)
-% plot(aa,gam,'k.',aa,gam_neg,'r.')
-% % axis([strpt,endpt,-1.75,-1.35])
-% axis([strpt,endpt,-1.5,-1.4])
-% xlabel('a')
-% ylabel('\gamma')
-% set(gca,'fontsize',26,'linewidth',2)

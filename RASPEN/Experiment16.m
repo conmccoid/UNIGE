@@ -8,7 +8,7 @@
 % 4-cycles: 3.72
 % 8-cycles: 3.731
 %    Chaos: 3.735
-C = 1;  a = 5;
+C = 1;  a = 3.6;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
 P = 1;
@@ -39,7 +39,7 @@ D2 = ones(l2,1);
 D2 = dx^2 * [ D2, -2*D2, D2 ];
 D2 = spdiags(D2,[-1,0,1],l2,l2);
 
-pert    = 1;
+pert    = 0;
 epsilon = 1; %1e-3 gives period doubling
 II = speye(nx); IIint = II; IIint(1) = 0; IIint(end) = 0;
 DD = epsilon * ones(nx,1); % perturbed y derivatives
@@ -59,8 +59,9 @@ J1BC = sparse([1,1,1,2,2,2],[1,2,3,l1-2,l1-1,l1],...
     [-3*a1/(2*h) + b1,4*a1/(2*h),-a1/(2*h),c1/(2*h),-4*c1/(2*h),3*c1/(2*h)+d1],2,l1);
 J2BC = sparse([1,1,1,2,2,2],[1,2,3,l2-2,l2-1,l2],...
     [-3*c2/(2*h) + d2,4*c2/(2*h),-c2/(2*h),a2/(2*h),-4*a2/(2*h),3*a2/(2*h)+b2],2,l2);
-DDBC = sparse([1,1,1,2,2,2],[1,2,3,nx-2,nx-1,nx],...
-    0.5 * dx * [-3, 4, -1, 1, -4, 3],2,nx);
+% DDBC = sparse([1,1,1,2,2,2],[1,2,3,nx-2,nx-1,nx],...
+%     0.5 * dx * [-3, 4, -1, 1, -4, 3],2,nx);
+DDBC = [II(1,:) ; II(end,:)];
 D1 = [J1BC(1,:) ; D1(2:end-1,:) ; J1BC(2,:)];
 D2 = [J2BC(1,:) ; D2(2:end-1,:) ; J2BC(2,:)];
 DD = [DDBC(1,:) ; DD(2:end-1,:) ; DDBC(2,:)];
@@ -209,8 +210,11 @@ for k = 1:N
         
 end
 
-%%
 L  = norm(fx) * L;
+testu2 = norm(fx) * testu2;
+root = mean(testu2(abs(testu2-G')<0.1));
+
+%%
 yy = linspace(-L,L,101);
 % C  = -10:1:10;
 % yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
@@ -226,7 +230,7 @@ yy = linspace(-L,L,101);
 
 figure(2)
 % plot(testu2,G(:,round(nx/2)-1),'r.',testu2,Gp(:,round(nx/2)-1),'k.',yy,yy,yy,-yy,'linewidth',2)
-plot(testu2,G,'r.',testu2,Gp,'k.',yy,yy,yy,-yy,'linewidth',2)
+plot(testu2,G,'r.',testu2,Gp,'k.',yy,yy,yy,2*root-yy,'linewidth',2)
 xlabel('$$\Vert \gamma \Vert$$','interpreter','latex')
 ylabel('$$\Vert G(\gamma) \Vert$$','interpreter','latex')
 legend('FP','NR')

@@ -62,8 +62,8 @@ x1 = x(x<=b); b = x1(end); l1 = length(x1);
 x2 = x(x>=a); a = x2(1);   l2 = length(x2);
 
 % Differentiation matrices
-I1 = eye(l1);
-I2 = eye(l2);
+I1 = speye(l1);
+I2 = speye(l2);
 
 D11= ones(l1,1)/(2*h);
 D11= [-D11 , zeros(l1,1) , D11];
@@ -158,7 +158,7 @@ xlabel('\gamma')
 ylabel('G(\gamma)')
 legend('G(\gamma)','NR')
 set(gca,'linewidth',2,'fontsize',26)
-
+%%
 C  = -10:0.5:10;
 yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
 

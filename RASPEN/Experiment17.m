@@ -1,10 +1,10 @@
-%% Experiment 13 - searching for a period doubling example
-% As part of a series of counterexamples, I am searching for a period
-% doubling bifurcation in the Newton-Raphson iterations of a nonlinear BVP
-% using alternating Schwarz and Dirichlet BCs.
+%% Experiment 17 - EV problem (or Fourier transform of 2D)
+% uxx - sin(au) - eta*u = 0, u(+-1) = 0
+% We are still exploring how 2D works in this framework. One thing to look
+% at is if we do a Fourier transform in the y-direction, do we get period
+% doubling for the resulting 1D EV problem?
 
-% So far no tested functions have displayed any kind of period doubling.
-% These include: exponentials, logarithms, polynomials, power functions
+
 
 %% Implementing test
 
@@ -13,10 +13,23 @@
 % 4-cycles: 3.72
 % 8-cycles: 3.731
 %    Chaos: 3.735
-C = 1;  a = 3.7;
+
+M = 21;
+eeta = linspace(-1,1,M);
+C = 1;  a = 5;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
 P = 1;
+
+% Initialization
+N = 1001;
+tol = 1e-8;
+itermax = P+1;
+G = zeros(M,N);
+Gp= G;
+L = 4;
+testu2 = linspace(-L,L,N);
+nonlinsolves = 10;
 
 % Grid
 nx = 1001;
@@ -30,17 +43,17 @@ x2 = x(x>=a); a = x2(1);
 l1 = length(x1); l2 = length(x2);
 
 % Diff. mat.
-X1 = [ [x1(2:end) ; 0], x1, [0 ; x1(1:end-1)] ];
-X2 = [ [x2(2:end) ; 0], x2, [0 ; x2(1:end-1)] ];
+for j = 1:M
+    eta = eeta(j);
 
-I1 = eye(l1);
+I1 = speye(l1);
 D1 = ones(l1,1);
 D1 = dx^2 * [ D1, -2*D1, D1 ];% - dx/2 * [ -D1, zeros(l1,1), D1 ].*X1;
-D1 = spdiags(D1,[-1,0,1],l1,l1);% + spdiags(ones(l1,1),0,l1,l1);
-I2 = eye(l2);
+D1 = spdiags(D1,[-1,0,1],l1,l1) + eta*I1;
+I2 = speye(l2);
 D2 = ones(l2,1);
 D2 = dx^2 * [ D2, -2*D2, D2 ];% - dx/2 * [ -D2, zeros(l2,1), D2 ].*X2;
-D2 = spdiags(D2,[-1,0,1],l2,l2);% + spdiags(ones(l2,1),0,l2,l2);
+D2 = spdiags(D2,[-1,0,1],l2,l2) + eta*I2;
 
 % BC parameters
 a1 = 0; b1 = 1;
@@ -56,20 +69,7 @@ J1BC = sparse([1,1,1,2,2,2],[1,2,3,l1-2,l1-1,l1],...
 J2BC = sparse([1,1,1,2,2,2],[1,2,3,l2-2,l2-1,l2],...
     [-3*c2/(2*h) + d2,4*c2/(2*h),-c2/(2*h),a2/(2*h),-4*a2/(2*h),3*a2/(2*h)+b2],2,l2);
 
-% Initialization
-N = 1001;
 k = 0;
-tol = 1e-8;
-itermax = P+1;
-G = zeros(1,N);
-Gp= G;
-itersaveNewton = G;
-itersaveReg = G;
-L = 4;
-testu2 = linspace(-L,L,N);
-% testu2 = linspace(-1.8,-1.4,1001);
-% testu2=0.03;
-nonlinsolves = 50;
 for u2b0 = testu2
 % u2b0 = 0;
     u2b    = u2b0;
@@ -118,19 +118,13 @@ for u2b0 = testu2
         u2b = u2bold - (u2b - u2bold)/(g2b - 1);
         
         if iter==P
-            Gp(k) = u2b;
+            Gp(j,k) = u2b;
         end
 
         error = abs(u2b - u2bold);
         u2bold= u2b;
         iter  = iter+1;
         
-    end
-    
-    if iter < itermax && error < tol
-        itersaveNewton(k) = iter;
-    else
-        itersaveNewton(k) = NaN;
     end
         
 end
@@ -168,7 +162,7 @@ for u2b0 = testu2
         u2b = BCb * u2(abs(x2-b)<=h);
         
         if iter==1
-            G(k) = u2b;
+            G(j,k) = u2b;
         end
 
         error = abs(u2b - u2bold);
@@ -176,34 +170,22 @@ for u2b0 = testu2
         iter  = iter+1;
         
     end
-    
-    if iter < itermax && error < tol
-        itersaveReg(k) = iter;
-    else
-        itersaveReg(k) = NaN;
-    end
         
 end
 
+end
+
 yy = linspace(-L,L,101);
-% C  = -10:1:10;
-% yC = bsxfun(@times,C',sqrt(abs(yy))); yC = bsxfun(@plus,yy,yC);
-% xC = bsxfun(@plus,C',yy);
-% 
-% figure(1)
-% plot(testu2,G,'r',testu2,Gp,'b',yy,yC,'k',yy,xC,'k','linewidth',2)
-% xlabel('\gamma')
-% ylabel('G(\gamma)')
-% legend('FP','NR')
-% % axis([-L,L,-L,L])
-% set(gca,'fontsize',26,'linewidth',2)
+
 %%
-figure(2)
-plot(testu2,G,'r.',testu2,Gp,'b.',yy,yy,'k--',yy,-yy,'k--','linewidth',2)
+figure(1)
+contourf(testu2,eeta,sign(testu2).*(Gp+testu2),[0,0])
 xlabel('\gamma')
-ylabel('G(\gamma)')
-legend('FP','NP')
-axis equal
-axis([-L,L,-L,L])
-% axis([-1.8,-1.4,-1.8,-1.4])
-set(gca,'fontsize',20,'linewidth',2)
+ylabel('\eta')
+title('ASPN')
+
+figure(2)
+contourf(testu2,eeta,G)
+xlabel('\gamma')
+ylabel('\eta')
+title('AS')

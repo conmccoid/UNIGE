@@ -130,6 +130,49 @@ The lines $f_C(x)$ must also incorporate the sign change for this method:
 f_C(x) = C \sign(x - x^*) \sqrt{\abs{x-x^*}} .
 \end{equation*}
 
+\subsection{Higher dimensions}
+
+Newton's method may be generalized to higher dimensions by replacing the derivative term with the Jacobian or total derivative, denoted here by $J_f(x)$.
+For $f(x)$ a vector field ($f:\bbr^n \to \bbr^n$) $J_f(x)$ is a matrix (of size $n \times n$).
+\begin{equation} \label{eq:NRgen}
+	x_{n+1} = x_n - J_f(x_n)^{-1} f(x_n)
+\end{equation}
+
+One is concerned with when $\norm{x_{n+1} - x^*} < \norm{x_n - x^*}$, as this is where the method converges unconditionally.
+Divergence occurs when the reverse inequality is true.
+Equality is then the boundary between these regions, as in the 1D case.
+As was done there we search for an equation that governs when such an equality occurs.
+
+Any vector with the same norm as $x_n - x^*$ is a rotation of $x_n - x^*$ around the origin.
+Thus, if $R$ is a rotation matrix ($R^\top R = I$) then
+\begin{align*}
+	x_{n+1} - x^* & = x_n - x^* - J_f(x_n)^{-1} f(x_n) \\
+				  & = R ( x_n - x^* ).
+\end{align*}
+Simplifying and isolating for $f(x_n)$ we arrive at:
+\begin{equation} \label{eq:NRgov}
+f(x_n) = J_f(x_n) (I - R) (x_n - x^*).
+\end{equation}
+If $f$ satisfies this equation for a point $x_n \in \bbr^n$ then that point is on the boundary between convergence and divergence.
+The existence of such a boundary permits (but does not guarantee) the existence of cycles.
+
+The equation is not readily solvable for general rotations.
+However, for $R = -I$ (the antipodal rotation) one can extend the result from 1D to higher dimensions.
+That is, the vector field:
+\begin{equation*}
+	f(x) = \begin{bmatrix}
+	\sqrt{\abs{x_1}} \\ \vdots \\ \sqrt{\abs{x_n}}
+	\end{bmatrix}
+\end{equation*}
+is one possible solution for $R = -I$.
+
+Note that any particular solution immediately defines a family of solutions.
+Let $f(x)$ be a solution to the governing equation \ref{eq:NRgov}.
+Then $A f(x)$ for any matrix $A \in \bbr^{n \times n}$ is also a solution:
+\begin{equation*}
+	J_{Af}(x_n) = A J_f(x_n) \implies Af(x_n) = J_{Af}(x_n) (I-R) (x_n - x^*).
+\end{equation*}
+
 \section{Newton-Raphson on a fixed point function}
 \label{sec:nrfp}
 
@@ -515,6 +558,7 @@ C(\gamma) = \frac{ G(\gamma) - \gamma}{\sqrt{\abs{\gamma - \gamma^*}}} .
 While it is ideal that this function is strictly monotonic, this cannot be guaranteed.
 
 \section{Period doubling in RASPEN (or RASPEN-like methods)}
+\label{sec:period}
 
 Take as a counterexample the following differential equation:
 \begin{equation*}
@@ -660,47 +704,74 @@ We set up the following problem in 2D:
 on the square $[-1,1] \times [-1,1]$ with homogeneous Dirichlet boundary conditions on all sides.
 The function $G(\gamma)$ is now a function acting on the space of functions over $[-1,1]$ and returns an element of the same.
 In the discrete version, $G(\gamma)$ takes a vector and returns a vector of the same size.
+Its derivative is therefore a Jacobian.
 We are now concerned with where $\norm{G(\gamma) - \gamma^*} \leq \norm{\gamma - \gamma^*}$.
 
-A cursory search for values of $a$ that will produce cycles results in figure \ref{fig:Lap1} with $a = 33.8$.
-Note that the initial guess is now a function, and we use $\gamma_0 = \tilde{\gamma}_0 (1 - x^2)$.
-As it is impossible to present the fixed point function as the high dimensional object it is, figure \ref{fig:Lap1} shows the norm of $N(\gamma)$ as a function of $\tilde{\gamma}_0$.
-
-There are clearly regions where $N(\gamma)$ is farther from the fixed point than $\gamma$.
-However, tests of these regions show that the iterations there do not result in period doubling but instead are a random mixture of divergent, convergent and chaotic behaviour.
-For example, $a = 33.755$ has a chaotic behaviour when $\tilde{\gamma}_0 = 1.8$, but a perturbation on the order of machine epsilon to this value of $a$ has convergent behaviour.
+Using $a=3.6$, which gave 2-cycles in the 1D case, and $\gamma_0$ equal to a constant function we arrive at figure \ref{fig:exp16_03}.
+The norm of both $G(\gamma)$ and $N(\gamma)$ do not approach the lines representing divergence of the method, meaning there are no cycles to be found for this value of $a$ or these choices of the $\gamma_0$ function.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{exp16_01.png}
-\caption{The norm of $G(\gamma)$ and $N(\gamma)$ using $\gamma_0 = \tilde{\gamma}_0 (1 - x^2)$, plotted against the norm of $\gamma_0$.}
-\label{fig:Lap1}
+	\includegraphics[width=\textwidth]{exp16_03.png}
+	\caption{}
+	\label{fig:exp16_03}
 \end{figure}
 
-We remove the $y$--derivatives from the equation and repeat the experiments.
-The search for values of $a$ yields figure \ref{fig:2Dsearch}.
-For this figure $\alpha = -\beta = -0.2$ and there are 21 points in both the $x$-- and $y$--directions.
+We note that there are two ways one may retrieve the 1D period doubling from this example.
+Firstly, one can dampen diffusivity in the $y$--direction:
+\begin{equation*}
+	u_{xx} + \epsilon u_{yy} - \sin(au) = 0.
+\end{equation*}
+Secondly, one may exchange the homogeneous Dirichlet boundary conditions in the $y$--direction for homogeneous or small-valued Neumann boundary conditions:
+\begin{equation*}
+u_y(x,\pm1) = \mu.
+\end{equation*}
+
+For either $\epsilon = 0$ or $\mu = 0$ one retrieves exactly the period doubling of the 1D case.
+However, small values of $\epsilon$ and $\mu$ will also have period doubling.
+Figures \ref{fig:exp15_04} and \ref{fig:exp15_06} show results for nonzero $\epsilon$ and $\mu$ that produce period doubling.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{exp16_02.png}
-\caption{}
-\label{fig:2Dsearch}
+	\includegraphics[width=\textwidth]{exp15_04.png}
+	\caption{$\epsilon = 1e-5$; the behaviour of the period doubling appears to have changed, though still appears between $a=3.5$ and 3.8.}
+	\label{fig:exp15_04}
 \end{figure}
 
-Using $\gamma_0 = \pm 8 (1-x^2) / \norm{1 - x^2}$ we find the bifurcation diagram shown in figure \ref{fig:2Dbifurc}.
-Note also that $\alpha = -\beta = -0.2$ and there are 51 points in both the $x$-- and $y$--directions.
-The number of points affects the requisite $\gamma_0$ for bifurcation but not its overall shape, it appears.
-We note that the interval of bifurcation is roughly the same as that for the 1D case, suggesting a connection.
+\begin{figure}
+	\includegraphics[width=\textwidth]{exp15_06.png}
+	\caption{$\mu = 0.1$; no major changes in the period doubling are observed. Note that the exact solution is no longer zero and so $\norm{\gamma}$ converges to a nonzero value outside of the period doubling region.}
+	\label{fig:exp15_06}
+\end{figure}
+
+It may be useful to prove that the undamped problem does not have any period doubling.
+That is, one needs to show that either the convergence region is all of the space or if there is a part that does not converge then it maps into a part that does converge.
+
+The 1D eigenvalue problem that results from a Fourier transform in the $y$--direction, ie.
+\begin{equation*}
+u_{xx} - \eta u - \sin(au) = 0
+\end{equation*}
+with homogeneous Dirichlet BCs, changes the behaviour of the period doubling.
+Keeping $a$ fixed, one finds that the maximum of the NR iteration (in absolute value) is proportional to $\eta$.
+That is, the larger $\eta$, the larger the jump of the iteration over the line $2\gamma^* - \gamma$.
+For $\eta$ negative, this jump does not occur.
+
+For sufficiently large $\eta$, the jump creates a singularity, ie. $G'(\gamma) = 1$ for some $\gamma$, and the iteration enters into region 1.
+This usually means guaranteed convergence for the method, as it shoots out the iteration to a point where convergence is guaranteed.
+That is, the cycle is not stable/attractive.
+
+Which values of $\eta$ provide which behaviour depends on $a$.
+A larger $a$ means stable cycles occur for smaller (more negative, not less magnitude) $\eta$.
+Ultimately this suggests that all values of $a$ have stable cycles for some waves but very few.
 
 \begin{figure}
-\includegraphics[width=\textwidth]{exp15_02.png}
-\caption{}
-\label{fig:2Dbifurc}
+\includegraphics[width=\textwidth]{exp17_01.png}
+\caption{White represents area where divergence is occurring, with parameters: $\alpha = -\beta = -0.2$, 21 points in each direction, $a = 5$.}
+\label{fig:exp17_01}
 \end{figure}
 
 \section{Proposed algorithm}
 \label{sec:algo}
 
-We have seen in the previous section that we cannot guarantee the monotonicity of $C(\gamma)$, nor the region of $G(\gamma)$ with general transmission conditions.
+We have seen in sections \ref{sec:appl} and \ref{sec:period} that we cannot guarantee the monotonicity of $C(\gamma)$, nor the region of $G(\gamma)$ with general transmission conditions.
 However, we have also shown that under certain assumptions we can ensure $G(\gamma)$ lies within region 2.
 With this in mind, one may construct an algorithm to take advantage of the many properties discussed.
 This incorporates Branin's corrections to the Newton-Raphson method as well as checks on various conditions on $G$ and $G'$.

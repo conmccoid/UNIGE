@@ -22,40 +22,29 @@ where $z \in [x,y] \subset [a,b]$.
 Thus the mapping contracts and by the contraction mapping theorem $x_n \to x^*$, the unique fixed point.
 \end{proof}
 
-The plane $\mathbb{R}^2$ may be divided into four regions for some $g(x)$ with respect to one of its fixed point $x^*$:
-\begin{description}
-\item[Region 1:] $g(x) < x < x^*$ or $g(x) > x > x^*$ ;
-\item[Region 2:] $x < g(x) < x^*$ or $x > g(x) > x^*$ ;
-\item[Region 3:] $x < x^* < g(x) < 2 x^* - x$ or $x > x^* > g(x) > 2 x^* - x$ ;
-\item[Region 4:] $x < x^* < 2 x^* - x < g(x)$ or $x > x^* > 2 x^* - x > g(x)$ .
-\end{description}
-The behaviour of the iteration $x_{n+1} = g(x_n)$ changes depending on which of these four regions $g(x_n)$ lies within.
-These behaviours are presented in the following lemma.
+The plane $\mathbb{R}^2$ may be divided into four regions for some $g(x)$ with respect to one of its fixed point $x^*$, depending on the behaviour $g(x)$ takes while in a given region.
+Chiefly, one is concerned with when $\abs{g(x) - x^*} < \abs{x - x^*}$, so that $g(x)$ is said to converge.
 
-\begin{lemma}
-Let regions 1 through 4 be defined as above for the function $g(x)$ and the fixed point $x^*$.
-Let $x_n \in \mathbb{R}$ be some starting value and $x_{n+1} = g(x_n)$.
-If $(x_n, g(x_n))$ lies within
-\begin{description}
-\item[region 1] then $\abs{x_{n+1} - x^*} > \abs{x_n - x^*}$ and $x_{n+1}$ lies on the same side of $x^*$ as $x_n$ ;
-\item[region 2] then $\abs{x_{n+1} - x^*} < \abs{x_n - x^*}$ and $x_{n+1}$ lies on the same side of $x^*$ as $x_n$ ;
-\item[region 3] then $\abs{x_{n+1} - x^*} < \abs{x_n - x^*}$ and $x_{n+1}$ lies on the opposite side of $x^*$ as $x_n$ ;
-\item[region 4] then $\abs{x_{n+1} - x^*} > \abs{x_n - x^*}$ and $x_{n+1}$ lies on the opposite side of $x^*$ as $x_n$ .
-\end{description}
-\end{lemma}
+A region where $g(x)$ converges is bounded by points satisfying $\abs{g(x) - x^*} = \abs{x - x^*}$.
+For such a boundary, either $g(x) - x^* = x - x^*$ or $g(x) - x^* = x^* - x$.
+The former indicates that the boundary consists of additional fixed points, $g(x) = x$.
+The latter gives the boundary $g(x) = 2x^* - x$.
+One may summarize that if $g(x)$ lies between the lines $x$ and $2x^* - x$ then $g(x)$ will be closer to the fixed point $x^*$ than $x$.
 
-\begin{proof}
-Without loss of generality let $x_n < x^*$.
-\begin{description}
-\item[Region 1:] $g(x_n) < x_n < x^*$ and so $x_{n+1} - x^* < x_n - x^* < 0$.
-\item[Region 2:] $x_n < g(x_n) < x^*$ and so $x_n - x^* < x_{n+1} - x^* < 0$.
-\item[Region 3:] $x_n < x^* < g(x_n) < 2 x^* - x_n$ and so $0 < x_{n+1} - x^* < x^* - x_n$.
-\item[Region 4:] $x_n < x^* < 2 x^* - x_n < g(x_n)$ and so $0 < x^* - x_n < x_{n+1} - x^*$.
-\end{description}
-\end{proof}
+The second division of behaviour is whether $\sign(g(x) - x^*) = \sign(x - x^*)$.
+If this is true then $g(x)$ converges (or diverges) monotonically towards (or away from) $x^*$ in this region.
+If this is false then $g(x)$ oscillates around $x^*$.
+The boundary between these two regions is where $\sign(g(x) - x^*) = 0$, or where $g(x) = x^*$.
 
-Regions 2 and 3 therefore give convergent iterations while regions 1 and 4 give divergent iterations.
-Regions 3 and 4 give spiralling iterations.
+We are now prepared to describe the four regions of a fixed point function in 1D, based on these behaviours (convergence/divergence, monotonic/oscillation):
+\begin{description}
+\item[Region 1:] if $g(x) < x < x^*$ or $g(x) > x > x^*$ then $g(x)$ diverges monotonically from $x^*$;
+\item[Region 2:] if $x < g(x) < x^*$ or $x > g(x) > x^*$ then $g(x)$ converges monotonically towards $x^*$;
+\item[Region 3:] if $x < x^* < g(x) < 2 x^* - x$ or $x > x^* > g(x) > 2 x^* - x$ then $g(x)$ converges with oscillations towards $x^*$;
+\item[Region 4:] if $x < x^* < 2 x^* - x < g(x)$ or $x > x^* > 2 x^* - x > g(x)$ then $g(x)$ diverges with oscillations from $x^*$.
+\end{description}
+
+% make a picture of this
 
 \section{Newton-Raphson method}
 \label{sec:nrm}
@@ -132,11 +121,30 @@ f_C(x) = C \sign(x - x^*) \sqrt{\abs{x-x^*}} .
 
 \subsection{Higher dimensions}
 
+% find statement of theorem for Newton's method for higher dimensions and include proof - 
+% a proof likely includes some indication of the size of the region of guaranteed convergence
+
 Newton's method may be generalized to higher dimensions by replacing the derivative term with the Jacobian or total derivative, denoted here by $J_f(x)$.
 For $f(x)$ a vector field ($f:\bbr^n \to \bbr^n$) $J_f(x)$ is a matrix (of size $n \times n$).
 \begin{equation} \label{eq:NRgen}
 	x_{n+1} = x_n - J_f(x_n)^{-1} f(x_n)
 \end{equation}
+
+\begin{thm}[Kantorovich]
+Let $X \subset \bbr^n$ be open and $F:\bbr^n \to \bbr^n$ a differentiable function with $J_F$ (the Jacobian of $F$) locally Lipschitz continuous (in some operator norm).
+Let $x_0 \in X$ and let $J_F(x_0)$ be invertible.
+
+Define $h_0 = -J_F(x_0)^{-1} F(x_0)$ and assume the ball $B(x_0 + h_0, \norm{h_0})$ is contained in $X$ and $J_F$ has Lipschitz constant $M$ inside this ball.
+Define the following sequences: \begin{itemize}
+\item $h_k = -J_F(x_k) F(x_k)$;
+\item $\alpha_k = M \norm{J_F(x_k)^{-1}} \norm{h_k}$;
+\item $x_{k+1} = x_k + h_k$.
+\end{itemize}
+
+If $\alpha_0 \leq 1/2$ then there exists $x^* \in \bar{B}(x_1, \norm{h_0})$ and $x_k \to x^*$ with at least linear order of convergence.
+\end{thm}
+
+% now for a proof
 
 One is concerned with when $\norm{x_{n+1} - x^*} < \norm{x_n - x^*}$, as this is where the method converges unconditionally.
 Divergence occurs when the reverse inequality is true.
@@ -176,7 +184,7 @@ Then $A f(x)$ for any matrix $A \in \bbr^{n \times n}$ is also a solution:
 \section{Newton-Raphson on a fixed point function}
 \label{sec:nrfp}
 
-A function with a fixed point may be reposed as a function with a root by taking $f_g(x) = g(x) - x$.
+A function with a fixed point may be posed as a function with a root by taking $f_g(x) = g(x) - x$.
 The iteration appears as
 \begin{equation*}
 x_{n+1} = x_n - \frac{g(x_n) - x_n}{g'(x_n) - 1} = x_n - \frac{f_g(x_n)}{f_g'(x_n)} .
@@ -190,7 +198,7 @@ C(x) = \frac{g(x) - x}{\sqrt{\abs{x-x^*}}}
 As well, we have again the property that Newton-Raphson will converge if $g''(x)$ has the same sign as $x-g(x)$.
 
 One may now ask for necessary and sufficient conditions for the convergence of Newton-Raphson if $g(x)$ lies within any of the four regions described in section \ref{sec:fpi}.
-To answer these questions, one may examine properties of the lines $f_C(x) = g_C(x) - x = C \sqrt{\abs{x-x^*}}$.
+To answer these questions, one may examine properties of the lines $g_C(x) = x + C \sqrt{\abs{x-x^*}}$ when $g_C(x)$ lies within any of the four regions.
 
 \begin{figure}
 \centering
@@ -199,52 +207,66 @@ To answer these questions, one may examine properties of the lines $f_C(x) = g_C
 \label{fig:Clines}
 \end{figure}
 
-We begin by characterizing the four regions based on $x$ and $C$.
-Firstly, if $C > 0$ then $g_C(x) > x$, and if $C<0$ then $g_C(x) < x$.
-Region 1 is therefore where $C$ and $x-x^*$ have the same sign.
-In this region $g_C'(x) > 1$, and so $g'(x) > 1$ or $C(x)$ will not be monotonic.
+\begin{description}
+\item[Region 1 ($g(x) < x < x^*$ or $g(x) > x > x^*$):] Given that $\sqrt{\abs{x-x^*}}$ is non-negative, $g_C(x) < x$ only if $C < 0$ and $g_C(x) > x$ only if $C > 0$.
+Thus, if $g_C(x)$ lies within region 1 then \begin{itemize}
+\item $\sign(C) = \sign(x-x^*)$;
+\item $g_C'(x) >1$.
+\end{itemize}
 
-To describe region 2 we must find where $g_C(x)$ is less than the fixed point $x^*$:
+\item[Region 2 ($x < g(x) < x^*$ or $x > g(x) > x^*$):] The lower boundary is already defined by $C=0$ by the above work.
+Likewise, by the above work $\sign(C) \neq \sign(x-x^*)$.
+Next, one examines where $g_C(x) < x^*$:
 \begin{align*}
-&& x + C \sqrt{\abs{x - x^*}} & < x^* \\
 &&                          C & < \frac{x^* - x}{\sqrt{\abs{x^*-x}}} \\
 &&                            & < \sign(x^*-x) \sqrt{\abs{x^*-x}} \\
 &&  			 \implies C^2 & \begin{cases} < \abs{x^*-x} & x^* > x \\ > \abs{x^*-x} & x^* < x . \end{cases}
 \end{align*}
-Region 2 is therefore where $\abs{x^*-x} > C^2$ and $x-x^*$ and $C$ have opposite signs.
-The value of $g_C'(x)$ within region 2 is bounded:
+One can also show that $g_C'(x)$ is bounded within this region:
 \begin{align*}
 g_C'(x) & = 1 + \sign(x-x^*) \frac{C}{2 \sqrt{\abs{x-x^*}}} \\
 		& > 1 + \sign(x-x^*) \frac{C}{2 \abs{C}} \\
 		& = 1 + \frac{1}{2} \sign(x-x^*) \sign(C) \\
 		& = \frac{1}{2} , \\
-g_C'(x) & < 1 + \sign(x-x^*) \lim_{x \rightarrow \pm \infty} \frac{C}{2 \sqrt{\abs{x-x^*}}} \\
+g_C'(x) & < 1 + \sign(x-x^*) \lim_{x \to \pm \infty} \frac{C}{2 \sqrt{\abs{x-x^*}}} \\
 		& = 1 + 0 = 1 , \\
 \implies 1/2 < g_C'(x) & < 1 .
 \end{align*}
-Therefore, if $g(x)$ lies within region 2 and $g'(x) < 1/2$ then $C(x)$ is strictly monotonic and by extension Newton-Raphson converges.
-Failing this, it is necessary that $g'(x) < 1$ for $C(x)$ to be monotonic.
+Thus, if $g_C(x)$ is in region 2 then \begin{itemize}
+\item $\sign(C) \neq \sign(x-x^*)$ and $\abs{x^*-x} > C^2$;
+\item $1/2 < g_C'(x) < 1$.
+\end{itemize}
 
-For region 3 we ask where $g_C(x)$ is less than the line $2 x^* - x$:
+\item[Region 3:] As before, the lower boundary is defined by the previous work.
+For the upper boundary, one considers where $g_C(x) < 2x^* - x$:
 \begin{align*}
 x + C \sqrt{\abs{x-x^*}} & < 2 x^* - x \\
 					C 	 & < \sign(x^*-x) 2 \sqrt{\abs{x^*-x}} \\
   \implies \frac{C^2}{4} & \begin{cases} < \abs{x^*-x} & x^* > x \\ > \abs{x^*-x} & x^* < x . \end{cases}
 \end{align*}
-Region 3 is therefore where $C^2/4 < \abs{x^*-x} < C^2$ and $x-x^*$ and $C$ have opposite signs.
-Like region 2, the value of $g_C'(x)$ is bounded in region 3:
-\begin{align*}
-g_C'(x) & < \frac{1}{2} ,\\
-g_C'(x) & > 1 + \sign(x-x^*) \frac{C}{\abs{C}} \\
-		& = 0 , \\
-\implies 0 < g_C'(x) & < 1/2 .
-\end{align*}
-Thus, if $g(x)$ lies within region 3 and $g'(x) < 0$ then Newton-Raphson converges.
-For $C(x)$ to be monotonic it is necessary that $g'(x) < 1/2$.
+As in region 2, one can show that $g_C'(x)$ is bounded in region 3:
+\begin{equation*}
+g_C'(x) > 1 + \sign(x-x^*) \frac{C}{\abs{C}} = 0.
+\end{equation*}
+Thus, if $g_C(x)$ is in region 3 then \begin{itemize}
+\item $\sign(C) \neq \sign(x-x^*)$ and $C^2/4 < \abs{x^*-x} < C^2$;
+\item $0 < g_C'(x) < 1/2$.
+\end{itemize}
 
-Lastly, region 4 must then be where $\abs{x-x^*} < C^2/4$ and $x-x^*$ and $C$ have opposite signs.
-As well, since $g_C''(x) \neq 0$ unless $C = 0$, $g_C'(x) < 0$ in region 4.
-For $C(x)$ to be monotonic $g'(x)$ must likewise be negative.
+\item[Region 4:] No extra work is required for this region.
+If $g_C(x)$ is in region 4 then \begin{itemize}
+\item $\sign(C) \neq \sign(x-x^*)$ and $\abs{x^* - x} < C^2/4$;
+\item $g_C'(x) < 0$.
+\end{itemize}
+\end{description}
+
+From the conditions on $g_C'(x)$ one may extract conditions on any given function $g(x)$ that lies within one of the given regions for Newton's method to converge:
+\begin{description}
+\item[$g(x)$ lies in region 1] then $g'(x) > 1$ is a necessary condition for convergence;
+\item[$g(x)$ lies in region 2] then $g'(x) < 1$ is a necessary condition and $g'(x) < 1/2$ is a sufficient condition;
+\item[$g(x)$ lies in region 3] then $g'(x) < 1/2$ is a necessary condition and $g'(x) < 0$ is a sufficient condition;
+\item[$g(x)$ lies in region 4] then $g'(x) < 0$ is a necessary condition.
+\end{description}
 
 \section{Application to alternating Schwarz}
 \label{sec:appl}

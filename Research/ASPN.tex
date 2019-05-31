@@ -130,7 +130,7 @@ For $f(x)$ a vector field ($f:\bbr^n \to \bbr^n$) $J_f(x)$ is a matrix (of size 
 	x_{n+1} = x_n - J_f(x_n)^{-1} f(x_n)
 \end{equation}
 
-\begin{thm}[Kantorovich]
+\begin{thm}[Kantorovich (nb: citation needed)]
 Let $X \subset \bbr^n$ be open and $F:\bbr^n \to \bbr^n$ a differentiable function with $J_F$ (the Jacobian of $F$) locally Lipschitz continuous (in some operator norm).
 Let $x_0 \in X$ and let $J_F(x_0)$ be invertible.
 
@@ -145,6 +145,14 @@ If $\alpha_0 \leq 1/2$ then there exists $x^* \in \bar{B}(x_1, \norm{h_0})$ and 
 \end{thm}
 
 % now for a proof
+
+The proof is omitted (nb: for now?) but indicates three conditions that restrict the neighbourhood for which the method converges quadratically:
+\begin{itemize}
+	\item the size of the Lipschitz constant $M$;
+	\item the bound of $\norm{J_F(x)^{-1}}$ in the neighbourhood ($\norm{J_F(x)^{-1}} \leq L$);
+	\item the size of the domain where $F$ is appropriately smooth.
+\end{itemize}
+The size of the basin of attraction is then proportional to $1/M L$, assuming the third condition is not violated anywhere within the basin.
 
 One is concerned with when $\norm{x_{n+1} - x^*} < \norm{x_n - x^*}$, as this is where the method converges unconditionally.
 Divergence occurs when the reverse inequality is true.
@@ -163,6 +171,8 @@ f(x_n) = J_f(x_n) (I - R) (x_n - x^*).
 \end{equation}
 If $f$ satisfies this equation for a point $x_n \in \bbr^n$ then that point is on the boundary between convergence and divergence.
 The existence of such a boundary permits (but does not guarantee) the existence of cycles.
+The closest boundary of this nature to the fixed point is necessarily unstable.
+A second boundary beyond the first may be either stable or unstable.
 
 The equation is not readily solvable for general rotations.
 However, for $R = -I$ (the antipodal rotation) one can extend the result from 1D to higher dimensions.

@@ -589,6 +589,72 @@ C(\gamma) = \frac{ G(\gamma) - \gamma}{\sqrt{\abs{\gamma - \gamma^*}}} .
 \end{equation*}
 While it is ideal that this function is strictly monotonic, this cannot be guaranteed.
 
+\subsection{Higher dimensions}
+
+Now consider a more general alternating Schwarz, again for a second order nonlinear differential equation but on a domain $\Omega \in \bbr^d$:
+\begin{equation*}
+\begin{cases} F(x,u_1^n, D u_1^n, D^2 u_1^n) = 0 & x \in \Omega_1 \\
+u_1^n(x) = h(x) & x \in \partial \Omega \\
+u_1^n(x) = u_2^{n-1}(x) & x \in \Gamma_1 \end{cases}
+\begin{cases} F(x,u_2^n, D u_2^n, D^2 u_2^n) = 0 & x \in \Omega_2 \\
+u_2^n(x) = h(x) & x \in \partial \Omega \\
+u_2^n(x) = u_1^n(x) & x \in \Gamma_2, \end{cases}
+\end{equation*}
+where $\Gamma_1 = \partial \Omega_1 \setminus \partial \Omega$ and $\Gamma_2 = \partial \Omega_2 \setminus \partial \Omega$.
+Note that $Du$ (and $D^2 u$) represents the collection of the partial derivatives (and second partial derivatives, including mixed derivatives) of the function $u(x)$.
+
+As in the 1D case, one can construct the implicit function $G:L_2(\Gamma_1) \to L_2(\Gamma_1)$ using the following two steps:
+\begin{equation*}
+(1) \begin{cases} F(x,u_1,Du_1,D^2u_1) = 0 \\ u_1(\partial \Omega) = h \\ u_1(\Gamma_1) = \gamma \end{cases} \
+(2) \begin{cases} F(x,u_2,Du_2,D^2u_2) = 0 \\ u_2(\partial \Omega) = h \\ u_2(\Gamma_2) = u_1(\Gamma_2) \end{cases}
+\end{equation*}
+so that $G(\gamma) = u_2(\Gamma_1)$.
+
+We are now interested in modifying the third and fourth steps of the algorithm presented for 1D so that they may be applied to higher dimensions.
+Let us focus on the discrete case, where $\gamma \in \bbr^N$ for some $N$.
+Then $G(\gamma)$ is a vector field and $G'(\gamma) \in \bbr^{N \times N}$ for each $\gamma$.
+As well, the derivative of $u_1$ with respect to $\gamma$ is now a Jacobian.
+
+Let $g_1:\Omega_1 \to \bbr^N$ represent $\pdxdy{u_1}{\gamma}$.
+Then the third step may be written as:
+\begin{equation*}
+(3) \begin{cases} J(u_1) \cdot g_1 = 0 \\
+g_1(\partial \Omega) = 0 \\
+g_1(\Gamma_1) = I \end{cases}
+\end{equation*}
+where the last line signifies that the $i$--th entry of $g_1(x_j)$ is equal to $\delta_{i,j}$ (the Kronecker delta) for all $x_j \in \Gamma_1$.
+
+Using the same representation for the other domain, one may write the fourth step as:
+\begin{equation*}
+(4) \begin{cases} J(u_2) \cdot g_2 = 0 \\
+g_2(\partial \Omega) = 0 \\
+g_2(\Gamma_2) = I \end{cases}
+\end{equation*}
+so that $G'(\gamma) = g_1(\Gamma_2) g_2(\Gamma_1) = g_2(\Gamma_1) g_1(\Gamma_2)$.
+
+The fifth step is then standard high dimension Newton-Raphson:
+\begin{align*}
+(5) \quad \gamma_{n+1} & = \gamma_n - (G'(\gamma_n) - I)^{-1} (G(\gamma_n) - \gamma_n) \\
+					   & = \gamma_n - (g_1(\Gamma_2) g_2(\Gamma_1) - I)^{-1} (u_2(\Gamma_1) - \gamma_n).
+\end{align*}
+
+Theorem \ref{thm:mono} can be generalized to higher dimensions.
+
+\begin{thm}
+If the problem
+\begin{equation*}
+	\begin{cases} F(u,Du,D^2u) = 0 & x \in \Omega \\ u(x) = h(x) & x \in \partial \Omega \end{cases}
+\end{equation*}
+is nonsingular on $\Omega \setminus \Omega_1$ and $\Omega \setminus \Omega_2$ in the sense that there exists a unique solution to the problem on those domains and the continuations of these solutions are also unique, then $G(\gamma)$ is injective.
+\end{thm}
+
+\begin{proof}
+The proof is identical to that for theorem \ref{thm:mono} with all objects replaced by their higher dimension counterparts.
+\end{proof}
+
+If $G(\gamma)$ is also continuous (we require differentiable to use Newton's method) and it can be proven that alternating Schwarz converges unconditionally to a unique solution (ex. theorem 2 from \cite{lui1999schwarz}) then any starting point defines a path leading to the fixed point.
+These paths do not intersect and $G(\gamma)$ is monotonic along each path, in the sense that if the path were parametrized by a variable $s$ then $\gamma(s_2) = G(\gamma(s_1))$ implies $s_2>s_1$.
+
 \section{Period doubling in RASPEN (or RASPEN-like methods)}
 \label{sec:period}
 
@@ -798,6 +864,30 @@ Ultimately this suggests that all values of $a$ have stable cycles for some wave
 \includegraphics[width=\textwidth]{exp17_01.png}
 \caption{White represents area where divergence is occurring, with parameters: $\alpha = -\beta = -0.2$, 21 points in each direction, $a = 5$.}
 \label{fig:exp17_01}
+\end{figure}
+
+Reducing the number of points in the $y$--direction to 4 (with two of these points on the boundary) allows us to visualize the vector field $G(\gamma)$.
+Figure \ref{fig:exp18_01} shows this vector field plotted on a contour plot of the ratio between $\abs{G(\gamma)-\gamma^*}$ and $\abs{\gamma - \gamma^*}$.
+Two peaks (values greater than or equal to 1) along the line $\gamma_1 = \gamma_2$ suggest the possibility of a cycle.
+
+\begin{figure}
+	\includegraphics[width=\textwidth]{exp18_01.png}
+	\caption{Contour plot of $\norm{G(\gamma) - \gamma^*}/\norm{\gamma-\gamma^*}$ overlaid with the vector field $G(\gamma)$.
+	The vector field points towards the origin everywhere, though non-uniformly.
+	A series of peaks extend along two symmetric (reflection over the line $\gamma_2 = -\gamma_1$) ridges.
+	Two additional peaks may be seen in the upper right and lower left corners of the figure, aligned with the line $\gamma_2 = \gamma_1$.
+	$\alpha = -\beta = -0.2$, $a = 7.703$, homogeneous Dirichlet boundary conditions, unperturbed Laplacian.}
+	\label{fig:exp18_01}
+\end{figure}
+
+Indeed, figure \ref{fig:exp15_07} shows a period doubling example in this setup.
+Note the incredibly small region in both $\norm{\gamma}$ and $a$ that this period doubling resides.
+The basin of attraction of these cycles is also small, as indicated by the width of the chaos.
+
+\begin{figure}
+	\includegraphics[width=\textwidth]{exp15_07.png}
+	\caption{$\alpha=-\beta=-0.2$, $\gamma_0 = -16.6382 * [1,1]$, homogeneous Dirichlet boundary conditions, unperturbed Laplacian.}
+	\label{fig:exp15_07}
 \end{figure}
 
 \section{Proposed algorithm}

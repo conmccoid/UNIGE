@@ -22,7 +22,7 @@ while isempty(bl)~=1
     ad(end)=1;
     ad(al)=1;
     n=[0 0 0];                   % triangles intersecting with neighbors
-    while isempty(al)~=1
+    while ~isempty(al)
         ac=al(1); al=al(2:end);  % take next candidate
         [P,nc,Mc]=Intersect(Nb(:,Tb(bc,1:3)),Na(:,Ta(ac,1:3)));
         if ~isempty(P)           % intersection found
@@ -218,9 +218,10 @@ function P=SortAndRemoveDoubles(P)
 ep=10*eps;                           % tolerance for identical nodes
 m=size(P,2); 
 if m>0                              
-    c=sum(P')'/m;                      % order polygon corners counter 
+    c=sum(P,2)/m;                      % order polygon corners counter 
+    ao=zeros(1,m);
     for i=1:m                          % clockwise
-        d=P(:,i)-c; ao(i)=angle(d(1)+sqrt(-1)*d(2));
+        d=P(:,i)-c; ao(i)=angle(d(1)+1i*d(2));
     end
     [~,id]=sort(ao); 
     P=P(:,id);

@@ -52,8 +52,14 @@ function [P,n,M]=Intersect(X,Y)
 %   element Y. The numerical challenges are handled by including
 %   points on the boundary and removing duplicates at the end.
 
-[P,Q,n] = Geometry(X,Y);
-R = Geometry(Y,X);
+[P,Q,R,n] = Geometry(X,Y);
+% plot(P(1,:),P(2,:),'k^',Q(1,:),Q(2,:),'rx',R(1,:),R(2,:),'bo')
+% triX = [ X , X(:,1)];
+% triY = [ Y , Y(:,1)];
+% hold on
+% plot(triX(1,:),triX(2,:),'-',triY(1,:),triY(2,:),'-')
+% hold off
+% pause
 if size(P,2)>1                         % if two or more interior points
     n=[1,1,1];                         % the triangle is candidate for all
 end                                    % neighbors
@@ -72,7 +78,7 @@ if size(P,2)>0
 end
 end
 
-function [P,Q,n] = Geometry(X,Y)
+function [P,Q,R,n] = Geometry(X,Y)
 % GEOMETRY figures out the intersection of the triangles X and Y. It does
 % so by first putting all variables in terms of two of the lines of the
 % triangle Y, decides if the points of X lie within or outside Y, then
@@ -109,6 +115,7 @@ if nargout>1
     ind = zeros(1,9);
     Q = zeros(2,9);
     n = [0,0,0];
+    indR = n;
     for i=1:3
         x1=U(1,i);
         x2=U(2,i);
@@ -117,22 +124,40 @@ if nargout>1
         
         % with v1
         if sign(x1)~=sign(y1)       % check if intersection occurs
-            y = y2 - y1*(x2-y2)/(x1-y1);
-            if y>=0 && y<=1
-                Q(:,i) = Y(:,1) + y*v1;
+            y0 = y2 - y1*(x2-y2)/(x1-y1);
+            if y0>=0 && y0<=1
+                Q(:,i) = Y(:,1) + y0*v1;
                 ind(i) = 1;
                 n(i) = 1;
             end
+            if exist('y0old','var') % check if Y is interior to X
+                if sign(y0old)~=sign(y0)
+                    indR(1) = 1;
+                end
+                if sign(y0old-1)~=sign(y0-1)
+                    indR(3) = 1;
+                end
+            end
+            y0old = y0;
         end
         
         % with v0
         if sign(x2)~=sign(y2)
-            x = y1 - y2*(x1-y1)/(x2-y2);
-            if x>=0 && x<=1
-                Q(:,3+i) = Y(:,1) + x*v0;
+            x0 = y1 - y2*(x1-y1)/(x2-y2);
+            if x0>=0 && x0<=1
+                Q(:,3+i) = Y(:,1) + x0*v0;
                 ind(3+i) = 1;
                 n(i) = 1;
             end
+            if exist('x0old','var') % check if Y is interior to X
+                if sign(x0old)~=sign(x0)
+                    indR(1) = 1;
+                end
+                if sign(x0old-1)~=sign(x0-1)
+                    indR(2) = 1;
+                end
+            end
+            x0old = x0;
         end
         
         % with the line connecting v0 and v1
@@ -147,7 +172,8 @@ if nargout>1
         end
 
     end
-    Q = Q(:,ind==1);
+    Q = Q(:,ind==1);  % the intersections
+    R = Y(:,indR==1); % the points of Y that are inside X
 end
 end
 

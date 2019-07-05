@@ -4,17 +4,14 @@
 %% Implementing test
 
 % Problem parameters
-% 2-cycles: 3.6
-% 4-cycles: 3.72
-% 8-cycles: 3.731
-%    Chaos: 3.735
-C = 1;  a = 7.703;
-F = @(x) C * sin(a*x);
-Fp= @(x) C*a*cos(a*x);
+% 2 pts: 7.703
+a = 8.48;
+F = @(x)   sin(a*x);
+Fp= @(x) a*cos(a*x);
 P = 1;
 
 % Grid
-nx = 21; ny = 4;
+nx = 21; ny = 6;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -80,24 +77,21 @@ ind2y= kron(II-IIint,   I2)* ones(ny*l2,1) == 1;
 % Initialization
 tol = 1e-8;
 itermax = P+1;
-% fx= 1-x(2:end-1)'.^2;
+% fx = sin(pi*y(2:end-1)');
 fx= ones(1,ny-2);
 L = 20; N = 1001;
 % testu2 = linspace(-L,L,N);
-testu2 = linspace(-17,-16,N);
+testu2 = linspace(-18,-16,N);
 G = zeros(N,1);
 Gp= G;
-itersaveNewton= G;
-itersaveReg   = G;
-nonlinsolves  =10;
+nonlinsolves=10;
 for k = 1:N
     u2b    = testu2(k)*fx;
     u2bold = u2b;
-    error  = 1;
     iter   = 1;
     u1 = zeros(l1,ny); g1 = u1;
     u2 = zeros(l2,ny); g2 = u2;
-    while error > tol && iter < itermax
+    while iter < itermax
 
         % Step 1: solve u in first domain
         for i = 1:nonlinsolves
@@ -146,16 +140,9 @@ for k = 1:N
             Gp(k) = norm(u2b);
         end
 
-        error = norm(u2b - u2bold);
         u2bold= u2b;
         iter  = iter+1;
         
-    end
-    
-    if iter < itermax && error < tol
-        itersaveNewton(k) = iter;
-    else
-        itersaveNewton(k) = NaN;
     end
         
 end
@@ -164,11 +151,10 @@ end
 for k = 1:N
     u2b    = testu2(k)*fx;
     u2bold = u2b;
-    error  = 1;
     iter   = 1;
     u1 = zeros(l1,ny); g1 = u1;
     u2 = zeros(l2,ny); g2 = u2;
-    while error > tol && iter < itermax
+    while iter < itermax
 
         % Step 1: solve u in first domain
         for i = 1:nonlinsolves
@@ -200,16 +186,9 @@ for k = 1:N
             G(k) = norm(u2b);
         end
 
-        error = norm(u2b - u2bold);
         u2bold= u2b;
         iter  = iter+1;
         
-    end
-    
-    if iter < itermax && error < tol
-        itersaveReg(k) = iter;
-    else
-        itersaveReg(k) = NaN;
     end
         
 end
@@ -240,5 +219,6 @@ xlabel('$$\Vert \gamma \Vert$$','interpreter','latex')
 ylabel('$$\Vert G(\gamma) \Vert$$','interpreter','latex')
 legend('FP','NR')
 axis([-L,L,-L,L])
+% axis([min(testu20)-0.001,max(testu20)+0.001,-max(testu20)-0.001,-min(testu20)+0.001])
 % axis([-1.8,-1.4,-1.8,-1.4])
 set(gca,'fontsize',26,'linewidth',2)

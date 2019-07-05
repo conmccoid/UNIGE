@@ -6,7 +6,7 @@
 %% Bifurcation diagram
 
 % Grid
-nx = 21; ny = 4;
+nx = 21; ny = 5;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -70,18 +70,15 @@ ind2x= kron(IIint,I2-I2int)* ones(ny*l2,1) == 1;
 ind2y= kron(II-IIint,   I2)* ones(ny*l2,1) == 1;
 
 % Plotting bifurcation region
-strpt = 7.7028;
-endpt = 7.7032;
-res   = 0.000001;
-% strpt = 9.10;
-% endpt = 9.155;
-% res   = 0.001;
+strpt = 8.48;
+endpt = 8.5;
+res   = 0.0001;
 
-fx  = -16.6382*ones(1,ny-2); %1.65 for limiting behaviour
+fx  = -16.45*ones(1,ny-2);
 ind = round((endpt - strpt) / res);
 gam = zeros(ind,64);
 nonlinsolves = 10;
-stab= 50;
+stab= 0;
 
 for k = 1:ind
     C = strpt + k*res;

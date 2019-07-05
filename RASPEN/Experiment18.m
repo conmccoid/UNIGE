@@ -5,17 +5,15 @@
 %% Implementing test
 
 % Problem parameters
-% 2-cycles: 3.6
-% 4-cycles: 3.72
-% 8-cycles: 3.731
-%    Chaos: 3.735
-C = 1;  a = 7.703;
+% 2 pts: 7.703
+% 3 pts: ?
+C = 1;  a = 8.5;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
 P = 1;
 
 % Grid
-nx = 21; ny = 4;
+nx = 21; ny = 6;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -79,29 +77,26 @@ ind2x= kron(IIint,I2-I2int)* ones(ny*l2,1) == 1;
 ind2y= kron(II-IIint,   I2)* ones(ny*l2,1) == 1;
 
 % Initialization
-tol = 1e-8;
 itermax = P+1;
 L = 20; N = 101;
 testu2 = linspace(-L,L,N);
+% testu2 = linspace(-19,-17,N);
 G = zeros(N,N);
-Gp= G;
+Gp= zeros(N,N,P);
 UNR = G;
 VNR = G;
 UFP = G;
 VFP = G;
-itersaveNewton= G;
-itersaveReg   = G;
 nonlinsolves  =10;
 for j = 1:N
     for k = 1:N
-        fx     = [testu2(k), testu2(j)];
+        fx     = [testu2(k), testu2(j), testu2(j), testu2(k)];
         u2b    = fx;
         u2bold = u2b;
-        error  = 1;
         iter   = 1;
         u1 = zeros(l1,ny); g1 = u1;
         u2 = zeros(l2,ny); g2 = u2;
-        while error > tol && iter < itermax
+        while iter < itermax
 
             % Step 1: solve u in first domain
             for i = 1:nonlinsolves
@@ -144,24 +139,16 @@ for j = 1:N
 
             % Step 5: update u2b
             u2b = u2bold - ( g2b \ (u2b' - u2bold') )';
-            u2bold= u2b;
-
+            
+            Gp(k,j,iter) = norm(u2b)/norm(fx);
             if iter==P
-                Gp(k,j) = norm(u2b)/norm(fx);
                 UNR(k,j) = u2b(1);
                 VNR(k,j) = u2b(2);
             end
 
-            error = norm(u2b - u2bold);
             u2bold= u2b;
             iter  = iter+1;
 
-        end
-
-        if iter < itermax && error < tol
-            itersaveNewton(k) = iter;
-        else
-            itersaveNewton(k) = NaN;
         end
 
     end
@@ -169,14 +156,13 @@ end
 
 for j = 1:N
     for k = 1:N
-        fx     = [testu2(k), testu2(j)];
+        fx     = [testu2(k), testu2(j), testu2(j),testu2(k)];
         u2b    = fx;
         u2bold = u2b;
-        error  = 1;
         iter   = 1;
         u1 = zeros(l1,ny); g1 = u1;
         u2 = zeros(l2,ny); g2 = u2;
-        while error > tol && iter < itermax
+        while iter < itermax
 
             % Step 1: solve u in first domain
             for i = 1:nonlinsolves
@@ -204,22 +190,15 @@ for j = 1:N
             end
             u2b = BC2 * u2; u2b = u2b(2:end-1);
 
-            if iter==1
+            if iter==P
                 G(k,j) = norm(u2b)/norm(fx);
                 UFP(k,j) = u2b(1);
                 VFP(k,j) = u2b(2);
             end
 
-            error = norm(u2b - u2bold);
             u2bold= u2b;
             iter  = iter+1;
 
-        end
-
-        if iter < itermax && error < tol
-            itersaveReg(k) = iter;
-        else
-            itersaveReg(k) = NaN;
         end
 
     end
@@ -242,7 +221,7 @@ set(gca,'fontsize',26,'linewidth',2)
 figure(2)
 Mat1 = repmat(testu2,N,1);
 Mat2 = repmat(testu2',1,N);
-contourf(testu2,testu2,Gp,0:0.5:1)
+contourf(testu2,testu2,Gp(:,:,end),0:0.5:1)
 hold on
 quiver(Mat1,Mat2,VNR-Mat1,UNR-Mat2,'linewidth',2)
 hold off

@@ -169,6 +169,17 @@ if nargout>1
                 ind(6+i) = 1;
                 n(i) = 1;
             end
+            % new addition meant to increase robustness when nonzero
+            % vertices of reference triangle may be excluded wrongly
+            if exist('xold','var') && exist('yold','var')
+                if sign(y-x-1)~=sign(yold-xold-1)
+                    indR(3) = 1;
+                end
+                if sign(y-x+1)~=sign(yold-xold+1)
+                    indR(2) = 1;
+                end
+            end
+            xold = x; yold = y;
         end
 
     end

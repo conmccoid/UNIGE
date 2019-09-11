@@ -5,13 +5,13 @@
 
 % Problem parameters
 % 2 pts: 7.703
-a = 8.48;
+a = 7.9993;
 F = @(x)   sin(a*x);
 Fp= @(x) a*cos(a*x);
 P = 1;
 
 % Grid
-nx = 21; ny = 6;
+nx = 21; ny = 3;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -75,13 +75,14 @@ ind2x= kron(IIint,I2-I2int)* ones(ny*l2,1) == 1;
 ind2y= kron(II-IIint,   I2)* ones(ny*l2,1) == 1;
 
 % Initialization
-tol = 1e-8;
 itermax = P+1;
 % fx = sin(pi*y(2:end-1)');
-fx= ones(1,ny-2);
+% fx= ones(1,ny-2);
+% fx= [1,0,-1];
+fx= 1;
 L = 20; N = 1001;
 % testu2 = linspace(-L,L,N);
-testu2 = linspace(-18,-16,N);
+testu2 = linspace(-17.01,-16.99,N);
 G = zeros(N,1);
 Gp= G;
 nonlinsolves=10;
@@ -134,14 +135,17 @@ for k = 1:N
 
         % Step 5: update u2b
         u2b = u2bold - ( g2b \ (u2b' - u2bold') )';
-        u2bold= u2b;
         
         if iter==P
-            Gp(k) = norm(u2b);
+%             Gp(k) = norm(u2b);
+            Gp(k) = u2b;
         end
 
         u2bold= u2b;
         iter  = iter+1;
+        
+%         plot(y(2:ny-1),u2b)
+%         pause(eps)
         
     end
         
@@ -183,7 +187,8 @@ for k = 1:N
         u2b = BC2 * u2; u2b = u2b(2:end-1);
         
         if iter==1
-            G(k) = norm(u2b);
+%             G(k) = norm(u2b);
+            G(k) = u2b;
         end
 
         u2bold= u2b;

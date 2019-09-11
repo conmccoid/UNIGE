@@ -7,13 +7,13 @@
 % Problem parameters
 % 2 pts: 7.703
 % 3 pts: ?
-C = 1;  a = 8.5;
+C = 1;  a = 8.1;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
 P = 1;
 
 % Grid
-nx = 21; ny = 6;
+nx = 21; ny = 5;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -79,8 +79,10 @@ ind2y= kron(II-IIint,   I2)* ones(ny*l2,1) == 1;
 % Initialization
 itermax = P+1;
 L = 20; N = 101;
-testu2 = linspace(-L,L,N);
-% testu2 = linspace(-19,-17,N);
+% testu2 = linspace(10,L,N);
+% testu2 = linspace(-16.645,-16.63,N);
+testu2x= linspace(5,25,N);
+testu2y= linspace(15,25,N);
 G = zeros(N,N);
 Gp= zeros(N,N,P);
 UNR = G;
@@ -88,9 +90,12 @@ VNR = G;
 UFP = G;
 VFP = G;
 nonlinsolves  =10;
+% G1 = repmat(G(:),1,P);
+% G2 = G1;
+
 for j = 1:N
     for k = 1:N
-        fx     = [testu2(k), testu2(j), testu2(j), testu2(k)];
+        fx     = [testu2x(k), testu2y(j), testu2x(k)]; %try some kind of cosine function
         u2b    = fx;
         u2bold = u2b;
         iter   = 1;
@@ -142,21 +147,38 @@ for j = 1:N
             
             Gp(k,j,iter) = norm(u2b)/norm(fx);
             if iter==P
-                UNR(k,j) = u2b(1);
-                VNR(k,j) = u2b(2);
+                UNR(j,k) = u2b(1)-fx(1);
+                VNR(j,k) = u2b(2)-fx(2);
+            end
+            if Gp(k,j,iter)>=0.5
+                plot(y,[0, u2b, 0],y,[0,-fx,0])
+                pause(5)
             end
 
             u2bold= u2b;
             iter  = iter+1;
+            
+%             if mod(iter,2)==1 && norm(u2b)/norm(fx)>=1
+%                 G1(k+N*(j-1),floor(iter/2)) = fx(1);
+%                 G2(k+N*(j-1),floor(iter/2)) = fx(2);
+%             end
 
         end
 
     end
 end
 
+% testu2x = repmat(testu2,N,1);
+% testu2y = repmat(testu2',1,N);
+% figure(1)
+% plot(testu2x(:),testu2y(:),'.',G1(:,1),G2(:,1),'.',G1(:,2),G2(:,2),'.',...
+%     G1(:,3),G2(:,3),'.',G1(:,4),G2(:,4),'.',G1(:,5),G2(:,5),'.',G1(:,6),G2(:,6),'.')
+% axis([-16.645,-16.63,-16.645,-16.63])
+% set(gca,'fontsize',26,'linewidth',2)
+
 for j = 1:N
     for k = 1:N
-        fx     = [testu2(k), testu2(j), testu2(j),testu2(k)];
+        fx     = [testu2x(k), testu2y(j), testu2x(k)];
         u2b    = fx;
         u2bold = u2b;
         iter   = 1;
@@ -192,8 +214,8 @@ for j = 1:N
 
             if iter==P
                 G(k,j) = norm(u2b)/norm(fx);
-                UFP(k,j) = u2b(1);
-                VFP(k,j) = u2b(2);
+                UFP(j,k) = u2b(1)-fx(1);
+                VFP(j,k) = u2b(2)-fx(2);
             end
 
             u2bold= u2b;
@@ -206,11 +228,11 @@ end
 
 %%
 figure(1)
-Mat1 = repmat(testu2,N,1);
-Mat2 = repmat(testu2',1,N);
-contourf(testu2,testu2,G,0:0.5:1)
+Mat1 = repmat(testu2x,N,1);
+Mat2 = repmat(testu2y',1,N);
+contourf(testu2x,testu2y,G',0:0.5:1)
 hold on
-quiver(Mat1,Mat2,VFP-Mat1,UFP-Mat2,'linewidth',2)
+quiver(Mat1,Mat2,UFP,VFP,'linewidth',2)
 hold off
 xlabel('\gamma_1')
 ylabel('\gamma_2')
@@ -219,11 +241,9 @@ axis square
 set(gca,'fontsize',26,'linewidth',2)
 
 figure(2)
-Mat1 = repmat(testu2,N,1);
-Mat2 = repmat(testu2',1,N);
-contourf(testu2,testu2,Gp(:,:,end),0:0.5:1)
+contourf(testu2x,testu2y,Gp(:,:,end)',0:0.1:2)
 hold on
-quiver(Mat1,Mat2,VNR-Mat1,UNR-Mat2,'linewidth',2)
+quiver(Mat1,Mat2,UNR,VNR,'linewidth',2)
 hold off
 xlabel('\gamma_1')
 ylabel('\gamma_2')
@@ -232,7 +252,7 @@ axis square
 set(gca,'fontsize',26,'linewidth',2)
 
 figure(3)
-contourf(testu2,testu2,((VNR-Mat1).^2 + (UNR-Mat2).^2)./(Mat1.^2 + Mat2.^2),[0, 1, 2],'linewidth',2)
+contourf(testu2x,testu2y,(2*UNR.^2 + VNR.^2)./(2*(Mat1.^2) + Mat2.^2),0:0.1:2,'linewidth',2)
 xlabel('\gamma_1')
 ylabel('\gamma_2')
 axis square

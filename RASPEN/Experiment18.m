@@ -7,13 +7,13 @@
 % Problem parameters
 % 2 pts: 7.703
 % 3 pts: ?
-C = 1;  a = 8.1;
+C = 1;  a = 8.45;
 F = @(x) C * sin(a*x);
 Fp= @(x) C*a*cos(a*x);
 P = 1;
 
 % Grid
-nx = 21; ny = 5;
+nx = 21; ny = 6;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -81,8 +81,8 @@ itermax = P+1;
 L = 20; N = 101;
 % testu2 = linspace(10,L,N);
 % testu2 = linspace(-16.645,-16.63,N);
-testu2x= linspace(5,25,N);
-testu2y= linspace(15,25,N);
+testu2x= linspace(10,13,N);
+testu2y= linspace(37,40,N);
 G = zeros(N,N);
 Gp= zeros(N,N,P);
 UNR = G;
@@ -95,7 +95,7 @@ nonlinsolves  =10;
 
 for j = 1:N
     for k = 1:N
-        fx     = [testu2x(k), testu2y(j), testu2x(k)]; %try some kind of cosine function
+        fx     = [testu2x(k), testu2y(j), testu2y(j) testu2x(k)]; %try some kind of cosine function
         u2b    = fx;
         u2bold = u2b;
         iter   = 1;
@@ -150,10 +150,10 @@ for j = 1:N
                 UNR(j,k) = u2b(1)-fx(1);
                 VNR(j,k) = u2b(2)-fx(2);
             end
-            if Gp(k,j,iter)>=0.5
-                plot(y,[0, u2b, 0],y,[0,-fx,0])
-                pause(5)
-            end
+%             if Gp(k,j,iter)>=0.5
+%                 plot(y,[0, u2b, 0],y,[0,-fx,0])
+%                 pause(5)
+%             end
 
             u2bold= u2b;
             iter  = iter+1;
@@ -178,7 +178,7 @@ end
 
 for j = 1:N
     for k = 1:N
-        fx     = [testu2x(k), testu2y(j), testu2x(k)];
+        fx     = [testu2x(k), testu2y(j), testu2y(j), testu2x(k)];
         u2b    = fx;
         u2bold = u2b;
         iter   = 1;

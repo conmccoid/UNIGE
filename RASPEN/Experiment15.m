@@ -6,7 +6,7 @@
 %% Bifurcation diagram
 
 % Grid
-nx = 21; ny = 3;
+nx = 21; ny = 21;
 a  =-0.2;
 b  = 0.2;
 x  = linspace(-1,1,nx)';
@@ -35,7 +35,7 @@ D2 = dx^2 * [ D2, -2*D2, D2 ];
 D2 = spdiags(D2,[-1,0,1],l2,l2);
 
 pert    = 0;
-epsilon = 1; %1e-3 gives period doubling
+epsilon = 1e-9; %1e-3 gives period doubling
 II = speye(ny); IIint = II; IIint(1) = 0; IIint(end) = 0;
 DD = epsilon * ones(ny,1); % perturbed y derivatives
 DD = dy^2 * [ DD, -2*DD, DD ];
@@ -70,15 +70,17 @@ ind2x= kron(IIint,I2-I2int)* ones(ny*l2,1) == 1;
 ind2y= kron(II-IIint,   I2)* ones(ny*l2,1) == 1;
 
 % Plotting bifurcation region
-strpt = 7.99928;
-endpt = 7.9993;
-res   = 0.0000001;
+strpt = 3.4;
+endpt = 3.8;
+res   = 0.001;
 
-fx  = -17.0094*ones(1,ny-2);
+% fx  = [11.86,37.6,37.6,11.86];
+fx  = 1.6*ones(1,ny-2);
 ind = round((endpt - strpt) / res);
 gam = zeros(ind,64);
+gamnorm = gam;
 nonlinsolves = 10;
-stab= 0;
+stab= 50;
 
 for k = 1:ind
     C = strpt + k*res;
@@ -134,7 +136,7 @@ for k = 1:ind
         u2bold= u2b;
         
         if iter > stab
-%             gam(k,iter-stab) = norm(u2b);
+            gamnorm(k,iter-stab) = norm(u2b)./norm(fx);
             gam(k,iter-stab) = u2b(1);
         end
         
@@ -147,12 +149,12 @@ aa = strpt + (1:ind)*res;
 plot(aa,gam,'k.')
 xlabel('a')
 ylabel('$$\Vert \gamma \Vert$$','interpreter','latex')
-title(['Perturbation = ', num2str(pert)])
+% title(['Perturbation = ', num2str(pert)])
 set(gca,'fontsize',26,'linewidth',2)
 
 figure(2)
-plot(aa,gam,'k.')
+plot(aa,gamnorm,'k.')
 xlabel('a')
 ylabel('$$\Vert \gamma \Vert$$','interpreter','latex')
-axis([min(aa),max(aa),23.524,23.533])
+% axis([min(aa),max(aa),23.524,23.533])
 set(gca,'fontsize',26,'linewidth',2)

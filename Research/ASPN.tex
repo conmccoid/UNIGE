@@ -953,6 +953,34 @@ In this instance, the iteration lies in region 4 and to avoid spiralling away fr
 
 In this way, all possibilities are accounted for: region 1 cannot occur due to Branin's adjustment and the avoidance of $G'(\gamma_n) = 1$; region 4 is tested for extensively and whenever it occurs the algorithm uses a method that is guaranteed to converge under the assumptions listed previously.
 
+\subsection{The algorithm in higher dimensions}
+
+The algorithm may be adapted to higher dimensions with minor revisions.
+Firstly, step (5*) must be replaced by the standard high dimension Newton-Raphson step (5) as seen in section \ref{sec:appl}.
+The Davidenko-Branin correction cannot be used here as we are not certain as to which direction is appropriate.
+
+Most importantly, it must be noted that the sign of $G(\gamma)-\gamma$ no longer has meaning in a higher dimension.
+Instead, the sign of $\langle \tilde{\gamma}-\gamma, G(\gamma)-\gamma \rangle$ may be used in its place.
+This tests whether there is local monotonicity in $G(\gamma)$ moving between each Newton iteration.
+This gives a rough indication if we are heading in the right direction.
+However, as this depends heavily on the local behaviour of $G(\gamma)$ it is fallible.
+Both false negatives and false positives are possible.
+
+As there will always be a region around the root where Newton-Raphson is convergent, this algorithm need only be used until such a region has been reached.
+Indeed, given a problem for which it has been shown that alternating Schwarz is everywhere convergent, the unaccelerated method may be used until one is reasonably confident that one is close enough to the root for Newton-Raphson to be convergent, much like the bisection method is used on one-dimensional problems.
+
+\begin{description}
+\item[1.] Select some $\gamma_0 \in \mathbb{R}^N$. Set $n=0$.
+\item[2.] Calculate $G(\gamma_n)$ using steps (1) and (2) from equation (nb:cite) and $G'(\gamma_n)$ using steps (3) and (4).
+Finally, calculate $\tilde{\gamma}$ using step (5).
+\item[3.] Calculate $G(\tilde{\gamma})$ using steps (1) and (2) (this result may be re-used for the next iteration of step 2 of this algorithm).
+If $\sign \langle \tilde{\gamma}-\gamma_n, G(\gamma_n)-\gamma_n \rangle = \sign \langle \tilde{\gamma}-\gamma_n, G(\tilde{\gamma})-\tilde{\gamma} \rangle$ then set $\gamma_{n+1}=\tilde{\gamma}$, increment $n$ and return to step 2.
+If not, calculate $\hat{\gamma}$, the average of $\gamma_n$ and $\tilde{\gamma}$, and proceed to step 4.
+\item[4.] Use steps (1) and (2) to calculate $G(\hat{\gamma})$.
+If $\langle \tilde{\gamma}-\gamma, G(\hat{\gamma})-\hat{\gamma} \rangle$ has the same sign as $\langle \tilde{\gamma}-\gamma, G(\gamma_n) - \gamma_n \rangle$ then set $\gamma_{n+1} = \tilde{\gamma}_n$, increment $n$ and return to step 2.
+If this is not true, set $\gamma_{n+1} = G(\gamma_n)$, increment $n$ and return to step 2.
+\end{description}
+
 \bibliographystyle{plain}
 \bibliography{C:/Users/conmc/Documents/LaTeX/references}
 

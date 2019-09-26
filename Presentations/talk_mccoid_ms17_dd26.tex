@@ -1,0 +1,72 @@
+%%%%%%% DO NOT MODIFY UNTIL after \fi (line 38) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ifx\justbeingincluded\undefined
+\documentclass{article}
+%\usepackage{epic,curves,amsmath,amssymb}
+\usepackage{multirow}
+%\usepackage[pdftex]{colortbl}
+\usepackage[pdftex,colorlinks]{hyperref}
+\usepackage[pdftex]{graphicx}
+
+\def\myAbstract#1{
+{\vspace{0.2cm}\flushleft\sffamily\bfseries\Large Abstract\vspace{0.2cm}}
+\\
+#1}
+
+\def\myTalk#1{
+\section*{#1}
+}
+
+\def\myMini#1{
+{\flushleft\sffamily\bfseries\LARGE #1\vspace{1cm}}
+}
+
+\def\myAuthor#1#2#3#4{
+{\noindent #1 #2$^*$ \index{#2@#2, #1} \\ #3 \\ #4 \\}}
+
+\def\myCoauthor#1#2#3#4{
+{\noindent #1 #2 \index{#2@#2, #1} \\ #3 \\ #4 \\}}
+
+\def\myOrganizer#1#2#3#4{
+{\noindent #1 #2 \index{#2@#2, #1} \\ #3 \\ #4 \\}}
+
+
+\def\myLoc#1 {{\flushleft{\bf Chairman:   #1 \\}}}
+
+\def\myItem#1#2{\item #1\\ #2}
+
+\begin{document}
+\fi
+%%%%%%% DO NOT MODIFY ABOVE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\myTalk{Minisymposium MS17: Cycles in Newton-Raphson-accelerated Alternating Schwarz}% insert talk/minisymposium title here
+
+% replace # above with your MS number
+
+\myAuthor{Conor}{McCoid} %presenting author
+{Section de Math\'{e}matiques, Universit\'{e} de Gen\`{e}ve}
+{conor.mccoid@unige.ch}
+
+\myCoauthor{Martin J.}{Gander}
+{Section de Math\'{e}matiques, Universit\'{e} de Gen\`{e}ve}
+{martin.gander@unige.ch}
+
+
+\myAbstract{
+% type your abstract here
+Newton-Raphson may be used to accelerate Schwarz methods.
+While this can speed up convergence, it can also cause the methods to exhibit problems particular to Newton-Raphson.
+This talk explores several examples where acceleration of alternating Schwarz by Newton-Raphson leads to period doubling cycles.
+We also examine the sufficient conditions for convergence and how these might be used to create more robust algorithms.
+}
+
+\vskip .5 in
+\noindent *Speaker
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% DO NOT MODIFY BELOW
+\ifx\justbeingincluded\undefined
+\end{document}
+\fi

@@ -4,41 +4,36 @@ function M=InterfaceMatrix(Na,Ta,Nb,Tb)
 %   and Tb with associated nodal coordinates in Na and Nb and
 %   computes the interface projection matrix M
 
-% bl and bil need to be changed so that the first pair of triangles has an
-% intersection - this seems like a real crutch
-% replacing the new meshes in example with those from Jeronimo requires bl
-% to be 15 (or so?)
-
-bl =1;                           % bl: list of triangles of Tb to treat
-bil=1;                           % bil: list of triangles Ta to start with
-bd=zeros(size(Tb,1)+1,1);        % bd: flag for triangles in Tb treated 
-bd(end)=1;                       % guard, to treat boundaries
-bd(1)=1;                         % mark first triangle in b list.
+bl=[1];                        % bl: list of triangles of Tb to treat
+bil=[1];                       % bil: list of triangles Ta to start with
+bd=zeros(size(Tb,1)+1,1);      % bd: flag for triangles in Tb treated 
+bd(end)=1;                     % guard, to treat boundaries
+bd(1)=1;                       % mark first triangle in b list.
 M=sparse(size(Nb,2),size(Na,2));
-while isempty(bl)~=1
-    bc=bl(1); bl=bl(2:end);      % bc: current triangle of Tb 
-    al=bil(1); bil=bil(2:end);   % triangle of Ta to start with
-    ad=zeros(size(Ta,1)+1,1);    % same as for bd
-    ad(end)=1;
-    ad(al)=1;
-    n=[0 0 0];                   % triangles intersecting with neighbors
-    while ~isempty(al)
-        ac=al(1); al=al(2:end);  % take next candidate
-        [P,nc,Mc]=Intersect(Nb(:,Tb(bc,1:3)),Na(:,Ta(ac,1:3)));
-        if ~isempty(P)           % intersection found
-            M(Tb(bc,1:3),Ta(ac,1:3))=M(Tb(bc,1:3),Ta(ac,1:3))+Mc;
-            t=Ta(ac,3+find(ad(Ta(ac,4:6))==0)); 
-            al=[al t];           % add neighbors 
-            ad(t)=1;
-            n(nc>0)=ac;          % ac is starting candidate for neighbor  
-        end
+while length(bl)>0
+  bc=bl(1); bl=bl(2:end);      % bc: current triangle of Tb 
+  al=bil(1); bil=bil(2:end);   % triangle of Ta to start with
+  ad=zeros(size(Ta,1)+1,1);    % same as for bd
+  ad(end)=1;
+  ad(al)=1; 
+  n=[0 0 0];                   % triangles intersecting with neighbors
+  while length(al)>0
+    ac=al(1); al=al(2:end);    % take next candidate
+    [P,nc,Mc]=Intersect(Nb(:,Tb(bc,1:3)),Na(:,Ta(ac,1:3)));
+    if ~isempty(P)             % intersection found
+      M(Tb(bc,1:3),Ta(ac,1:3))=M(Tb(bc,1:3),Ta(ac,1:3))+Mc;
+      t=Ta(ac,3+find(ad(Ta(ac,4:6))==0)); 
+      al=[al t];               % add neighbors 
+      ad(t)=1;
+      n(find(nc>0))=ac;        % ac is starting candidate for neighbor  
     end
-    tmp=find(bd(Tb(bc,4:6))==0); % find non-treated neighbors
-    idx=find(n(tmp)>0);          % take those which intersect
-    t=Tb(bc,3+tmp(idx));
-    bl=[bl t];                   % and add them
-    bil=[bil n(tmp(idx))];       % with starting candidates Ta
-    bd(t)=1;
+  end
+  tmp=find(bd(Tb(bc,4:6))==0); % find non-treated neighbors
+  idx=find(n(tmp)>0);          % take those which intersect
+  t=Tb(bc,3+tmp(idx));
+  bl=[bl t];                   % and add them
+  bil=[bil n(tmp(idx))];       % with starting candidates Ta
+  bd(t)=1;
 end
 end
 
@@ -52,139 +47,42 @@ function [P,n,M]=Intersect(X,Y)
 %   element Y. The numerical challenges are handled by including
 %   points on the boundary and removing duplicates at the end.
 
-[P,Q,R,n] = Geometry(X,Y);
-% plot(P(1,:),P(2,:),'k^',Q(1,:),Q(2,:),'rx',R(1,:),R(2,:),'bo')
-% triX = [ X , X(:,1)];
-% triY = [ Y , Y(:,1)];
-% hold on
-% plot(triX(1,:),triX(2,:),'-',triY(1,:),triY(2,:),'-')
-% hold off
-% pause
-if size(P,2)>1                         % if two or more interior points
-    n=[1,1,1];                         % the triangle is candidate for all
-end                                    % neighbors
-P=[P Q R];
-
-P=SortAndRemoveDoubles(P);             % sort counter clock wise
+[P,n]=EdgeIntersections(X,Y);
+P1=PointsOfXInY(X,Y);
+if size(P1,2)>1                      % if two or more interior points
+  n=[1 1 1];                         % the triangle is candidate for all 
+end                                  % neighbors
+P=[P P1];
+P=[P PointsOfXInY(Y,X)];
+P=SortAndRemoveDoubles(P);           % sort counter clock wise
 M=zeros(3,3);
 if size(P,2)>0
-    for j=2:size(P,2)-1                % compute interface matrix
-        M=M+MortarInt(P(:,[1 j j+1]),X,Y);
-    end
-    patch(P(1,:),P(2,:),'m')           % draw intersection for illustration
+  for j=2:size(P,2)-1                % compute interface matrix
+    M=M+MortarInt(P(:,[1 j j+1]),X,Y);
+  end
+  patch(P(1,:),P(2,:),'m')           % draw intersection for illustration
 %  H=line([P(1,:) P(1,1)],[P(2,:),P(2,1)]);
 %  set(H,'LineWidth',3,'Color','m');
-    pause(0)
+  pause(0)
 end
 end
 
-function [P,Q,R,n] = Geometry(X,Y)
-% GEOMETRY figures out the intersection of the triangles X and Y. It does
-% so by first putting all variables in terms of two of the lines of the
-% triangle Y, decides if the points of X lie within or outside Y, then
-% calculates the intersections of the lines of X with those of Y and again
-% deciding if they are inside or outside Y.
+function P=PointsOfXInY(X,Y)
+% POINTSOFXINY finds corners of one triangle within another one
+%   P=PointsOfXInY(X,Y); computes for the two given triangles X
+%   and Y (point coordinates are stored column-wise, in counter clock
+%   order) the corners P of X which lie in the interior of Y.
 
-ind=[0,0,0];
-v0=Y(:,2)-Y(:,1);  % vector between y1 and y2
-v1=Y(:,3)-Y(:,1);  % vector between y1 and y3
-d00=v0'*v0;        % norm of v0
-d01=v0'*v1;
-d11=v1'*v1;        % norm of v1
-id =d00*d11 - d01*d01; % this value is used to normalize quantities
-
-%---Interior points---%
-U = zeros(2,3);
+k=0;P=[];
+v0=Y(:,2)-Y(:,1); v1=Y(:,3)-Y(:,1);  % find interior points of X in Y
+d00=v0'*v0; d01=v0'*v1; d11=v1'*v1;  % using baricentric coordinates
+id=1/(d00*d11-d01*d01);
 for i=1:3 
-    r=X(:,i)-Y(:,1); % vector between ith vertex of triangle X and y1
-    d02=v0'*r;       % projection of v2 in v0 direction
-    d12=v1'*r;       % projection of v2 in v1 direction
-    U(1,i)=(d11*d02-d01*d12)/id;  % amount of v2 in v0 direction
-    U(2,i)=(d00*d12-d01*d02)/id;  % amount of v2 in v1 direction
-    % v2 = u*v0 + v*v1
-    % if u and v are positive and their sum less than 1 then v2 points
-    % inside the simplex created by the vectors v0 and v1
-    if U(1,i)>=0 && U(2,i)>=0 && sum(U(:,i))<=1            % also include nodes on the boundary
-        ind(i) = 1;
-    end
-end
-P = X(:,ind==1);
-
-%---Intersections---%
-if nargout>1
-    ind = zeros(1,9);
-    Q = zeros(2,9);
-    n = [0,0,0];
-    indR = n;
-    for i=1:3
-        x1=U(1,i);
-        x2=U(2,i);
-        y1=U(1,mod(i,3)+1);
-        y2=U(2,mod(i,3)+1);
-        
-        % with v1
-        if sign(x1)~=sign(y1)       % check if intersection occurs
-            y0 = y2 - y1*(x2-y2)/(x1-y1);
-            if y0>=0 && y0<=1
-                Q(:,i) = Y(:,1) + y0*v1;
-                ind(i) = 1;
-                n(i) = 1;
-            end
-            if exist('y0old','var') % check if Y is interior to X
-                if sign(y0old)~=sign(y0)
-                    indR(1) = 1;
-                end
-                if sign(y0old-1)~=sign(y0-1)
-                    indR(3) = 1;
-                end
-            end
-            y0old = y0;
-        end
-        
-        % with v0
-        if sign(x2)~=sign(y2)
-            x0 = y1 - y2*(x1-y1)/(x2-y2);
-            if x0>=0 && x0<=1
-                Q(:,3+i) = Y(:,1) + x0*v0;
-                ind(3+i) = 1;
-                n(i) = 1;
-            end
-            if exist('x0old','var') % check if Y is interior to X
-                if sign(x0old)~=sign(x0)
-                    indR(1) = 1;
-                end
-                if sign(x0old-1)~=sign(x0-1)
-                    indR(2) = 1;
-                end
-            end
-            x0old = x0;
-        end
-        
-        % with the line connecting v0 and v1
-        if sign(x1+x2-1)~=sign(y1+y2-1)
-            x = ( (x1-y1) + y1*(x2-y2) - y2*(x1-y1) )/( (x1-y1) + (x2-y2) );
-            y = ( (x2-y2) + y2*(x1-y1) - y1*(x2-y2) )/( (x1-y1) + (x2-y2) );
-            if x*y>=0
-                Q(:,6+i) = Y(:,1) + x*v0 + y*v1;
-                ind(6+i) = 1;
-                n(i) = 1;
-            end
-            % new addition meant to increase robustness when nonzero
-            % vertices of reference triangle may be excluded wrongly
-            if exist('xold','var') && exist('yold','var')
-                if sign(y-x-1)~=sign(yold-xold-1)
-                    indR(3) = 1;
-                end
-                if sign(y-x+1)~=sign(yold-xold+1)
-                    indR(2) = 1;
-                end
-            end
-            xold = x; yold = y;
-        end
-
-    end
-    Q = Q(:,ind==1);  % the intersections
-    R = Y(:,indR==1); % the points of Y that are inside X
+  v2=X(:,i)-Y(:,1); d02=v0'*v2; d12=v1'*v2; 
+  u=(d11*d02-d01*d12)*id; v=(d00*d12-d01*d02)*id;
+  if u>=0 && v>=0 && u+v<=1            % also include nodes on the boundary
+    k=k+1; P(:,k)=X(:,i);
+  end
 end
 end
 
@@ -196,56 +94,20 @@ function [P,n]=EdgeIntersections(X,Y)
 %   in n the indices of which neighbors of X are also intersecting
 %   with Y are given.
 
-P=[];
-k=0;
-n=[0 0 0];
+P=[]; k=0; n=[0 0 0];
 for i=1:3                            % find all intersections of edges
-    for j=1:3
-        b=Y(:,j)-X(:,i);               
-        A=[ X(:,mod(i,3)+1) - X(:,i), -Y(:,mod(j,3)+1) + Y(:,j) ];
-        if rank(A)==2                   % edges not parallel
-            r=A\b;
-            if r(1)>=0 && r(1)<=1 && r(2)>=0 && r(2)<=1  % intersection found
-                k=k+1;
-                P(:,k)=X(:,i) + r(1)*( X(:,mod(i,3)+1) - X(:,i) );
-                n(i)=1;
-            end
-        end
-    end
+  for j=1:3
+     b=Y(:,j)-X(:,i);               
+     A=[X(:,mod(i,3)+1)-X(:,i) -Y(:,mod(j,3)+1)+Y(:,j)];
+     if rank(A)==2                   % edges not parallel
+       r=A\b;
+       if r(1)>=0 && r(1)<=1 && r(2)>=0 && r(2)<=1  % intersection found
+         k=k+1; P(:,k)=X(:,i)+r(1)*(X(:,mod(i,3)+1)-X(:,i)); n(i)=1;
+       end
+     end
+  end
 end
 end
-
-function P=PointsOfXInY(X,Y)
-% POINTSOFXINY finds corners of one triangle within another one
-%   P=PointsOfXInY(X,Y); computes for the two given triangles X
-%   and Y (point coordinates are stored column-wise, in counter clock
-%   order) the corners P of X which lie in the interior of Y.
-
-ind=[0,0,0];
-v0=Y(:,2)-Y(:,1);  % vector between y1 and y2
-v1=Y(:,3)-Y(:,1);  % vector between y1 and y3
-d00=v0'*v0;        % norm of v0
-d01=v0'*v1;
-d11=v1'*v1;        % norm of v1
-id =d00*d11 - d01*d01; % this value is used to normalize quantities
-for i=1:3 
-    v2=X(:,i)-Y(:,1); % vector between ith vertex of triangle X and y1
-    d02=v0'*v2;       % projection of v2 in v0 direction
-    d12=v1'*v2;       % projection of v2 in v1 direction
-    u=(d11*d02-d01*d12)/id;  % amount of v2 in v0 direction
-    v=(d00*d12-d01*d02)/id;  % amount of v2 in v1 direction
-    % v2 = u*v0 + v*v1
-    % if u and v are positive and their sum less than 1 then v2 points
-    % inside the simplex created by the vectors v0 and v1
-    if u>=0 && v>=0 && u+v<=1            % also include nodes on the boundary
-        ind(i) = 1;
-    end
-end
-P = X(:,ind==1);
-end
-
-% nb: one should hold off on dividing by id for as long as possible, as it
-% may be that u or v is equal to 1
 
 function P=SortAndRemoveDoubles(P)
 % SORTANDREMOVEDOUBLES sort points and remove duplicates
@@ -255,22 +117,21 @@ function P=SortAndRemoveDoubles(P)
 ep=10*eps;                           % tolerance for identical nodes
 m=size(P,2); 
 if m>0                              
-    c=sum(P,2)/m;                      % order polygon corners counter 
-    ao=zeros(1,m);
-    for i=1:m                          % clockwise
-        d=P(:,i)-c; ao(i)=angle(d(1)+1i*d(2));
+  c=sum(P')'/m;                      % order polygon corners counter 
+  for i=1:m                          % clockwise
+    d=P(:,i)-c; ao(i)=angle(d(1)+sqrt(-1)*d(2));
+  end
+  [tmp,id]=sort(ao); 
+  P=P(:,id);
+  i=1;j=2;                           % remove duplicates
+  while j<=m
+    if norm(P(:,i)-P(:,j))>ep
+      i=i+1;P(:,i)=P(:,j);j=j+1;
+    else
+      j=j+1;
     end
-    [~,id]=sort(ao); 
-    P=P(:,id);
-    i=1;j=2;                           % remove duplicates
-    while j<=m
-        if norm(P(:,i)-P(:,j))>ep
-            i=i+1;P(:,i)=P(:,j);j=j+1;
-        else
-            j=j+1;
-        end
-    end
-    P=P(:,1:i);
+  end
+  P=P(:,1:i);
 end
 end
 

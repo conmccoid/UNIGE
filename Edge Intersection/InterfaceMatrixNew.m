@@ -112,80 +112,71 @@ P = X(:,ind==1);
 
 %---Intersections---%
 if nargout>1
-    ind = zeros(1,9);
-    Q = zeros(2,9);
+    Q = [];
     n = [0,0,0];
-    indR = n;
-    for i=1:3
-        x1=U(1,i);
-        x2=U(2,i);
-        y1=U(1,mod(i,3)+1);
-        y2=U(2,mod(i,3)+1);
-        
-        % with v1
-        if sign(x1)~=sign(y1)       % check if intersection occurs
-            y0 = y2 - y1*(x2-y2)/(x1-y1);
-            if y0>=0 && y0<=1
-                Q(:,i) = Y(:,1) + y0*v1;
-                ind(i) = 1;
-                n(i) = 1;
-            end
-            if exist('y0old','var') % check if Y is interior to X
-                if sign(y0old)~=sign(y0)
-                    indR(1) = 1;
-                end
-                if sign(y0old-1)~=sign(y0-1)
-                    indR(3) = 1;
-                end
-            end
-            y0old = y0;
-        end
-        
-        % with v0
-        if sign(x2)~=sign(y2)
-            x0 = y1 - y2*(x1-y1)/(x2-y2);
-            if x0>=0 && x0<=1
-                Q(:,3+i) = Y(:,1) + x0*v0;
-                ind(3+i) = 1;
-                n(i) = 1;
-            end
-            if exist('x0old','var') % check if Y is interior to X
-                if sign(x0old)~=sign(x0)
-                    indR(1) = 1;
-                end
-                if sign(x0old-1)~=sign(x0-1)
-                    indR(2) = 1;
-                end
-            end
-            x0old = x0;
-        end
-        
-        % with the line connecting v0 and v1
-        if sign(x1+x2-1)~=sign(y1+y2-1)
-            x = ( (x1-y1) + y1*(x2-y2) - y2*(x1-y1) )/( (x1-y1) + (x2-y2) );
-            y = ( (x2-y2) + y2*(x1-y1) - y1*(x2-y2) )/( (x1-y1) + (x2-y2) );
-            if x*y>=0
-                Q(:,6+i) = Y(:,1) + x*v0 + y*v1;
-                ind(6+i) = 1;
-                n(i) = 1;
-            end
-            % new addition meant to increase robustness when nonzero
-            % vertices of reference triangle may be excluded wrongly
-            if exist('xold','var') && exist('yold','var')
-                if sign(y-x-1)~=sign(yold-xold-1)
-                    indR(3) = 1;
-                end
-                if sign(y-x+1)~=sign(yold-xold+1)
-                    indR(2) = 1;
-                end
-            end
-            xold = x; yold = y;
-        end
-
-    end
-    Q = Q(:,ind==1);  % the intersections
-    R = Y(:,indR==1); % the points of Y that are inside X
+    indR = n; % 1-(0,0); 2-(1,0); 3-(0,1)
+    
+    % with v0
+    Param1 = @(x,y) y; Param2 = @(x,y) x;
+    Retrieve = @(q) [q;0];
+    [Qtemp,ntemp,indRtemp] = EdgeIntersect(U,Param1,Param2,Retrieve,1,2);
+    Q = [ Q, Qtemp ];
+    n = max(n,ntemp); indR = max(indR,indRtemp);
+    
+    % with v1
+    Param1 = @(x,y) x; Param2 = @(x,y) y;
+    Retrieve = @(q) [0;q];
+    [Qtemp,ntemp,indRtemp] = EdgeIntersect(U,Param1,Param2,Retrieve,1,3);
+    Q = [ Q, Qtemp ];
+    n = max(n,ntemp); indR = max(indR,indRtemp);
+    
+    % with the line connecting v1 and v0
+    Param1 = @(x,y) 1-x-y; Param2 = @(x,y) 0.5*(1-x+y);
+    Retrieve = @(q) [1-q;q];
+    [Qtemp,ntemp,indRtemp] = EdgeIntersect(U,Param1,Param2,Retrieve,2,3);
+    Q = [ Q, Qtemp ];
+    n = max(n,ntemp); indR = max(indR,indRtemp);
+    
+    Q = Y(:,1) + [v0,v1]*Q;
+    R = Y(:,indR==1);
 end
+end
+
+function [Q,ind,indR]=EdgeIntersect(U,Param1,Param2,Retrieve,R1,R2)
+% EdgeIntersect computes the intersection of an edge of triangle U with the
+%   reference triangle. The specific reference line intersected is defined
+%   by Param1, a function which is either x, y or 1-x-y. The reference line
+%   in question is then the line where Param1 is zero.
+%   Param2 is a function that defines a line orthogonal to the reference
+%   line where the edge of the reference triangle lies between Param2=0 and
+%   1.
+%   Retrieve is a function detailing how to retrieve the Cartesian
+%   coordinates (in the reference frame) of the intersection (0,q0).
+%   R1 and R2 are the indices of the vertices of Y that may or may not lie
+%   in X depending on the results of this function.
+Q = zeros(2,3); ind = zeros(1,3); indR = ind;
+for i = 1:3
+    j = mod(i,3) + 1;
+    pi=Param1(U(1,i),U(2,i)); pj=Param1(U(1,j),U(2,j));
+    if sign(pi) ~= sign(pj)
+        qi=Param2(U(1,i),U(2,i)); qj=Param2(U(1,j),U(2,j));
+        q0=((qi+qj)*(pj-pi) - (qj-qi)*(pi+pj))/(2*(pj-pi));
+        if q0>=0 && q0<=1
+            Q(:,i) = Retrieve(q0);
+            ind(i) = 1;
+        end
+        if exist('qold','var')
+            if sign(qold)~=sign(q0)
+                indR(R1) = 1;
+            end
+            if sign(qold-1)~=sign(q0-1)
+                indR(R2) = 1;
+            end
+        end
+        qold = q0;
+    end
+end
+Q = Q(:,ind==1);
 end
 
 function P=SortAndRemoveDoubles(P)

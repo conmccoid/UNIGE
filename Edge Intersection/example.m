@@ -18,7 +18,7 @@ set(fig,'DoubleBuffer','on');
 PlotMesh(N1,T1,'b');
 PlotMesh(N2,T2,'r');
 
-M = InterfaceMatrix(N1,T1,N2,T2);
+M = InterfaceMatrixNew(N1,T1,N2,T2);
 
 %%
 tic

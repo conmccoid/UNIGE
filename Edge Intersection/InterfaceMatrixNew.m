@@ -112,48 +112,45 @@ P = X(:,ind==1);
 
 %---Intersections---%
 if nargout>1
-    Q = [];
+    Q = zeros(2,9);
+    indQ = zeros(1,9);
     n = [0,0,0];
     indR = n; % 1-(0,0); 2-(1,0); 3-(0,1)
     
-    % with v0
-    Param1 = @(x,y) y; Param2 = @(x,y) x;
-    Retrieve = @(q) [q;0];
-    [Qtemp,ntemp,indRtemp] = EdgeIntersect(U,Param1,Param2,Retrieve,1,2);
-    Q = [ Q, Qtemp ];
-    n = max(n,ntemp); indR = max(indR,indRtemp);
+    for i=1:3
+        [Qtemp,ntemp,indRtemp] = EdgeIntersect(U,i);
+        ind = (1:3) + 3*(i-1);
+        Q(:,ind) = Qtemp;
+        indQ(ind)= ntemp;
+        n = max(n,ntemp);
+        indR = max(indR,indRtemp);
+    end
     
-    % with v1
-    Param1 = @(x,y) x; Param2 = @(x,y) y;
-    Retrieve = @(q) [0;q];
-    [Qtemp,ntemp,indRtemp] = EdgeIntersect(U,Param1,Param2,Retrieve,1,3);
-    Q = [ Q, Qtemp ];
-    n = max(n,ntemp); indR = max(indR,indRtemp);
-    
-    % with the line connecting v1 and v0
-    Param1 = @(x,y) 1-x-y; Param2 = @(x,y) 0.5*(1-x+y);
-    Retrieve = @(q) [1-q;q];
-    [Qtemp,ntemp,indRtemp] = EdgeIntersect(U,Param1,Param2,Retrieve,2,3);
-    Q = [ Q, Qtemp ];
-    n = max(n,ntemp); indR = max(indR,indRtemp);
-    
-    Q = Y(:,1) + [v0,v1]*Q;
+    Q = Y(:,1) + [v0,v1]*Q(:,indQ==1);
     R = Y(:,indR==1);
 end
 end
 
-function [Q,ind,indR]=EdgeIntersect(U,Param1,Param2,Retrieve,R1,R2)
+function [Q,ind,indR]=EdgeIntersect(U,edge)
 % EdgeIntersect computes the intersection of an edge of triangle U with the
 %   reference triangle. The specific reference line intersected is defined
-%   by Param1, a function which is either x, y or 1-x-y. The reference line
-%   in question is then the line where Param1 is zero.
-%   Param2 is a function that defines a line orthogonal to the reference
-%   line where the edge of the reference triangle lies between Param2=0 and
-%   1.
-%   Retrieve is a function detailing how to retrieve the Cartesian
-%   coordinates (in the reference frame) of the intersection (0,q0).
-%   R1 and R2 are the indices of the vertices of Y that may or may not lie
-%   in X depending on the results of this function.
+%   by edge.
+
+% Particulars for each edge of reference triangle
+if edge==1 % v0
+    Param1 = @(x,y) y; Param2 = @(x,y) x;
+    Retrieve = @(q) [q;0];
+    R1 = 1; R2 = 2;
+elseif edge==2 % v1
+    Param1 = @(x,y) x; Param2 = @(x,y) y;
+    Retrieve = @(q) [0;q];
+    R1 = 1; R2 = 3;
+elseif edge==3 % line connecting v0 and v1
+    Param1 = @(x,y) 1-x-y; Param2 = @(x,y) 0.5*(1-x+y);
+    Retrieve = @(q) [1-q;q];
+    R1 = 2; R2 = 3;
+end
+
 Q = zeros(2,3); ind = zeros(1,3); indR = ind;
 for i = 1:3
     j = mod(i,3) + 1;
@@ -176,7 +173,6 @@ for i = 1:3
         qold = q0;
     end
 end
-Q = Q(:,ind==1);
 end
 
 function P=SortAndRemoveDoubles(P)
